@@ -21,24 +21,24 @@
 // http://www.github.com/jcii/machete/
 // 
 #endregion
+
 using System;
-using System.Text;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
+using Machete.Data.Infrastructure;
+using Machete.Service;
+using Machete.Web.Controllers;
+using Machete.Web.Helpers;
+using Machete.Web.ViewModel;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Machete.Data;
-using Machete.Service;
-using Machete.Data.Infrastructure;
-using Machete.Web.Controllers;
-using System.Web.Mvc;
-using Machete.Domain;
-using Machete.Test;
-using Machete.Web.ViewModel;
-using Machete.Web.Helpers;
-using AutoMapper;
+using ViewModel = Machete.Web.ViewModel;
 
-namespace Machete.Test.Unit.Controller
+namespace Machete.Test.UnitTests.Controllers
 {
     /// <summary>
     /// Summary description for WorkAssignmentControllerUnitTests
@@ -71,8 +71,11 @@ namespace Machete.Test.Unit.Controller
             _ctrlr = new WorkAssignmentController(waServ.Object, woServ.Object, wsiServ.Object, def.Object, map.Object);
             _view = new WorkAssignmentIndex();
             _ctrlr.SetFakeControllerContext();
-            fakeform = new FormCollection();
-            fakeform.Add("ID", "12345");
+            
+            var fakeFormValues = new Dictionary<string, StringValues>();
+            fakeFormValues.Add("ID", "12345");
+            
+            fakeform = new FormCollection(fakeFormValues);
         }
         //
         //   Testing /Index functionality
@@ -106,19 +109,21 @@ namespace Machete.Test.Unit.Controller
         }
 
         [TestMethod, TestCategory(TC.UT), TestCategory(TC.Controller), TestCategory(TC.WAs)]
-        public void create_valid_post_returns_json()
+        public async Task create_valid_post_returns_json()
         {
             //Arrange            
             var vmwo = new Machete.Web.ViewModel.WorkAssignment();
             map.Setup(x => x.Map<Domain.WorkAssignment, Machete.Web.ViewModel.WorkAssignment>(It.IsAny<Domain.WorkAssignment>()))
                 .Returns(vmwo);
             Domain.WorkAssignment _asmt = new Domain.WorkAssignment();
-            fakeform.Add("ID", "11");
-            fakeform.Add("englishlevelID", "0");
-            fakeform.Add("skillID", "60");
-            fakeform.Add("hours", "5");
-            fakeform.Add("hourlyWage", "12");
-            fakeform.Add("days", "1");
+
+            // the form is now immutable. we will need another way to provide these test values, possibly from the constructor.            
+//            fakeform.Add("ID", "11");
+//            fakeform.Add("englishlevelID", "0");
+//            fakeform.Add("skillID", "60");
+//            fakeform.Add("hours", "5");
+//            fakeform.Add("hourlyWage", "12");
+//            fakeform.Add("days", "1");
             Domain.WorkOrder _wo = new Domain.WorkOrder();
             _wo.paperOrderNum = 12345;
             _wo.ID = 123;
@@ -128,9 +133,9 @@ namespace Machete.Test.Unit.Controller
             woServ.Setup(p => p.Get(_num)).Returns(() => _wo);
             waServ.Setup(p => p.Create(_asmt, username)).Returns(() => _asmt);
             
-            _ctrlr.ValueProvider = fakeform.ToValueProvider();
+            //_ctrlr.ValueProvider = fakeform.ToValueProvider();
             //Act
-            JsonResult result = (JsonResult)_ctrlr.Create(_asmt, username);
+            var result = await _ctrlr.Create(_asmt, username) as JsonResult;
             //Assert
             Assert.IsInstanceOfType(result, typeof(JsonResult));
             //Assert.AreEqual("{ sNewRef = /WorkAssignment/Edit/12345, sNewLabel = Assignment #: 12345-01, iNewID = 12345 }", 
@@ -144,9 +149,9 @@ namespace Machete.Test.Unit.Controller
         {
             //Arrange
             Domain.WorkAssignment _asmt = new Domain.WorkAssignment();
-            fakeform.Add("hours", "invalid data type");
+            //fakeform.Keys.Add("hours", "invalid data type"); //surprise! forms are now immutable
             waServ.Setup(p => p.Create(_asmt, "UnitTest")).Returns(_asmt);
-            _ctrlr.ValueProvider = fakeform.ToValueProvider();
+            //_ctrlr.ValueProvider = fakeform.ToValueProvider();
             //Act
             _ctrlr.Create(_asmt, "UnitTest");
             //Assert
@@ -185,10 +190,11 @@ namespace Machete.Test.Unit.Controller
             int testid = 4243;
             asmt.ID = testid;
             asmt.workerAssignedID = wkr.ID;
-            FormCollection fakeform = new FormCollection();
-            fakeform.Add("ID", testid.ToString());
-            fakeform.Add("hours", "blah");
-            fakeform.Add("comments", "UnitTest");
+            var values = new Dictionary<string, StringValues>();
+            values.Add("ID", testid.ToString());
+            values.Add("hours", "blah");
+            values.Add("comments", "UnitTest");
+            FormCollection fakeform = new FormCollection(values);
             //
             // Mock service and setup SaveWorkAssignment mock
             waServ.Setup(p => p.Save(asmt, "UnitTest"));
@@ -196,7 +202,7 @@ namespace Machete.Test.Unit.Controller
             wkrServ.Setup(p => p.Get((int)asmt.workerAssignedID)).Returns(wkr);
             //
             // Mock HttpContext so that ModelState and FormCollection work
-            _ctrlr.ValueProvider = fakeform.ToValueProvider();
+            //_ctrlr.ValueProvider = fakeform.ToValueProvider();
             //
             //Act
             //_ctrlr.ModelState.AddModelError("TestError", "foo");
@@ -210,16 +216,17 @@ namespace Machete.Test.Unit.Controller
         {
             //Arrange
             int testid = 4242;
-            FormCollection fakeform = new FormCollection();
+            var values = new Dictionary<string, StringValues>();
+            var fakeform = new FormCollection(values);
 
             _ctrlr.SetFakeControllerContext();
-            _ctrlr.ValueProvider = fakeform.ToValueProvider();
+            //_ctrlr.ValueProvider = fakeform.ToValueProvider();
 
             //Act
             var result = _ctrlr.Delete(testid, fakeform, "UnitTest") as JsonResult;
             //Assert
             Assert.AreEqual("{ status = OK, jobSuccess = True, deletedID = 4242 }", 
-                            result.Data.ToString());
+                            result.Value.ToString());
         }
     }
 }

@@ -21,21 +21,24 @@
 // http://www.github.com/jcii/machete/
 // 
 #endregion
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using Machete.Data.Infrastructure;
 using Machete.Domain;
 using Machete.Service;
 using Machete.Web.Controllers;
 using Machete.Web.Helpers;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web.Mvc;
-using System.Web.Routing;
 
-namespace Machete.Test.Unit.Controller
+namespace Machete.Test.UnitTests.Controllers
 {
     /// <summary>
     /// Summary description for WorkOrderControllerUnitTests
@@ -52,7 +55,7 @@ namespace Machete.Test.Unit.Controller
         Mock<IDefaults> def;
         Mock<IMapper> map;
         Mock<IDatabaseFactory> dbfactory;
-        FormCollection fakeform;
+        FormCollection _fakeform;
         List<WorkerRequest> workerRequest;
         WorkOrderController _ctrlr;
         int testid = 4242;
@@ -60,21 +63,24 @@ namespace Machete.Test.Unit.Controller
         [TestInitialize]
         public void TestInitialize()
         {
-            fakeform = new FormCollection();
-            fakeform.Add("ID", testid.ToString());
-            fakeform.Add("workSiteAddress1", "blah");     //Every required field must be populated,
-            fakeform.Add("city", "UnitTest");  //or result will be null.
-            fakeform.Add("state", "WA");
-            fakeform.Add("phone", "123-456-7890");
-            fakeform.Add("zipcode", "12345-6789");
-            fakeform.Add("typeOfWorkID", "1");
-            fakeform.Add("dateTimeofWork", "1/1/2011");
-            fakeform.Add("transportMethodID", "1");
-            fakeform.Add("transportFee", "20.00");
-            fakeform.Add("transportFeeExtra", "8.00");
-            fakeform.Add("status", "43"); // active work order
-            fakeform.Add("contactName", "test script contact name");
-            //fakeform.Add("workerRequests", "30123,301234,30122,12345");
+            var fakeFormValues = new Dictionary<string, StringValues>();
+            fakeFormValues.Add("ID", testid.ToString());
+            fakeFormValues.Add("workSiteAddress1", "blah");     //Every required field must be populated,
+            fakeFormValues.Add("city", "UnitTest");  //or result will be null.
+            fakeFormValues.Add("state", "WA");
+            fakeFormValues.Add("phone", "123-456-7890");
+            fakeFormValues.Add("zipcode", "12345-6789");
+            fakeFormValues.Add("typeOfWorkID", "1");
+            fakeFormValues.Add("dateTimeofWork", "1/1/2011");
+            fakeFormValues.Add("transportMethodID", "1");
+            fakeFormValues.Add("transportFee", "20.00");
+            fakeFormValues.Add("transportFeeExtra", "8.00");
+            fakeFormValues.Add("status", "43"); // active work order
+            fakeFormValues.Add("contactName", "test script contact name");
+            //fakeformValues.Add("workerRequests", "30123,301234,30122,12345");
+            
+            _fakeform = new FormCollection(fakeFormValues);
+            
             serv = new Mock<IWorkOrderService>();
             empServ = new Mock<IEmployerService>();
             waServ = new Mock<IWorkAssignmentService>();
@@ -84,7 +90,7 @@ namespace Machete.Test.Unit.Controller
             map = new Mock<IMapper>();
             workerRequest = new List<WorkerRequest> { };
             dbfactory = new Mock<IDatabaseFactory>();
-            _ctrlr = new WorkOrderController(serv.Object, reqServ.Object, wrServ.Object, def.Object, map.Object);
+            _ctrlr = new WorkOrderController(serv.Object, def.Object, map.Object);
             _ctrlr.SetFakeControllerContext();
             // TODO: Include Lookups in Dependency Injection, remove initialize statements
         }
@@ -115,7 +121,7 @@ namespace Machete.Test.Unit.Controller
         }
 
         [TestMethod, TestCategory(TC.UT), TestCategory(TC.Controller), TestCategory(TC.WorkOrders)]
-        public void create_valid_post_returns_JSON()
+        public async Task create_valid_post_returns_JSON()
         {
             //Arrange
             var workOrder = new WorkOrder();
@@ -124,26 +130,25 @@ namespace Machete.Test.Unit.Controller
             map.Setup(x => x.Map<Domain.WorkOrder, Machete.Web.ViewModel.WorkOrder>(It.IsAny<Domain.WorkOrder>()))
                 .Returns(vmwo);
             serv.Setup(p => p.Create(workOrder, null, "UnitTest", null)).Returns(() => workOrder);
-            _ctrlr.ValueProvider = fakeform.ToValueProvider();
+            //_ctrlr.ValueProvider = _fakeform.ToValueProvider();
             //Act
-            var result = (JsonResult)_ctrlr.Create(workOrder, "UnitTest", workerRequest);
+            var result = await _ctrlr.Create(workOrder, "UnitTest") as JsonResult;
             //Assert
             Assert.IsInstanceOfType(result, typeof(JsonResult));
             //Assert.AreEqual(result.Data.ToString(), "{ sNewRef = /WorkOrder/Edit/4242, sNewLabel = Order #: 04242 @ blah, iNewID = 4242 }");
         }
 
         [TestMethod, TestCategory(TC.UT), TestCategory(TC.Controller), TestCategory(TC.WorkOrders)]
-        [ExpectedException(typeof(InvalidOperationException),
-            "An invalid UpdateModel was inappropriately allowed.")]
-        public void create_post_invalid_throws_exception()
+        [ExpectedException(typeof(InvalidOperationException), "An invalid UpdateModel was inappropriately allowed.")]
+        public async Task create_post_invalid_throws_exception()
         {
             //Arrange
             var workOrder = new WorkOrder();
             serv.Setup(p => p.Create(workOrder, null, "UnitTest", null)).Returns(workOrder);
-            fakeform.Remove("contactName");
-            _ctrlr.ValueProvider = fakeform.ToValueProvider();
+            //_fakeform.Remove("contactName");
+            //_ctrlr.ValueProvider = _fakeform.ToValueProvider();
             //Act
-            _ctrlr.Create(workOrder, "UnitTest", workerRequest);
+            await _ctrlr.Create(workOrder, "UnitTest");
             //Assert
         }
         #endregion
@@ -190,7 +195,7 @@ namespace Machete.Test.Unit.Controller
                                              user = str;
                                          });
             _ctrlr.SetFakeControllerContext();
-            _ctrlr.ValueProvider = fakeform.ToValueProvider();
+            //_ctrlr.ValueProvider = _fakeform.ToValueProvider();
             //Act
             List<WorkerRequest> list = new List<WorkerRequest>();
             list.Add(new WorkerRequest { WorkerID = 12345 });
@@ -198,7 +203,7 @@ namespace Machete.Test.Unit.Controller
             list.Add(new WorkerRequest { WorkerID = 30311 });
             list.Add(new WorkerRequest { WorkerID = 30420 });
             list.Add(new WorkerRequest { WorkerID = 30421 });
-            var result = _ctrlr.Edit(testid, "UnitTest", list) as JsonResult;
+            var result = _ctrlr.Edit(testid, "UnitTest", list);
             //Assert
             //Assert.AreEqual("Index", result.RouteValues["action"]);
             Assert.AreEqual(fakeworkOrder, savedworkOrder);
@@ -232,8 +237,8 @@ namespace Machete.Test.Unit.Controller
             serv.Setup(p => p.Get(testid)).Returns(workOrder);
             //
             // Mock HttpContext so that ModelState and FormCollection work
-            fakeform.Remove("contactName");
-            _ctrlr.ValueProvider = fakeform.ToValueProvider();
+            //_fakeform.Remove("contactName");
+            //_ctrlr.ValueProvider = _fakeform.ToValueProvider();
             //
             //Act
             List<WorkerRequest> list = new List<WorkerRequest>();
@@ -256,7 +261,7 @@ namespace Machete.Test.Unit.Controller
             //Act
             JsonResult result = (JsonResult)_ctrlr.Delete(testid, "test user");
             //Assert
-            IDictionary<string,object> data = new RouteValueDictionary(result.Data);
+            IDictionary<string,object> data = new RouteValueDictionary(result.Value);
             Assert.AreEqual("OK", data["status"]);
             Assert.AreEqual(4242, data["deletedID"]);
             
@@ -269,13 +274,13 @@ namespace Machete.Test.Unit.Controller
         {
             //Arrange
             int testid = 4242;
-            FormCollection fakeform = new FormCollection();
+            //FormCollection fakeform = new FormCollection();
              _ctrlr.SetFakeControllerContext();
-            _ctrlr.ValueProvider = fakeform.ToValueProvider();
+            //_ctrlr.ValueProvider = fakeform.ToValueProvider();
             //Act
             var result = _ctrlr.Delete(testid, "UnitTest") as JsonResult;
             //Assert
-            Assert.AreEqual(result.Data.ToString(), "{ status = OK, deletedID = 4242 }");
+            Assert.AreEqual(result.Value.ToString(), "{ status = OK, deletedID = 4242 }");
         }
         #endregion
     }

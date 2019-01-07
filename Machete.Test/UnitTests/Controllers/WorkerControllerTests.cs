@@ -21,25 +21,22 @@
 // http://www.github.com/jcii/machete/
 // 
 #endregion
-using System;
-using System.Text;
+
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
+using Machete.Data.Infrastructure;
+using Machete.Service;
+using Machete.Web.Controllers;
+using Machete.Web.Helpers;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Machete.Data;
-using Machete.Service;
-using Machete.Data.Infrastructure;
-using Machete.Web.Controllers;
-using System.Web.Mvc;
-using Machete.Domain;
-using Machete.Test;
-using Machete.Web.ViewModel;
-using System.Web;
-using AutoMapper;
-using Machete.Web.Helpers;
+using ViewModel = Machete.Web.ViewModel;
 
-namespace Machete.Test.Unit.Controller
+namespace Machete.Test.UnitTests.Controllers
 {
     [TestClass]
     public class WorkerTests
@@ -51,7 +48,7 @@ namespace Machete.Test.Unit.Controller
         Mock<IDefaults> def;
         Mock<IMapper> map;
         WorkerController _ctrlr;
-        FormCollection fakeform;
+        FormCollection _fakeform;
         [TestInitialize]
         public void TestInitialize()
         {
@@ -63,41 +60,42 @@ namespace Machete.Test.Unit.Controller
             dbfactory = new Mock<IDatabaseFactory>();
             _ctrlr = new WorkerController(_wserv.Object, _pserv.Object, _iserv.Object, def.Object, map.Object);
             _ctrlr.SetFakeControllerContext();
-            fakeform = new FormCollection();
-            fakeform.Add("ID", "12345");
-            fakeform.Add("typeOfWorkID", "1");
-            fakeform.Add("RaceID", "1");
-            fakeform.Add("height", "1");
-            fakeform.Add("weight", "1");
-            fakeform.Add("englishlevelID", "1");
-            fakeform.Add("recentarrival", "true");
-            fakeform.Add("dateinUSA", "1/1/2000");
-            fakeform.Add("dateinseattle", "1/1/2000");
-            fakeform.Add("disabled", "true");
-            fakeform.Add("maritalstatus", "1");
-            fakeform.Add("livewithchildren", "true");
-            fakeform.Add("numofchildren", "1");
-            fakeform.Add("incomeID", "1");
-            fakeform.Add("livealone", "true");
-            fakeform.Add("emcontUSAname", "");
-            fakeform.Add("emcontUSAphone", "");
-            fakeform.Add("emcontUSArelation", "");
-            fakeform.Add("dwccardnum", "12345");
-            fakeform.Add("neighborhoodID", "1");
-            fakeform.Add("immigrantrefugee", "false");
-            fakeform.Add("countryoforiginID", "1");
-            fakeform.Add("emcontoriginname", "");
-            fakeform.Add("emcontoriginphone", "");
-            fakeform.Add("emcontoriginrelation", "");
-            fakeform.Add("memberexpirationdate", "1/1/2000");
-            fakeform.Add("driverslicense", "false");
-            fakeform.Add("licenseexpirationdate", "");
-            fakeform.Add("carinsurance", "false");
-            fakeform.Add("insuranceexpiration", "");
-            fakeform.Add("dateOfBirth", "1/1/2000");
-            fakeform.Add("dateOfMembership", "1/1/2000");
-            //fakeform.Add("", "");
+            var fakeFormValues = new Dictionary<string, StringValues>();
+            fakeFormValues.Add("ID", "12345");
+            fakeFormValues.Add("typeOfWorkID", "1");
+            fakeFormValues.Add("RaceID", "1");
+            fakeFormValues.Add("height", "1");
+            fakeFormValues.Add("weight", "1");
+            fakeFormValues.Add("englishlevelID", "1");
+            fakeFormValues.Add("recentarrival", "true");
+            fakeFormValues.Add("dateinUSA", "1/1/2000");
+            fakeFormValues.Add("dateinseattle", "1/1/2000");
+            fakeFormValues.Add("disabled", "true");
+            fakeFormValues.Add("maritalstatus", "1");
+            fakeFormValues.Add("livewithchildren", "true");
+            fakeFormValues.Add("numofchildren", "1");
+            fakeFormValues.Add("incomeID", "1");
+            fakeFormValues.Add("livealone", "true");
+            fakeFormValues.Add("emcontUSAname", "");
+            fakeFormValues.Add("emcontUSAphone", "");
+            fakeFormValues.Add("emcontUSArelation", "");
+            fakeFormValues.Add("dwccardnum", "12345");
+            fakeFormValues.Add("neighborhoodID", "1");
+            fakeFormValues.Add("immigrantrefugee", "false");
+            fakeFormValues.Add("countryoforiginID", "1");
+            fakeFormValues.Add("emcontoriginname", "");
+            fakeFormValues.Add("emcontoriginphone", "");
+            fakeFormValues.Add("emcontoriginrelation", "");
+            fakeFormValues.Add("memberexpirationdate", "1/1/2000");
+            fakeFormValues.Add("driverslicense", "false");
+            fakeFormValues.Add("licenseexpirationdate", "");
+            fakeFormValues.Add("carinsurance", "false");
+            fakeFormValues.Add("insuranceexpiration", "");
+            fakeFormValues.Add("dateOfBirth", "1/1/2000");
+            fakeFormValues.Add("dateOfMembership", "1/1/2000");
             // TODO: Include Lookups in Dependency Injection, remove initialize statements
+            
+            _fakeform = new FormCollection(fakeFormValues);
         }
         //
         //   Testing /Index functionality
@@ -126,25 +124,27 @@ namespace Machete.Test.Unit.Controller
         }
 
         [TestMethod, TestCategory(TC.UT), TestCategory(TC.Controller), TestCategory(TC.Workers)]
-        public void WorkerController_create_post_valid_returns_json()
+        public async Task WorkerController_create_post_valid_returns_json()
         {
             //Arrange
             var w = new Machete.Web.ViewModel.Worker() {
                 ID = 12345
             };
-            map.Setup(x => x.Map<Domain.Worker, Machete.Web.ViewModel.Worker>(It.IsAny<Domain.Worker>()))
+            map.Setup(x => x.Map<Domain.Worker, Web.ViewModel.Worker>(It.IsAny<Domain.Worker>()))
                 .Returns(w);
             var _worker = new Domain.Worker();
             var _person = new Domain.Person();
             //
             _wserv.Setup(p => p.Create(_worker, "UnitTest")).Returns(_worker);
             _pserv.Setup(p => p.Create(_person, "UnitTest")).Returns(_person);
-            _ctrlr.ValueProvider = fakeform.ToValueProvider();
+            //_ctrlr.ValueProvider = _fakeform.ToValueProvider();
             //Act
-            var result = _ctrlr.Create(_worker, "UnitTest", null) as JsonResult;
+            var result = await _ctrlr.Create(_worker, "UnitTest", null) as JsonResult;
+            
+            Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(JsonResult));
             Assert.AreEqual("{ sNewRef = , sNewLabel = , iNewID = 12345, jobSuccess = True }",
-                            result.Data.ToString());
+                            result.Value.ToString());
         }
         // Commented otu because worker form is now (almost) entirely optional
         //[TestMethod, TestCategory(TC.UT), TestCategory(TC.Controller), TestCategory(TC.Workers)]
@@ -170,14 +170,14 @@ namespace Machete.Test.Unit.Controller
         public void edit_get_returns_worker()
         {
             //Arrange
-            var ww = new Machete.Web.ViewModel.Worker();
-            map.Setup(x => x.Map<Domain.Worker, Machete.Web.ViewModel.Worker>(It.IsAny<Domain.Worker>()))
+            var ww = new ViewModel.Worker();
+            map.Setup(x => x.Map<Domain.Worker, ViewModel.Worker>(It.IsAny<Domain.Worker>()))
                 .Returns(ww);
-            var _worker = new Domain.Worker();
+            var worker = new Domain.Worker();
             var _person = new Domain.Person();
             int testid = 4242;
             Domain.Person fakeperson = new Domain.Person();
-            _wserv.Setup(p => p.Get(testid)).Returns(_worker);
+            _wserv.Setup(p => p.Get(testid)).Returns(worker);
             //Act
             var result = (PartialViewResult)_ctrlr.Edit(testid);
             //Assert
@@ -185,12 +185,12 @@ namespace Machete.Test.Unit.Controller
         }
 
         [TestMethod, TestCategory(TC.UT), TestCategory(TC.Controller), TestCategory(TC.Workers)]
-        public void edit_post_valid_updates_model_redirects_to_index()
+        public async Task edit_post_valid_updates_model_redirects_to_index()
         {
             //Arrange
 
             int testid = 4242;
-            Mock<HttpPostedFileBase> image = new Mock<HttpPostedFileBase>();
+//          Mock<HttpPostedFileBase> image = new Mock<HttpPostedFileBase>();
             FormCollection fakeform = _fakeCollection(testid);
 
             Domain.Worker fakeworker = new Domain.Worker();
@@ -210,9 +210,9 @@ namespace Machete.Test.Unit.Controller
                                          });
 
             _ctrlr.SetFakeControllerContext();
-            _ctrlr.ValueProvider = fakeform.ToValueProvider();
+            //_ctrlr.ValueProvider = fakeform.ToValueProvider();
             //Act
-            var result = _ctrlr.Edit(testid, fakeworker, "UnitTest", null) as PartialViewResult;
+            var result = await _ctrlr.Edit(testid, fakeworker, "UnitTest", null) as PartialViewResult;
             //Assert
             //Assert.AreEqual("Index", result.RouteValues["action"]);
             Assert.AreEqual(fakeworker, savedworker);
@@ -222,36 +222,29 @@ namespace Machete.Test.Unit.Controller
 
         private FormCollection _fakeCollection(int id)
         {
-            FormCollection _fc = new FormCollection();
-            _fc.Add("ID", id.ToString());
-            _fc.Add("firstname1", "blah_firstname");
-            //_fc.Add("person.firstname2", "");
-            _fc.Add("lastname1", "unittest");
-            //_fc.Add("person.lastname2", "");
-            //_fc.Add("person.address1", "");
-            //_fc.Add("person.address2", "");
-            //_fc.Add("person.city", "");
-            //_fc.Add("person.state", "");
-            //_fc.Add("person.zipcode", "");
-            //_fc.Add("person.phone", "");
-            _fc.Add("gender", "M");
-            _fc.Add("typeOfWorkID", "1");          
-            _fc.Add("RaceID", "1");     //Every required field must be populated,
-            _fc.Add("height", "UnitTest");  //or result will be null.
-            _fc.Add("weight", "UnitTest");
-            _fc.Add("englishlevelID", "1");
-            _fc.Add("dateinUSA", "1/1/2001");
-            _fc.Add("dateinseattle", "1/1/2001");
-            _fc.Add("dateOfBirth", "1/1/2001");
-            _fc.Add("dateOfMembership", "1/1/2001");
-            _fc.Add("maritalstatus", "1");
-            _fc.Add("numofchildren", "1");
-            _fc.Add("incomeID", "1");
-            _fc.Add("dwccardnum", "12345");
-            _fc.Add("neighborhoodID", "1");
-            _fc.Add("countryoforigin", "1");
-            _fc.Add("memberexpirationdate", "1/1/2002");
-            return _fc;
+            var formCollectionValues = new Dictionary<string, StringValues>();
+            formCollectionValues.Add("ID", id.ToString());
+            formCollectionValues.Add("firstname1", "blah_firstname");
+            formCollectionValues.Add("lastname1", "unittest");
+            formCollectionValues.Add("gender", "M");
+            formCollectionValues.Add("typeOfWorkID", "1");          
+            formCollectionValues.Add("RaceID", "1");     //Every required field must be populated,
+            formCollectionValues.Add("height", "UnitTest");  //or result will be null.
+            formCollectionValues.Add("weight", "UnitTest");
+            formCollectionValues.Add("englishlevelID", "1");
+            formCollectionValues.Add("dateinUSA", "1/1/2001");
+            formCollectionValues.Add("dateinseattle", "1/1/2001");
+            formCollectionValues.Add("dateOfBirth", "1/1/2001");
+            formCollectionValues.Add("dateOfMembership", "1/1/2001");
+            formCollectionValues.Add("maritalstatus", "1");
+            formCollectionValues.Add("numofchildren", "1");
+            formCollectionValues.Add("incomeID", "1");
+            formCollectionValues.Add("dwccardnum", "12345");
+            formCollectionValues.Add("neighborhoodID", "1");
+            formCollectionValues.Add("countryoforigin", "1");
+            formCollectionValues.Add("memberexpirationdate", "1/1/2002");
+            
+            return new FormCollection(formCollectionValues);
         }
         #endregion  
     }

@@ -21,42 +21,45 @@
 // http://www.github.com/jcii/machete/
 // 
 #endregion
+
 using System;
-using System.Web;
-using System.Text.RegularExpressions;
-using System.IO;
 using System.Collections.Specialized;
-using System.Web.Mvc;
-using System.Web.Routing;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Routing;
 using Moq;
 
 namespace Machete.Test
 {
+    // update 2019: this needs to be retired in favor of using the standard dotnet core patterns for testing controllers
+    // but I am hacking it together now for consistency. ~ce
+    //
     // Scott Hanselman's MvcMockHelper. 
     // http://www.hanselman.com/blog/ASPNETMVCSessionAtMix08TDDAndMvcMockHelpers.aspx
     //
     // Used in Machete Controller Unit Tests
     public static class MvcMockHelpers
     {
-        public static HttpContextBase FakeHttpContext()
+        public static HttpContext FakeHttpContext()
         {
-            var context = new Mock<HttpContextBase>();
-            var request = new Mock<HttpRequestBase>();
-            var response = new Mock<HttpResponseBase>();
-            var session = new Mock<HttpSessionStateBase>();
-            var server = new Mock<HttpServerUtilityBase>();
+            var context = new Mock<HttpContext>();
+            var request = new Mock<HttpRequest>();
+            var response = new Mock<HttpResponse>();
+            //var session = new Mock<HttpSessionState>();
+            //var server = new Mock<HttpServerUtilityBase>();
 
             context.Setup(ctx => ctx.Request).Returns(request.Object);
             context.Setup(ctx => ctx.Response).Returns(response.Object);
-            context.Setup(ctx => ctx.Session).Returns(session.Object);
-            context.Setup(ctx => ctx.Server).Returns(server.Object);
+            //context.Setup(ctx => ctx.Session).Returns(session.Object);
+            //context.Setup(ctx => ctx.Server).Returns(server.Object);
 
             return context.Object;
         }
 
-        public static HttpContextBase FakeHttpContext(string url)
+        public static HttpContext FakeHttpContext(string url)
         {
-            HttpContextBase context = FakeHttpContext();
+            HttpContext context = FakeHttpContext();
             context.Request.SetupRequestUrl(url);
             return context;
         }
@@ -64,7 +67,8 @@ namespace Machete.Test
         public static void SetFakeControllerContext(this Controller controller)
         {
             var httpContext = FakeHttpContext();
-            ControllerContext context = new ControllerContext(new RequestContext(httpContext, new RouteData()), controller);
+            var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
+            var context = new ControllerContext(actionContext);
             controller.ControllerContext = context;
         }
 
@@ -99,14 +103,14 @@ namespace Machete.Test
             }
         }
 
-        public static void SetHttpMethodResult(this HttpRequestBase request, string httpMethod)
+        public static void SetHttpMethodResult(this HttpRequest request, string httpMethod)
         {
             Mock.Get(request)
-                .Setup(req => req.HttpMethod)
+                .Setup(req => req.Method)
                 .Returns(httpMethod);
         }
 
-        public static void SetupRequestUrl(this HttpRequestBase request, string url)
+        public static void SetupRequestUrl(this HttpRequest request, string url)
         {
             if (url == null)
                 throw new ArgumentNullException("url");
@@ -116,11 +120,13 @@ namespace Machete.Test
 
             var mock = Mock.Get(request);
 
+            // totally hacked so it would just compile; should not be taken to reflect anything based in reality
+            var queryString = new QueryString(GetQueryStringParameters(url).ToString());
             mock.Setup(req => req.QueryString)
-                .Returns(GetQueryStringParameters(url));
-            mock.Setup(req => req.AppRelativeCurrentExecutionFilePath)
-                .Returns(GetUrlFileName(url));
-            mock.Setup(req => req.PathInfo)
+                .Returns(queryString);
+//            mock.Setup(req => req.AppRelativeCurrentExecutionFilePath)
+//                .Returns(GetUrlFileName(url));
+            mock.Setup(req => req.Path)
                 .Returns(string.Empty);
         }
     }

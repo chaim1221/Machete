@@ -39,7 +39,6 @@ using String = System.String;
 
 namespace Machete.Web.Controllers
 {
-    #region public class ReportsController...
     [ElmahHandleError]
     public class ReportsController : MacheteController
     {
@@ -67,7 +66,6 @@ namespace Machete.Web.Controllers
             CI = Session["Culture"];
         }
 
-    #endregion
         #region Index
 
         [Authorize(Roles = "Administrator, Manager")]

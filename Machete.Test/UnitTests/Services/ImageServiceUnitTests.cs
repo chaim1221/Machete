@@ -1,5 +1,5 @@
 ﻿#region COPYRIGHT
-// File:     PersonServiceUnitTests.cs
+// File:     ImageServiceUnitTests.cs
 // Author:   Savage Learning, LLC.
 // Created:  2012/06/17 
 // License:  GPL v3
@@ -21,30 +21,28 @@
 // http://www.github.com/jcii/machete/
 // 
 #endregion
-using AutoMapper;
+
+using System;
+using System.Collections.Generic;
 using Machete.Data;
 using Machete.Data.Infrastructure;
 using Machete.Domain;
 using Machete.Service;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Collections.Generic;
 
-namespace Machete.Test.Unit.Service
+namespace Machete.Test.UnitTests.Services
 {
     /// <summary>
-    /// Summary description for PersonServiceUnitTests
+    /// Summary description for ImageServiceUnitTests
     /// </summary>
     [TestClass]
-    public class PersonTests
+    public class ImageTests
     {
-        Mock<IPersonRepository> _repo;
+        Mock<IImageRepository> _repo;
         Mock<IUnitOfWork> _uow;
-        Mock<ILookupRepository> _lcache;
-        Mock<IMapper> _map;
-        PersonService _serv;
-        public PersonTests()
+        
+        public ImageTests()
         {
         }
 
@@ -88,105 +86,105 @@ namespace Machete.Test.Unit.Service
         //
         #endregion
 
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            _repo = new Mock<IPersonRepository>();
-            _uow = new Mock<IUnitOfWork>();
-            _lcache = new Mock<ILookupRepository>();
-            _map = new Mock<IMapper>();
-            _serv = new PersonService(_repo.Object, _uow.Object, _lcache.Object, _map.Object);
-        }
-        [TestMethod, TestCategory(TC.UT), TestCategory(TC.Service), TestCategory(TC.Persons)]
-        public void GetPersons_returns_Enumerable()
+        [TestMethod, TestCategory(TC.UT), TestCategory(TC.Service), TestCategory(TC.Images)]
+        public void GetImages_returns_Enumerable()
         {
             //
             //Arrange
+            _repo = new Mock<IImageRepository>();
+            _uow = new Mock<IUnitOfWork>();
+            var _serv = new ImageService(_repo.Object, _uow.Object);
             //Act
             var result = _serv.GetAll();
             //Assert
-            Assert.IsInstanceOfType(result, typeof(IEnumerable<Person>));
-        }
-        [TestMethod, TestCategory(TC.UT), TestCategory(TC.Service), TestCategory(TC.Persons)]
-        public void GetPerson_returns_person()
-        {
-            //
-            //Arrange
-            Person _person = (Person)Records.person.Clone();
-            _person.ID = 3; //This matches Records._person3 ID value
-            _repo.Setup(r => r.GetById(3)).Returns(_person);
-            //Act
-            var result = _serv.Get(3);
-            //Assert
-            Assert.IsInstanceOfType(result, typeof(Person));
-            Assert.IsTrue(result.ID == 3);
+            Assert.IsInstanceOfType(result, typeof(IEnumerable<Image>));
         }
 
-        [TestMethod, TestCategory(TC.UT), TestCategory(TC.Service), TestCategory(TC.Persons)]
-        public void CreatePerson_returns_person()
+        [TestMethod, TestCategory(TC.UT), TestCategory(TC.Service), TestCategory(TC.Images)]
+        public void GetImage_returns_image()
         {
             //
             //Arrange
-            Person _person = (Person)Records.person.Clone(); 
+            _repo = new Mock<IImageRepository>();
+            _uow = new Mock<IUnitOfWork>();
+            int id = 1;
+            Image _img = new Image() {ID = id};
+         
+            _repo.Setup(r => r.GetById(_img.ID)).Returns(_img);
+            var _serv = new ImageService(_repo.Object, _uow.Object);
+            //Act
+            var result = _serv.Get(id);
+            //Assert
+            Assert.IsInstanceOfType(result, typeof(Image));
+            Assert.IsTrue(result.ID == id);
+        }
+
+        [TestMethod, TestCategory(TC.UT), TestCategory(TC.Service), TestCategory(TC.Images)]
+        public void CreateImage_returns_image()
+        {
+            //
+            //Arrange
+            _repo = new Mock<IImageRepository>();
+            _uow = new Mock<IUnitOfWork>();
             string user = "UnitTest";
-
-            _repo.Setup(r => r.Add(_person)).Returns(_person);
+            Image _img = new Image();
+            _img.datecreated = DateTime.MinValue;
+            _img.dateupdated = DateTime.MinValue;
+            _repo.Setup(r => r.Add(_img)).Returns(_img);
+            var _serv = new ImageService(_repo.Object, _uow.Object);
             //
             //Act
-            var result = _serv.Create(_person, user);
+            var result = _serv.Create(_img, user);
             //
             //Assert
-            Assert.IsInstanceOfType(result, typeof(Person));
+            Assert.IsInstanceOfType(result, typeof(Image));
             Assert.IsTrue(result.createdby == user);
             Assert.IsTrue(result.updatedby == user);
             Assert.IsTrue(result.datecreated > DateTime.MinValue);
-            Assert.IsTrue(result.dateupdated >  DateTime.MinValue);
+            Assert.IsTrue(result.dateupdated > DateTime.MinValue);
         }
 
-        [TestMethod, TestCategory(TC.UT), TestCategory(TC.Service), TestCategory(TC.Persons)]
-        public void DeletePerson()
+        [TestMethod, TestCategory(TC.UT), TestCategory(TC.Service), TestCategory(TC.Images)]
+        public void DeleteImage()
         {
             //
             //Arrange
-            Person _p = (Person)Records.person.Clone();
-            _repo = new Mock<IPersonRepository>();
+            _repo = new Mock<IImageRepository>();
             _uow = new Mock<IUnitOfWork>();
-            _lcache = new Mock<ILookupRepository>();
             string user = "UnitTest";
             int id = 1;
-            Person dp = new Person();
-            _repo.Setup(r => r.Delete(It.IsAny<Person>())).Callback((Person p) => { dp = p;  });
-            _repo.Setup(r => r.GetById(id)).Returns(_p);
-            var _serv = new PersonService(_repo.Object, _uow.Object, _lcache.Object, _map.Object);
+            Image di = new Image();
+            Image _rtrn_img = new Image();
+            _repo.Setup(r => r.Delete(It.IsAny<Image>())).Callback((Image p) => { di = p; });
+            _repo.Setup(r => r.GetById(id)).Returns(_rtrn_img);
+            var _serv = new ImageService(_repo.Object, _uow.Object);
             //
             //Act
             _serv.Delete(id, user);
             //
             //Assert
-            Assert.AreEqual(dp, _p);
+            Assert.AreEqual(di, _rtrn_img);
         }
 
-        [TestMethod, TestCategory(TC.UT), TestCategory(TC.Service), TestCategory(TC.Persons)]
-        public void SavePerson_updates_timestamp()
+        [TestMethod, TestCategory(TC.UT), TestCategory(TC.Service), TestCategory(TC.Images)]
+        public void SaveImage_updates_timestamp()
         {
             //
             //Arrange
-            Person _p = (Person)Records.person.Clone();
-            _repo = new Mock<IPersonRepository>();
+            _repo = new Mock<IImageRepository>();
             _uow = new Mock<IUnitOfWork>();
-            _lcache = new Mock<ILookupRepository>();
-            _map = new Mock<IMapper>();
             string user = "UnitTest";
-            _p.datecreated = DateTime.MinValue;
-            _p.dateupdated = DateTime.MinValue;
-            var _serv = new PersonService(_repo.Object, _uow.Object, _lcache.Object, _map.Object);
+            Image _rtrn_img = new Image();
+            _rtrn_img.datecreated = DateTime.MinValue;
+            _rtrn_img.dateupdated = DateTime.MinValue;
+            var _serv = new ImageService(_repo.Object, _uow.Object);
             //
             //Act
-            _serv.Save(_p, user);
+            _serv.Save(_rtrn_img, user);
             //
             //Assert
-            Assert.IsTrue(_p.updatedby == user);
-            Assert.IsTrue(_p.dateupdated > DateTime.MinValue);
+            Assert.IsTrue(_rtrn_img.updatedby == user);
+            Assert.IsTrue(_rtrn_img.dateupdated > DateTime.MinValue);
         }
     }
 }

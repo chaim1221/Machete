@@ -21,19 +21,19 @@
 // http://www.github.com/jcii/machete/
 // 
 #endregion
+
 using System;
-using System.Text;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+using AutoMapper;
 using Machete.Data;
 using Machete.Data.Infrastructure;
-using Machete.Service;
 using Machete.Domain;
-using AutoMapper;
+using Machete.Service;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-namespace Machete.Test.Unit.Service
+namespace Machete.Test.UnitTests.Services
 {
     /// <summary>
     /// Summary description for WorkerSigninServiceUnitTest

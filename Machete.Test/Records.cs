@@ -21,15 +21,12 @@
 // http://www.github.com/jcii/machete/
 // 
 #endregion
+
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Machete.Domain;
-using Machete.Data;
-using System.Collections.ObjectModel;
-using System.Data.Entity;
-using System.Globalization;
+using Microsoft.EntityFrameworkCore;
+using Machete.Data.Initialize;
 
 namespace Machete.Test 
 {
@@ -202,33 +199,33 @@ namespace Machete.Test
             transportTransactID = "#6169"
         };
 
-        public static Machete.Api.ViewModel.WorkOrder onlineOrder = new Api.ViewModel.WorkOrder
-        {
-            workSiteAddress1 = "2400 Main Ave E",
-            workSiteAddress2 = "Apt 207",
-            statusID = 42,
-            city = "Seattle",
-            state = "WA",
-            zipcode = "12345",
-            phone = "123-456-7890",
-            //typeOfWorkID = 20,
-            timeFlexible = true,
-            englishRequired = false,
-           // lunchSupplied = false,
-           // permanentPlacement = false,
-            transportProviderID = 1,
-            transportFee = 20.75,
-            //transportFeeExtra = 0,
-            englishRequiredNote = "",
-            description = "description string",
-            dateTimeofWork = DateTime.Today.ToString("o", CultureInfo.InvariantCulture),
-            datecreated = DateTime.Now.ToString("o", CultureInfo.InvariantCulture),
-            dateupdated = DateTime.Now.ToString("o", CultureInfo.InvariantCulture),       
-            createdby = "initialization script",
-            updatedby = "initialization script",
-            //transportTransactType = 256,
-           // transportTransactID = "#6169"
-        };
+//        public static Machete.Api.ViewModel.WorkOrder onlineOrder = new Api.ViewModel.WorkOrder
+//        {
+//            workSiteAddress1 = "2400 Main Ave E",
+//            workSiteAddress2 = "Apt 207",
+//            statusID = 42,
+//            city = "Seattle",
+//            state = "WA",
+//            zipcode = "12345",
+//            phone = "123-456-7890",
+//            //typeOfWorkID = 20,
+//            timeFlexible = true,
+//            englishRequired = false,
+//           // lunchSupplied = false,
+//           // permanentPlacement = false,
+//            transportProviderID = 1,
+//            transportFee = 20.75,
+//            //transportFeeExtra = 0,
+//            englishRequiredNote = "",
+//            description = "description string",
+//            dateTimeofWork = DateTime.Today.ToString("o", CultureInfo.InvariantCulture),
+//            datecreated = DateTime.Now.ToString("o", CultureInfo.InvariantCulture),
+//            dateupdated = DateTime.Now.ToString("o", CultureInfo.InvariantCulture),       
+//            createdby = "initialization script",
+//            updatedby = "initialization script",
+//            //transportTransactType = 256,
+//           // transportTransactID = "#6169"
+//        };
 
         public static WorkAssignment assignment = new WorkAssignment
         {
