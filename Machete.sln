@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Machete.Web", "Machete.Web\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Machete.Service", "Machete.Service\Machete.Service.csproj", "{506D7B09-A869-4002-A12F-B264F79DFE8B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Machete.Test.Old", "Machete.Test.Old\Machete.Test.Old.csproj", "{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -274,5 +276,63 @@ Global
 		{506D7B09-A869-4002-A12F-B264F79DFE8B}.UAT-test|Any CPU.Build.0 = Debug|Any CPU
 		{506D7B09-A869-4002-A12F-B264F79DFE8B}.Debug-no_nodejs_build|Any CPU.ActiveCfg = Debug|Any CPU
 		{506D7B09-A869-4002-A12F-B264F79DFE8B}.Debug-no_nodejs_build|Any CPU.Build.0 = Debug|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.StageProd|Any CPU.ActiveCfg = StageProd|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.StageProd|Any CPU.Build.0 = StageProd|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.StageTest|Any CPU.ActiveCfg = StageTest|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.StageTest|Any CPU.Build.0 = StageTest|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.CasaLatina|Any CPU.ActiveCfg = CasaLatina|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.CasaLatina|Any CPU.Build.0 = CasaLatina|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Cloud|Any CPU.ActiveCfg = Debug|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Cloud|Any CPU.Build.0 = Debug|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.MacheteTest|Any CPU.ActiveCfg = Debug|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.MacheteTest|Any CPU.Build.0 = Debug|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.WorkersJustice|Any CPU.ActiveCfg = WorkersJustice|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.WorkersJustice|Any CPU.Build.0 = WorkersJustice|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.PortlandVoz|Any CPU.ActiveCfg = PortlandVoz|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.PortlandVoz|Any CPU.Build.0 = PortlandVoz|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Southside|Any CPU.ActiveCfg = Southside|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Southside|Any CPU.Build.0 = Southside|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.DonBosco|Any CPU.ActiveCfg = DonBosco|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.DonBosco|Any CPU.Build.0 = DonBosco|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.CentroHumanitario|Any CPU.ActiveCfg = CentroHumanitario|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.CentroHumanitario|Any CPU.Build.0 = CentroHumanitario|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.SantaCruz|Any CPU.ActiveCfg = SantaCruz|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.SantaCruz|Any CPU.Build.0 = SantaCruz|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.SanFrancisco|Any CPU.ActiveCfg = SanFrancisco|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.SanFrancisco|Any CPU.Build.0 = SanFrancisco|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Pomona|Any CPU.ActiveCfg = Pomona|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Pomona|Any CPU.Build.0 = Pomona|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Pasadena|Any CPU.ActiveCfg = Pasadena|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Pasadena|Any CPU.Build.0 = Pasadena|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Nice|Any CPU.ActiveCfg = Nice|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Nice|Any CPU.Build.0 = Nice|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.MountainView|Any CPU.ActiveCfg = MountainView|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.MountainView|Any CPU.Build.0 = MountainView|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Hayward|Any CPU.ActiveCfg = Hayward|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Hayward|Any CPU.Build.0 = Hayward|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Graton|Any CPU.ActiveCfg = Graton|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Graton|Any CPU.Build.0 = Graton|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.ElCentro|Any CPU.ActiveCfg = ElCentro|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.ElCentro|Any CPU.Build.0 = ElCentro|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Concord|Any CPU.ActiveCfg = Concord|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Concord|Any CPU.Build.0 = Concord|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Congreso|Any CPU.ActiveCfg = Congreso|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Congreso|Any CPU.Build.0 = Congreso|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Alabama|Any CPU.ActiveCfg = Alabama|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Alabama|Any CPU.Build.0 = Alabama|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.WindofSpirit|Any CPU.ActiveCfg = WindofSpirit|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.WindofSpirit|Any CPU.Build.0 = WindofSpirit|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Cel|Any CPU.ActiveCfg = Cel|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Cel|Any CPU.Build.0 = Cel|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.localIIS|Any CPU.ActiveCfg = localIIS|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.localIIS|Any CPU.Build.0 = localIIS|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.UAT-test|Any CPU.ActiveCfg = UAT-test|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.UAT-test|Any CPU.Build.0 = UAT-test|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Debug-no_nodejs_build|Any CPU.ActiveCfg = Debug-no_nodejs_build|Any CPU
+		{E667CB78-E80E-4C45-9BDF-1E5EDA0478D3}.Debug-no_nodejs_build|Any CPU.Build.0 = Debug-no_nodejs_build|Any CPU
 	EndGlobalSection
 EndGlobal
