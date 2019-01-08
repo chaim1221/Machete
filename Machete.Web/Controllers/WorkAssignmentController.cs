@@ -49,11 +49,14 @@ namespace Machete.Web.Controllers
         private readonly IMapper map;
         private readonly IDefaults def;
         private CultureInfo CI;
+        private IModelBindingAdaptor _adaptor;
+
         public WorkAssignmentController(IWorkAssignmentService workAssignmentService,
             IWorkOrderService workOrderService,
             IWorkerSigninService signinService,
             IDefaults def,
-            IMapper map)
+            IMapper map,
+            IModelBindingAdaptor adaptor)
 
         {
             waServ = workAssignmentService;
@@ -61,7 +64,9 @@ namespace Machete.Web.Controllers
             wsiServ = signinService;
             this.map = map;
             this.def = def;
+            _adaptor = adaptor;
         }
+        
         protected override void Initialize(ActionContext requestContext)
         {
             base.Initialize(requestContext);
@@ -120,7 +125,10 @@ namespace Machete.Web.Controllers
         [Authorize(Roles = "Administrator, Manager, PhoneDesk")]
         public async Task<ActionResult> Create(WorkAssignment assignment, string userName)
         {
-            if (await TryUpdateModelAsync(assignment)) {
+            ModelState.ThrowIfInvalid();
+
+            var modelIsValid = await _adaptor.TryUpdateModelAsync(this, assignment);
+            if (modelIsValid) {
                 assignment.workOrder = woServ.Get(assignment.workOrderID);
                 var newAssignment = waServ.Create(assignment, userName);
                 var result = map.Map<WorkAssignment, ViewModel.WorkAssignment>(newAssignment);
@@ -129,7 +137,7 @@ namespace Machete.Web.Controllers
                     sNewLabel = result.tablabel,
                     iNewID = result.ID
                 });
-            } else { return Json(new { status = "Not OK"}); } // TODO Chaim plz
+            } else { return StatusCode(500); }
         }
 
 
@@ -196,6 +204,8 @@ namespace Machete.Web.Controllers
         [Authorize(Roles = "Administrator, Manager, PhoneDesk")]
         public async Task<ActionResult> Edit(int id, int? workerAssignedID, string userName)
         {
+            ModelState.ThrowIfInvalid();
+
             var workAssignment = waServ.Get(id);
             
             // hack, I think the entities might be configured wrong TODO
@@ -206,14 +216,6 @@ namespace Machete.Web.Controllers
                 return Json(new {jobSuccess = true});
             } else { return Json(new { jobSuccess = false }); }
         }
-
-//        //GET: /WorkAssignment/View/5
-//        [Authorize(Roles = "Administrator, Manager, PhoneDesk")]
-//        public ActionResult View(int id)
-//        {
-//            var workAssignment = waServ.Get(id);
-//            return View(workAssignment);
-//        }
 
         //
         // POST: /WorkAssignment/Delete/5
