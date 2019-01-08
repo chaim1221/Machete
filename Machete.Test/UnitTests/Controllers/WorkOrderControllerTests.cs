@@ -91,7 +91,8 @@ namespace Machete.Test.UnitTests.Controllers
             workerRequest = new List<WorkerRequest> { };
             dbfactory = new Mock<IDatabaseFactory>();
             _ctrlr = new WorkOrderController(serv.Object, def.Object, map.Object);
-            _ctrlr.SetFakeControllerContext();
+            
+            //_ctrlr.SetFakeControllerContext();
             // TODO: Include Lookups in Dependency Injection, remove initialize statements
         }
         //
@@ -194,7 +195,7 @@ namespace Machete.Test.UnitTests.Controllers
                                              savedList = wr;
                                              user = str;
                                          });
-            _ctrlr.SetFakeControllerContext();
+            //_ctrlr.SetFakeControllerContext();
             //_ctrlr.ValueProvider = _fakeform.ToValueProvider();
             //Act
             List<WorkerRequest> list = new List<WorkerRequest>();
@@ -275,7 +276,7 @@ namespace Machete.Test.UnitTests.Controllers
             //Arrange
             int testid = 4242;
             //FormCollection fakeform = new FormCollection();
-             _ctrlr.SetFakeControllerContext();
+             //_ctrlr.SetFakeControllerContext();
             //_ctrlr.ValueProvider = fakeform.ToValueProvider();
             //Act
             var result = _ctrlr.Delete(testid, "UnitTest") as JsonResult;

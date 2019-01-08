@@ -49,6 +49,7 @@ namespace Machete.Test.UnitTests.Controllers
         Mock<IMapper> map;
         WorkerController _ctrlr;
         FormCollection _fakeform;
+        
         [TestInitialize]
         public void TestInitialize()
         {
@@ -59,7 +60,9 @@ namespace Machete.Test.UnitTests.Controllers
             map = new Mock<IMapper>();
             dbfactory = new Mock<IDatabaseFactory>();
             _ctrlr = new WorkerController(_wserv.Object, _pserv.Object, _iserv.Object, def.Object, map.Object);
-            _ctrlr.SetFakeControllerContext();
+            
+            //_ctrlr.SetFakeControllerContext();
+            
             var fakeFormValues = new Dictionary<string, StringValues>();
             fakeFormValues.Add("ID", "12345");
             fakeFormValues.Add("typeOfWorkID", "1");
@@ -209,7 +212,7 @@ namespace Machete.Test.UnitTests.Controllers
                                              user = str;
                                          });
 
-            _ctrlr.SetFakeControllerContext();
+            //_ctrlr.SetFakeControllerContext();
             //_ctrlr.ValueProvider = fakeform.ToValueProvider();
             //Act
             var result = await _ctrlr.Edit(testid, fakeworker, "UnitTest", null) as PartialViewResult;

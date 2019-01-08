@@ -35,6 +35,7 @@ using Machete.Web.Helpers;
 using Machete.Web.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Employer = Machete.Domain.Employer;
 
 namespace Machete.Web.Controllers
@@ -43,19 +44,21 @@ namespace Machete.Web.Controllers
     [ElmahHandleError]
     public class EmployerController : MacheteController
     {
-        private readonly IEmployerService serv;
-        private readonly IMapper map;
-        private readonly IDefaults def;
+        private readonly IEmployerService _serv;
+        private readonly IDefaults _defaults;
+        private readonly IMapper _map;
+        private readonly IModelBindingAdaptor _adaptor;
         private CultureInfo CI;
 
         public EmployerController(
             IEmployerService employerService, 
-            IDefaults def,
-            IMapper map
-        ) {
-            serv = employerService;
-            this.map = map;
-            this.def = def;
+            IDefaults defaults,
+            IMapper map,
+            IModelBindingAdaptor adaptor) {
+            _serv = employerService;
+            _map = map;
+            _adaptor = adaptor;
+            _defaults = defaults;
         }
         protected override void Initialize(ActionContext requestContext)
         {
@@ -66,9 +69,9 @@ namespace Machete.Web.Controllers
 
         // GET: /Employer/Index
         [Authorize(Roles = "Administrator, Manager, PhoneDesk")]
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            return View();
+            return await Task.Run(() => View());
         }
         
         // GET: /Employer/AjaxHandler
@@ -78,16 +81,16 @@ namespace Machete.Web.Controllers
             dataTableResult<EmployersList> list;
 
             try {
-                var vo = map.Map<jQueryDataTableParam, viewOptions>(param);
+                var vo = _map.Map<jQueryDataTableParam, viewOptions>(param);
                 vo.CI = CI;
-                list = serv.GetIndexView(vo);
+                list = _serv.GetIndexView(vo);
             }
             catch (Exception ex) {
                 throw ex; // TODO Chaim plz
             }
             //return what's left to datatables
             var result = list.query
-                .Select(e => map.Map<EmployersList, EmployerList>(e))
+                .Select(e => _map.Map<EmployersList, EmployerList>(e))
                 .AsEnumerable();
             return Json(new
             {
@@ -100,16 +103,16 @@ namespace Machete.Web.Controllers
 
         // GET: /Employer/Create
         [Authorize(Roles = "Administrator, Manager, PhoneDesk")]
-        public ActionResult Create()
+        public async Task<ActionResult> Create()
         {
-            var model = map.Map<Employer, ViewModel.Employer>(new Employer
+            var model = _map.Map<Employer, ViewModel.Employer>(new Employer
             {
                 active = true,
                 blogparticipate = false,
-                referredby = def.getDefaultID(LCategory.emplrreference)
+                referredby = _defaults.getDefaultID(LCategory.emplrreference)
             });
-            model.def = def;
-            return PartialView("Create", model);
+            model.def = _defaults;
+            return await Task.Run(() => PartialView("Create", model));
         }
 
         // POST: /Employer/Create
@@ -117,8 +120,12 @@ namespace Machete.Web.Controllers
         [Authorize(Roles = "Administrator, Manager, PhoneDesk")]
         public async Task<JsonResult> Create(Employer employer, string userName)
         {
-            if (await TryUpdateModelAsync(employer)) {
-                var result = map.Map<Employer, ViewModel.Employer>(serv.Create(employer, userName));
+            ModelState.ThrowIfInvalid();
+            
+            var success = await _adaptor.TryUpdateModelAsync(this, employer);
+            if (success) {
+                var saved = _serv.Create(employer, userName);
+                var result = _map.Map<Employer, ViewModel.Employer>(saved);
                 return Json(new {
                     sNewRef = result.tabref,
                     sNewLabel = result.tablabel,
@@ -136,12 +143,12 @@ namespace Machete.Web.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [Authorize(Roles = "Administrator, Manager, PhoneDesk")]
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(int id)
         {
-            var e = serv.Get(id);
-            var m = map.Map<Employer, ViewModel.Employer>(e);
-            m.def = def;
-            return PartialView("Edit", m);
+            var e = _serv.Get(id);
+            var m = _map.Map<Employer, ViewModel.Employer>(e);
+            m.def = _defaults;
+            return await Task.Run(() => PartialView("Edit", m));
         }
 
         /// <summary>
@@ -154,14 +161,20 @@ namespace Machete.Web.Controllers
         [Authorize(Roles = "Administrator, Manager, PhoneDesk")]
         public async Task<JsonResult> Edit(int id, string userName)
         {
-            var employer = serv.Get(id);
-            if (await TryUpdateModelAsync(employer)) {
-                serv.Save(employer, userName);
+            ModelState.ThrowIfInvalid();
+
+            var employer = _serv.Get(id);
+
+            var success = await _adaptor.TryUpdateModelAsync(this, employer);
+            if (success) {
+                _serv.Save(employer, userName);
                 return Json(new { jobSuccess = true });
             } else {
                 return Json(new { jobSuccess = false });
             }
         }
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -172,7 +185,7 @@ namespace Machete.Web.Controllers
         [Authorize(Roles = "Administrator")]
         public JsonResult Delete(int id, string userName)
         {
-            serv.Delete(id, userName);
+            _serv.Delete(id, userName);
 
             return Json(new
             {
@@ -191,7 +204,7 @@ namespace Machete.Web.Controllers
             var city1 = city;
             var zipcode1 = zipcode;
             //Get all the records            
-            var list = serv.GetAll();
+            var list = _serv.GetAll();
             var employersFound = new List<Dictionary<string, string>>();
             
             name1 = name1.Replace(" ", "");

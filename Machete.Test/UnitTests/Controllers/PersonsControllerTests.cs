@@ -62,7 +62,9 @@ namespace Machete.Test.UnitTests.Controllers
             def = new Mock<IDefaults>();
             map = new Mock<IMapper>();
             _ctrlr = new PersonController(_serv.Object, def.Object, map.Object);
-            _ctrlr.SetFakeControllerContext();
+            
+            //_ctrlr.SetFakeControllerContext();
+            
             var values = new Dictionary<string, StringValues> {
                 {"ID", "12345"}, {"firstname1", "Ronald"}, {"lastname1", "Reagan"}
             };
@@ -180,8 +182,10 @@ namespace Machete.Test.UnitTests.Controllers
                                                     user = str;
                                                 });
             var _ctrlr = new PersonController(_serv.Object, def.Object, map.Object);
-            _ctrlr.SetFakeControllerContext();
+            
+            //_ctrlr.SetFakeControllerContext();
             //_ctrlr.ValueProvider = fakeform.ToValueProvider();
+            
             //Act
             var result = await _ctrlr.Edit(testid, "UnitTest") as JsonResult;
             //Assert
@@ -231,8 +235,10 @@ namespace Machete.Test.UnitTests.Controllers
             Dictionary<string, StringValues> values = new Dictionary<string, StringValues>();
             FormCollection fakeform = new FormCollection(values);
             var _ctrlr = new PersonController(_serv.Object, def.Object, map.Object);
-            _ctrlr.SetFakeControllerContext();
+            
+            //_ctrlr.SetFakeControllerContext();
             //_ctrlr.ValueProvider = fakeform.ToValueProvider();
+            
             //Act
             var result = await _ctrlr.Delete(testid, "UnitTest") as JsonResult;
  

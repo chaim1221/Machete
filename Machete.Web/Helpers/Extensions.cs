@@ -24,11 +24,12 @@
 
 using System;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Machete.Web.Helpers
 {
-    public static class HelperExtensions
+    public static class Extensions
     {
         public static string ToShortTextBoxDateString(this DateTime source)
         {            
@@ -46,5 +47,11 @@ namespace Machete.Web.Helpers
             return roles.Any(role => user.IsInRole(role));
         }
 
+        public static void ThrowIfInvalid(this ModelStateDictionary modelState)
+        {
+            if (modelState.IsValid) return;
+            var errors = modelState.Values.SelectMany(entry => entry.Errors).ToString();
+            throw new InvalidOperationException(errors);
+        }
     }
 }

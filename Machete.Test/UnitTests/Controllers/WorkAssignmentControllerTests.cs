@@ -36,7 +36,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using ViewModel = Machete.Web.ViewModel;
 
 namespace Machete.Test.UnitTests.Controllers
 {
@@ -70,7 +69,8 @@ namespace Machete.Test.UnitTests.Controllers
             dbfactory = new Mock<IDatabaseFactory>();
             _ctrlr = new WorkAssignmentController(waServ.Object, woServ.Object, wsiServ.Object, def.Object, map.Object);
             _view = new WorkAssignmentIndex();
-            _ctrlr.SetFakeControllerContext();
+            
+            //_ctrlr.SetFakeControllerContext();
             
             var fakeFormValues = new Dictionary<string, StringValues>();
             fakeFormValues.Add("ID", "12345");
@@ -219,7 +219,7 @@ namespace Machete.Test.UnitTests.Controllers
             var values = new Dictionary<string, StringValues>();
             var fakeform = new FormCollection(values);
 
-            _ctrlr.SetFakeControllerContext();
+            //_ctrlr.SetFakeControllerContext();
             //_ctrlr.ValueProvider = fakeform.ToValueProvider();
 
             //Act

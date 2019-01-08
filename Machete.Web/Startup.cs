@@ -57,7 +57,7 @@ namespace Machete.Web
 
             services.Configure<IdentityOptions>(options =>
             {
-                // Password settings
+                // Password settings TODO uncomment
 //                options.Password.RequireDigit = true;
 //                options.Password.RequiredLength = 8;
 //                options.Password.RequireNonAlphanumeric = false;
@@ -136,6 +136,7 @@ namespace Machete.Web
             services.AddScoped<ITransportProvidersAvailabilityService, TransportProvidersAvailabilityService>();
 
             services.AddScoped<IDefaults, Defaults>();
+            services.AddScoped<IModelBindingAdaptor, ModelBindingAdaptor>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

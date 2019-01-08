@@ -94,6 +94,7 @@ namespace Machete.Web.Controllers
     {
         private readonly IDictionary<string, CultureInfo> salad = new Dictionary<string, CultureInfo>();
 
+        // TODO remove evil hack https://github.com/SavageLearning/Machete/issues/405
         public CultureInfo this[string culture]
         {
             get => salad[culture];

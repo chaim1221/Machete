@@ -1,16 +1,6 @@
-﻿using AutoMapper;
-using Machete.Service;
+﻿using Machete.Service;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading;
-using System.Linq;
-using Newtonsoft.Json;
-using Moq.Language.Flow;
-using System;
-using Machete.Domain;
-using Machete.Web.Controllers;
 using Machete.Web.Helpers;
 
 namespace Machete.Test.UnitTests.Controllers
