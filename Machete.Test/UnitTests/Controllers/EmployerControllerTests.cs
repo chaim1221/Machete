@@ -64,7 +64,6 @@ namespace Machete.Test.UnitTests.Controllers
                     dependency.TryUpdateModelAsync(It.IsAny<MacheteController>(), It.IsAny<Employer>()))
                 .Returns(Task.FromResult(true));
             
-            
             _fakeemployer = new Employer {
                 ID = 12345,
                 name = "blah",
@@ -103,6 +102,7 @@ namespace Machete.Test.UnitTests.Controllers
             var result = await _controller.Create() as PartialViewResult;
             
             //Assert
+            Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result.ViewData.Model, typeof(Web.ViewModel.Employer));
         }
 
@@ -185,9 +185,9 @@ namespace Machete.Test.UnitTests.Controllers
             var employer = new Employer();
             _serv.Setup(p => p.Save(employer, "UnitTest"));
             _serv.Setup(p => p.Get(testId)).Returns(employer);
+            _controller.ModelState.AddModelError("TestError", "foo");
 
             //Act
-            _controller.ModelState.AddModelError("TestError", "foo");
             await _controller.Edit(testId, "UnitTest");
             
             //Assert

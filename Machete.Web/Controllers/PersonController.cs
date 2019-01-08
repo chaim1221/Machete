@@ -44,14 +44,17 @@ namespace Machete.Web.Controllers
         private readonly IMapper map;
         private readonly IDefaults def;
         CultureInfo CI;
+        private IModelBindingAdaptor _adaptor;
 
         public PersonController(
             IPersonService pServ,
             IDefaults def,
-            IMapper map)
+            IMapper map,
+            IModelBindingAdaptor adaptor)
         {
             serv = pServ;
             this.map = map;
+            _adaptor = adaptor;
             this.def = def;
         }
 
@@ -63,9 +66,9 @@ namespace Machete.Web.Controllers
 
         // GET /Person/Index
         [Authorize(Roles = "Administrator, Manager, Teacher, PhoneDesk")]
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            return View();
+            return await Task.Run(() => View());
         }
 
         [Authorize(Roles = "Administrator, Manager, Teacher, PhoneDesk")]
@@ -88,14 +91,14 @@ namespace Machete.Web.Controllers
 
         // GET /Person/Create
         [Authorize(Roles = "Administrator, Manager, Teacher, PhoneDesk")]
-        public ActionResult Create()
+        public async Task<ActionResult> Create()
         {
             var p = map.Map<Person, ViewModel.Person>(new Person {
                 gender = def.getDefaultID(LCategory.gender),
                 active = true
             });
             p.def = def;
-            return PartialView("Create", p);
+            return await Task.Run(() => PartialView("Create", p));
         }
 
         // POST /Person/Create
@@ -104,7 +107,9 @@ namespace Machete.Web.Controllers
         [Authorize(Roles = "Administrator, Manager, Teacher, PhoneDesk")]
         public async Task<ActionResult> Create(Person person, string userName)
         {
-            if (await TryUpdateModelAsync(person)) {
+            ModelState.ThrowIfInvalid();
+            
+            if (await _adaptor.TryUpdateModelAsync(this, person)) {
                 var newperson = serv.Create(person, userName);
                 var result = map.Map<Person, ViewModel.Person>(newperson);
                 return Json(new {
@@ -113,7 +118,7 @@ namespace Machete.Web.Controllers
                     iNewID = result.ID
                 });
             } else {
-                return Json(new { status = "Not OK" }); // TODO Chaim plz
+                return StatusCode(500);
             }
         }
 
@@ -123,12 +128,12 @@ namespace Machete.Web.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [Authorize(Roles = "Administrator, Manager, Teacher, PhoneDesk")] 
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(int id)
         {
-            var p = serv.Get(id);
-            var m = map.Map<Person, ViewModel.Person>(p);
-            m.def = def;
-            return PartialView("Edit", m);
+            var person = serv.Get(id);
+            var model = map.Map<Person, ViewModel.Person>(person);
+            model.def = def;
+            return await Task.Run(() => PartialView("Edit", model));
         }
 
         /// <summary>
@@ -141,8 +146,12 @@ namespace Machete.Web.Controllers
         [Authorize(Roles = "Administrator, Manager, Teacher, PhoneDesk")]
         public async Task<ActionResult> Edit(int id, string userName)
         {
+            ModelState.ThrowIfInvalid();
+
             var person = serv.Get(id);
-            if (await TryUpdateModelAsync(person)) {
+            
+            var modelIsValid = await _adaptor.TryUpdateModelAsync(this, person);
+            if (modelIsValid) {
                 serv.Save(person, userName);
                 return Json(new {
                     status = "OK"
@@ -177,14 +186,12 @@ namespace Machete.Web.Controllers
         {
             serv.Delete(id, user);
 
-            return Json(new
+            return await Task.Run(() => Json(new
             {
                 status = "OK",
                 deletedID = id
-            });
+            }));
         }
-
- 
 
         private List<Dictionary<string, string>> DuplicatePersons(string firstname, string lastname, string phone)
         {

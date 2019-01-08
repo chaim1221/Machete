@@ -35,7 +35,6 @@ using Machete.Web.Helpers;
 using Machete.Web.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Employer = Machete.Domain.Employer;
 
 namespace Machete.Web.Controllers
@@ -122,8 +121,8 @@ namespace Machete.Web.Controllers
         {
             ModelState.ThrowIfInvalid();
             
-            var success = await _adaptor.TryUpdateModelAsync(this, employer);
-            if (success) {
+            var modelIsValid = await _adaptor.TryUpdateModelAsync(this, employer);
+            if (modelIsValid) {
                 var saved = _serv.Create(employer, userName);
                 var result = _map.Map<Employer, ViewModel.Employer>(saved);
                 return Json(new {
@@ -165,8 +164,8 @@ namespace Machete.Web.Controllers
 
             var employer = _serv.Get(id);
 
-            var success = await _adaptor.TryUpdateModelAsync(this, employer);
-            if (success) {
+            var modelIsValid = await _adaptor.TryUpdateModelAsync(this, employer);
+            if (modelIsValid) {
                 _serv.Save(employer, userName);
                 return Json(new { jobSuccess = true });
             } else {
