@@ -53,13 +53,12 @@ namespace Machete.Test.UnitTests.Controllers
         public void TestInitialize()
         {
             _serv = new Mock<IEmployerService>();
-            new Mock<IDatabaseFactory>();
             _defaults = new Mock<IDefaults>();
             _adaptor = new Mock<IModelBindingAdaptor>();
 
             var mapperConfig = new MapperConfigurationFactory().Config;
             map = mapperConfig.CreateMapper();
-                        
+
             _adaptor.Setup(dependency => 
                     dependency.TryUpdateModelAsync(It.IsAny<MacheteController>(), It.IsAny<Employer>()))
                 .Returns(Task.FromResult(true));
