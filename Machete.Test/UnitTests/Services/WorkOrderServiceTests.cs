@@ -39,7 +39,7 @@ namespace Machete.Test.UnitTests.Services
     /// Summary description for WorkOrderServiceUnitTests
     /// </summary>
     [TestClass]
-    public class WorkOrderTests
+    public class WorkOrderServiceTests
     {
         Mock<IWorkOrderRepository> _repo;
         Mock<IWorkAssignmentService> _waServ;
@@ -53,7 +53,7 @@ namespace Machete.Test.UnitTests.Services
         WorkOrderService _serv;
         string user;
 
-        public WorkOrderTests()
+        public WorkOrderServiceTests()
         {
         }
 
@@ -208,7 +208,6 @@ namespace Machete.Test.UnitTests.Services
         [TestMethod, TestCategory(TC.UT), TestCategory(TC.Service), TestCategory(TC.WorkOrders)]
         public void SaveWorkOrder_finds_duplicate_workrequests()
         {
-            //
             //Arrange
 
             // Lookups are called for updateComputedValues
@@ -217,7 +216,7 @@ namespace Machete.Test.UnitTests.Services
             _lRepo.Setup(r => r.GetById(It.IsAny<int>())).Returns(_l);
             int testid = 4242;
             WorkOrder fakeworkOrder = new WorkOrder();
-            var workerRequest = new List<WorkerRequest> { };
+            var workerRequest = new List<WorkerRequest>();
             fakeworkOrder.workerRequests = workerRequest;
             fakeworkOrder.ID = testid;
             WorkerRequest wr1 = new WorkerRequest
@@ -240,8 +239,7 @@ namespace Machete.Test.UnitTests.Services
             workerRequest.Add(wr2);
 
             // receives WO passed to repository
-            WorkOrder savedworkOrder = new WorkOrder();
-
+            
             List<WorkerRequest> list = new List<WorkerRequest>();
             list.Add(new WorkerRequest { WorkerID = 12345 });
             list.Add(new WorkerRequest { WorkerID = 30002 });
@@ -257,13 +255,12 @@ namespace Machete.Test.UnitTests.Services
             _wrServ.Setup(x => x.Delete(It.IsAny<int>(), It.IsAny<string>()));
             _tpServ.Setup(x => x.Get(It.IsAny<int>())).Returns(_tp);
             _tpServ.Setup(x => x.Get(It.IsAny<int>())).Returns(_tp);
-            //
+            
             //Act
             _serv.Save(fakeworkOrder, list, user);
-            //
+            
             //Assert
             //Assert.AreEqual(fakeworkOrder, savedworkOrder);
-
             Assert.AreEqual(fakeworkOrder.workerRequests.Count(), 5);
             Assert.AreEqual(fakeworkOrder.workerRequests.Count(a => a.WorkerID == 12345), 1);
             Assert.AreEqual(fakeworkOrder.workerRequests.Count(a => a.WorkerID == 30002), 1);

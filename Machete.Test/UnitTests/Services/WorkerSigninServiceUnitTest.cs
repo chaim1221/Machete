@@ -115,6 +115,8 @@ namespace Machete.Test.UnitTests.Services
             _iServ = new Mock<IImageService>();
             _uow = new Mock<IUnitOfWork>();
             _map = new Mock<IMapper>();
+            
+            _cServ = new Mock<IConfigService>();
         }
 
         [Ignore, TestMethod, TestCategory(TC.IT), TestCategory(TC.Service), TestCategory(TC.WSIs)]
@@ -123,7 +125,7 @@ namespace Machete.Test.UnitTests.Services
             //
             //Arrange
             var _serv = new WorkerSigninService(_wsiRepo.Object, _wServ.Object, _iServ.Object, _wrServ.Object, _uow.Object, _map.Object, _cServ.Object);
-            var _signin = new WorkerSignin() { dwccardnum = 66666, dateforsignin = DateTime.Today };
+            var _signin = new WorkerSignin { dwccardnum = 66666, dateforsignin = DateTime.Today };
             WorkerSignin _cbsignin = new WorkerSignin();
             _wsiRepo.Setup(s => s.Add(It.IsAny<WorkerSignin>())).Callback((WorkerSignin s) => { _cbsignin = s; });
             //
