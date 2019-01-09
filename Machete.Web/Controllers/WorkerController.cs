@@ -46,16 +46,19 @@ namespace Machete.Web.Controllers
         private readonly IMapper map;
         private readonly IDefaults def;
         CultureInfo CI;
+        private IModelBindingAdaptor _adaptor;
 
         public WorkerController(IWorkerService workerService, 
                                 IPersonService personService,
                                 IImageService  imageServ,
             IDefaults def,
-            IMapper map)
+            IMapper map,
+            IModelBindingAdaptor adaptor)
         {
             serv = workerService;
             this.imageServ = imageServ;
             this.map = map;
+            _adaptor = adaptor;
             this.def = def;
         }
         protected override void Initialize(ActionContext requestContext)
@@ -132,9 +135,12 @@ namespace Machete.Web.Controllers
         [Authorize(Roles = "PhoneDesk, Manager, Teacher, Administrator")]
         public async Task<ActionResult> Create(Worker worker, string userName, IFormFile imagefile)
         {
-            if (await TryUpdateModelAsync(worker)) {
+            ModelState.ThrowIfInvalid();
+
+            var modelIsValid = await _adaptor.TryUpdateModelAsync(this, worker);
+            if (modelIsValid) {
                 if (imagefile != null) await updateImage(worker, imagefile);
-                Worker newWorker = serv.Create(worker, userName);
+                var newWorker = serv.Create(worker, userName);
                 var result = map.Map<Worker, ViewModel.Worker>(newWorker);
                 return Json(new {
                     sNewRef = result.tabref,
@@ -172,15 +178,16 @@ namespace Machete.Web.Controllers
         [Authorize(Roles = "PhoneDesk, Manager, Teacher, Administrator")]
         public async Task<ActionResult> Edit(int id, Worker _model, string userName, IFormFile imagefile)
         {
-            Worker worker = serv.Get(id);
-            if (await TryUpdateModelAsync(worker)) {
+            ModelState.ThrowIfInvalid();
             
-            if (imagefile != null) await updateImage(worker, imagefile);                
-            serv.Save(worker, userName);
-            return Json(new
-            {
-                jobSuccess = true
-            });
+            Worker worker = serv.Get(id);
+            if (await _adaptor.TryUpdateModelAsync(this, worker)) {
+
+                if (imagefile != null) await updateImage(worker, imagefile);
+                serv.Save(worker, userName);
+                return Json(new {
+                    jobSuccess = true
+                });
             } else { return Json(new { jobSuccess = false }); }
         }
         /// <summary>
