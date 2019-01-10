@@ -70,8 +70,8 @@ namespace Machete.Test.Integration.Services
         {
             //Used once to create dummy data to support report creation
             // requires change in app.config to point test database to production
-            IEnumerable<int> cardlist = frb.ToFactory().Get().Workers.Select(q => q.dwccardnum).Distinct().ToList();
-            IEnumerable<int> classlist = frb.ToFactory().Get().Lookups.Where(l => l.category == "activityName").Select(q => q.ID).ToList();
+            IEnumerable<int> cardlist = frb.ToFactory().Workers.Select(q => q.dwccardnum).Distinct().ToList();
+            IEnumerable<int> classlist = frb.ToFactory().Lookups.Where(l => l.category == "activityName").Select(q => q.ID).ToList();
             Activity a = new Activity();
             //random date, within last 30 days
             Random rand = new Random();
@@ -97,8 +97,7 @@ namespace Machete.Test.Integration.Services
         [TestMethod, TestCategory(TC.IT), TestCategory(TC.Service), TestCategory(TC.Activities)]
         public void CreateClass_within_hour()
         {
-            IEnumerable<int> cardlist = frb.ToFactory().Get().Workers.Select(q => q.dwccardnum).Distinct().ToList();
-            IEnumerable<int> classlist = frb.ToFactory().Get().Lookups.Where(l => l.category == "activityName").Select(q => q.ID).ToList();
+            IEnumerable<int> classlist = frb.ToFactory().Lookups.Where(l => l.category == "activityName").Select(q => q.ID).ToList();
             Activity a = new Activity();
             //random date, within last 30 days
             Random rand = new Random();
@@ -119,7 +118,7 @@ namespace Machete.Test.Integration.Services
         {
             //
             //Arrange
-            var maxDate = frb.ToFactory().Get().Activities.Select(a => a.dateStart).Max().AddDays(1);
+            var maxDate = frb.ToFactory().Activities.Select(a => a.dateStart).Max().AddDays(1);
             var teacher = "teacher_" + frb.RandomString(4);
             frb.AddActivity(startTime: maxDate, endTime: maxDate.AddHours(1), teacher: teacher);
             frb.AddActivity(startTime: maxDate.AddHours(-4), endTime: maxDate.AddHours(-3));
@@ -141,7 +140,7 @@ namespace Machete.Test.Integration.Services
         {
             //
             //Arrange
-            var maxDate = frb.ToFactory().Get().Activities.Select(a => a.dateStart).Max().AddDays(1);
+            var maxDate = frb.ToFactory().Activities.Select(a => a.dateStart).Max().AddDays(1);
             var teacher = "teacher_" + frb.RandomString(4);
 
             frb.AddActivity(startTime: maxDate, endTime: maxDate.AddHours(1), teacher: teacher);

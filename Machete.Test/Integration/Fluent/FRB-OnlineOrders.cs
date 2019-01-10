@@ -2,7 +2,7 @@
 
 namespace Machete.Test.Integration
 {
-    public partial class FluentRecordBase : IDisposable
+    public partial class FluentRecordBase
     {
 //        public Api.ViewModel.WorkOrder CloneOnlineOrder()
 //        {

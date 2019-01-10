@@ -28,7 +28,7 @@ namespace Machete.Test.Selenium.View
         public static void ClassInitialize(TestContext testContext)
         {
             var mapperConfig = new MapperConfigurationFactory().Config;
-            var mapper = mapperConfig.CreateMapper();
+            map = mapperConfig.CreateMapper();
             WebServer.StartIis();
         }
 
@@ -182,10 +182,10 @@ namespace Machete.Test.Selenium.View
 
             Random rand = new Random();
             int rowcount = 1;
-            var workers = frb.ToFactory().Get().Workers;
+            var workers = frb.ToFactory().Workers;
             Activity _act = (Activity)Records.activity.Clone();
             ActivitySignin _asi = (ActivitySignin)Records.activitysignin.Clone();
-            IEnumerable<int> cardlist = frb.ToFactory().Get().Workers.Select(q => q.dwccardnum).Distinct();
+            IEnumerable<int> cardlist = frb.ToFactory().Workers.Select(q => q.dwccardnum).Distinct();
             int firstCardNum = workers.First().dwccardnum;
 
             // Act

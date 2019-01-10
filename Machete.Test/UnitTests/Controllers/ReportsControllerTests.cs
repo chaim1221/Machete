@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net.Http;
 using AutoMapper;
 using Machete.Service;
-using Machete.Web.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Machete.Web.Helpers;

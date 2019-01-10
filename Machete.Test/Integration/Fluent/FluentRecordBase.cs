@@ -21,25 +21,26 @@
 // http://www.github.com/jcii/machete/
 //
 #endregion
+
 using System;
-using System.Text;
-using Machete.Data;
-using Machete.Service;
-using Machete.Data.Infrastructure;
-using Machete.Domain;
-using System.IO;
-using AutoMapper;
 using System.Data;
 using System.Data.SqlClient;
+using System.Text;
+using AutoMapper;
+using Machete.Data;
+using Machete.Data.Infrastructure;
+using Machete.Domain;
+using Machete.Service;
+using Machete.Web;
 using Machete.Web.Maps;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Machete.Test.Integration
 {
-    public partial class FluentRecordBase :IDisposable
+    public partial class FluentRecordBase : IDisposable
     {
         #region internal fields
-        private IDatabaseFactory _dbFactory;
         private IReadOnlyContext _dbReadOnly;
         private IWorkerService _servW;
         private IImageService _servI;
@@ -47,13 +48,12 @@ namespace Machete.Test.Integration
         private IWorkerRequestService _servWR;
         private IActivityService _servA;
         private IActivitySigninService _servAS;
-        private ReportService _servR;
-        private ReportsV2Service _servRV2;
+//        private ReportService _servR;
+//        private ReportsV2Service _servRV2;
         private IEmailService _servEM;
         private IEventService _servEV;
         private ILookupService _servL;
-        private IUnitOfWork _uow;
-        private IEmailConfig _emCfg;
+//        private IEmailConfig _emCfg;
         private Email _email;
         private Event _event;
         private Config _config = null;
@@ -61,40 +61,38 @@ namespace Machete.Test.Integration
         private WorkerRequest  _wr;
         private Activity  _a;
         private ActivitySignin _as;
-        //private Event _e;
         private Lookup _l;
         private Image _i;
         private string _user = "FluentRecordBase";
         private Random _random = new Random((int)DateTime.Now.Ticks);
         private IMapper _webMap;
         private IMapper _apiMap;
-        //private IUnityContainer container;
-
+        private IServiceProvider container;
+        private MacheteContext _dbContext;
         #endregion
 
         public FluentRecordBase() {
-            //container = UnityConfig.GetUnityContainer();
+            string[] args = { "" };
+            var host = Program.CreateWebHostBuilder(args).Build()
+                .CreateOrMigrateDatabase();
+                //.Run();
+
+            var serviceScope = host.Services.CreateScope();
+            container = serviceScope.ServiceProvider;
+
             AddDBFactory();
             ToServ<ILookupService>().populateStaticIds();
         }
 
-        public FluentRecordBase AddDBFactory(string connStringName = "macheteConnection")
+        public void AddDBFactory()
         {
-            AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ""));
-            //var initializer = new TestInitializer();
-            //Database.SetInitializer<MacheteContext>(initializer);
-            //_dbFactory = container.Resolve<IDatabaseFactory>();
-            //initializer.InitializeDatabase(_dbFactory.Get());
-
-            AddDBReadonly(); // need to ceate the readonlylogin account
-            return this;
+            _dbContext = container.GetRequiredService<MacheteContext>();
+            AddDBReadonly(); // need to create the readonlylogin account
         }
 
         private void AddDBReadonly(string connStringName = "readonlyConnection")
         {
-            if (_dbFactory == null) throw new InvalidOperationException("You must first initialize the database.");
-            var db = _dbFactory.Get();
-            var connection = (db as DbContext).Database.GetDbConnection();
+            var connection = _dbContext.Database.GetDbConnection();
 
             using (var command = connection.CreateCommand())
             {
@@ -109,13 +107,12 @@ EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
                     ";
                 command.Parameters.Add(param);
                 connection.Open();
-                try
-                {
+                try {
                     command.ExecuteNonQuery();
-                }
-                catch (SqlException ex)
-                {                               // user already exists
-                    if (ex.Errors[0].Number.Equals(15025)) { } else throw ex;
+                } catch (SqlException ex) {
+                    var userAlreadyExists = ex.Errors[0].Number.Equals(15025);
+                    if (!userAlreadyExists)
+                        throw ex;
                 }
             }
 
@@ -124,27 +121,17 @@ EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
 
         public void Dispose()
         {
-            if (_dbFactory == null) AddDBFactory();
-            _dbFactory.Dispose();
+            if (_dbContext == null) AddDBFactory();
+            _dbContext.Dispose();
         }
 
-        public IDatabaseFactory ToFactory()
+        public MacheteContext ToFactory()
         {
-            if (_dbFactory == null) AddDBFactory();
-            return _dbFactory;
+            if (_dbContext == null) AddDBFactory();
+            return _dbContext;
         }
-
-        public void Reload<T>(T entity) where T : Record
-        {
-            if (_dbFactory == null) AddDBFactory();
-            _dbFactory.Get().Entry<T>(entity).Reload();
-        }
-
-        #region Persons
-        #endregion
 
         #region Workers
-
         public FluentRecordBase AddWorker(
             int? skill1 = null,
             int? skill2 = null,
@@ -160,7 +147,7 @@ EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
             //
             // DEPENDENCIES
             if (_p == null) AddPerson();
-            //_servW = container.Resolve<IWorkerService>();
+            _servW = container.GetRequiredService<IWorkerService>();
             //
             // ARRANGE
             _w = (Worker)Records.worker.Clone();
@@ -176,7 +163,7 @@ EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
             if (memberReactivateDate != null) _w.memberReactivateDate = (DateTime)memberReactivateDate;
             if (testID != null) _w.Person.firstname2 = testID;
             // kludge
-            _w.dwccardnum = Records.GetNextMemberID(ToFactory().Get().Workers);
+            _w.dwccardnum = Records.GetNextMemberID(ToFactory().Workers);
             //
             // ACT
             _servW.Create(_w, _user);
@@ -185,8 +172,8 @@ EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
 
         public int GetNextMemberID()
         {
-            if (_dbFactory == null) AddDBFactory();
-            return Records.GetNextMemberID(_dbFactory.Get().Workers);
+            if (_dbContext == null) AddDBFactory();
+            return Records.GetNextMemberID(_dbContext.Workers);
         }
 
         public Worker ToWorker()
@@ -206,7 +193,7 @@ EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
         {
             //
             // DEPENDENCIES
-            //_servWR = container.Resolve<IWorkerRequestService>();
+            _servWR = container.GetRequiredService<IWorkerRequestService>();
             if (_wo == null) AddWorkOrder();
             if (_w == null) AddWorker();
             //
@@ -218,11 +205,11 @@ EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
             _wr.workerRequested = _w;
             if (datecreated != null) _wr.datecreated = (DateTime)datecreated;
             if (dateupdated != null) _wr.dateupdated = (DateTime)dateupdated;
-            //
-            // ACT
-            var Wentry = _dbFactory.Get().Entry<Worker>(_w);
-            var WOentry = _dbFactory.Get().Entry<WorkOrder>(_wo);
-            var WRentry = _dbFactory.Get().Entry<WorkerRequest>(_wr);
+            
+            // ACT //huh?
+            var Wentry = _dbContext.Entry(_w);
+            var WOentry = _dbContext.Entry(_wo);
+            var WRentry = _dbContext.Entry(_wr);
             _servWR.Create(_wr, _user);
             return this;
         }
@@ -244,7 +231,7 @@ EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
         {
             //
             // DEPENDENCIES
-            //_servI = container.Resolve<IImageService>();
+            _servI = container.GetRequiredService<IImageService>();
             //
             // ARRANGE
             _i = (Image)Records.image.Clone();
@@ -274,7 +261,7 @@ EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
         {
             //
             // DEPENDENCIES
-            //_servL = container.Resolve<ILookupService>();
+            _servL = container.GetRequiredService<ILookupService>();
             //
             // ARRANGE
             _l = (Lookup)Records.lookup.Clone();
@@ -313,7 +300,7 @@ EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
         {
             //
             // DEPENDENCIES
-            //_servA = container.Resolve<IActivityService>();
+            _servA = container.GetRequiredService<IActivityService>();
             //
             // ARRANGE
             _a = (Activity)Records.activity.Clone();
@@ -347,7 +334,7 @@ EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
             //
             // DEPENDENCIES
             if (_a == null) AddActivity();
-            //_servAS = container.Resolve<IActivitySigninService>();
+            _servAS = container.GetRequiredService<IActivitySigninService>();
             if (worker != null) _w = worker;
             if (_w == null) AddWorker();
             //
@@ -395,7 +382,7 @@ EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
         {
             //
             // DEPENDENCIES
-            //_servEM = container.Resolve<IEmailService>();
+            _servEM = container.GetRequiredService<IEmailService>();
             //
             // ARRANGE
             _email = (Email)Records.email.Clone();

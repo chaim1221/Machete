@@ -30,7 +30,6 @@ using Machete.Domain;
 using Machete.Service;
 using Machete.Web.Controllers;
 using Machete.Web.Helpers;
-using Machete.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

@@ -2,10 +2,11 @@
 using Machete.Service;
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Machete.Test.Integration
 {
-    public partial class FluentRecordBase : IDisposable
+    public partial class FluentRecordBase
     {
         private IWorkOrderService _servWO;
         private WorkOrder _wo;
@@ -21,7 +22,7 @@ namespace Machete.Test.Integration
             //
             // DEPENDENCIES
             if (_emp == null) AddEmployer();
-            //_servWO = container.Resolve<IWorkOrderService>();
+            _servWO = container.GetRequiredService<IWorkOrderService>();
 
             //
             // ARRANGE

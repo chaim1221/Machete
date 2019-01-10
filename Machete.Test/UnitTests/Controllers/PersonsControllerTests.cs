@@ -33,7 +33,6 @@ using Machete.Web.Helpers;
 using Machete.Web.Maps;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ViewModel = Machete.Web.ViewModel;

@@ -1,10 +1,11 @@
 ﻿using Machete.Domain;
 using Machete.Service;
 using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Machete.Test.Integration
 {
-    public partial class FluentRecordBase : IDisposable
+    public partial class FluentRecordBase
     {
         private ITransportProvidersAvailabilityService _servTPA;
         private TransportProviderAvailability _tpa;
@@ -14,7 +15,7 @@ namespace Machete.Test.Integration
         {
             //
             // DEPENDENCIES
-            //_servTPA = container.Resolve<ITransportProvidersAvailabilityService>();
+            _servTPA = container.GetRequiredService<ITransportProvidersAvailabilityService>();
 
             //
             // ARRANGE

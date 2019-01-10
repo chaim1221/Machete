@@ -1,10 +1,11 @@
 ﻿using Machete.Domain;
 using Machete.Service;
 using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Machete.Test.Integration
 {
-    public partial class FluentRecordBase : IDisposable
+    public partial class FluentRecordBase
     {
         private IWorkAssignmentService _servWA;
         private WorkAssignment _wa;
@@ -22,7 +23,7 @@ namespace Machete.Test.Integration
             // DEPENDENCIES
             if (_wo == null) AddWorkOrder();
             if (assignWorker == true && _w == null) AddWorker();
-            //_servWA = container.Resolve<IWorkAssignmentService>();
+            _servWA = container.GetRequiredService<IWorkAssignmentService>();
             //
             // ARRANGE
             _wa = (WorkAssignment)Records.assignment.Clone();

@@ -25,7 +25,6 @@
 using System;
 using System.Threading.Tasks;
 using AutoMapper;
-using Machete.Data.Infrastructure;
 using Machete.Domain;
 using Machete.Service;
 using Machete.Web.Controllers;

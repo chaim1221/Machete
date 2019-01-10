@@ -137,7 +137,7 @@ namespace Machete.Test.Selenium.View
             var _per = (Web.ViewModel.Person)ViewModelRecords.person.Clone();
             var _wkr = (Web.ViewModel.Worker)ViewModelRecords.worker.Clone();
             _wkr.memberexpirationdate = DateTime.Now.AddYears(1);
-            _wkr.dwccardnum = sharedUI.nextAvailableDwccardnum(frb.ToFactory().Get());
+            _wkr.dwccardnum = sharedUI.nextAvailableDwccardnum(frb.ToFactory());
             var _san = (Web.ViewModel.Event)ViewModelRecords.event1.Clone();
             _san.Person = _per;
             _san.eventTypeID = MacheteLookup.cache.First(x => x.category == "eventtype" && x.text_EN == "Sanction").ID;

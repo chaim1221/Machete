@@ -55,8 +55,8 @@ namespace Machete.Test.Integration.Data
         public void getDynamicQuery_test_all_metadata()
         {
             // arrange
-            var context = frb.ToFactory().Get();
-            var reports = frb.ToFactory().Get().ReportDefinitions.AsQueryable();
+            var context = frb.ToFactory();
+            var reports = frb.ToFactory().ReportDefinitions.AsQueryable();
 
             foreach (var r in reports)
             {
@@ -84,13 +84,13 @@ namespace Machete.Test.Integration.Data
         public void Analyze_columns()
         {
             var repo = frb.ToRepoReports();
-            var ctxt = frb.ToFactory().Get();
+            var ctxt = frb.ToFactory();
             var list = repo.GetAllQ();
             foreach (var l in list)
             {
                 l.columnsJson = SqlServerUtils.getUIColumnsJson(ctxt, l.sqlquery);
             }
-            frb.ToFactory().Get().SaveChanges();
+            frb.ToFactory().SaveChanges();
 
         }
     }

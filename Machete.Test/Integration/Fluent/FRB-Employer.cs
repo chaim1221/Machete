@@ -1,22 +1,21 @@
 ﻿using Machete.Domain;
 using Machete.Service;
 using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Machete.Test.Integration
 {
-    public partial class FluentRecordBase : IDisposable
+    public partial class FluentRecordBase
     {
         private IEmployerService _servE;
         private Employer _emp;
 
-        public FluentRecordBase AddEmployer(
-            DateTime? datecreated = null,
-            DateTime? dateupdated = null
-        )
+        public void AddEmployer(DateTime? datecreated = null,
+            DateTime? dateupdated = null)
         {
             //
             // DEPENDENCIES
-            //_servE = container.Resolve<IEmployerService>();
+            _servE = container.GetRequiredService<IEmployerService>();
             //
             // ARRANGE
             _emp = (Employer)Records.employer.Clone();
@@ -25,7 +24,6 @@ namespace Machete.Test.Integration
             //
             // ACT
             _servE.Create(_emp, _user);
-            return this;
         }
 
         public Employer ToEmployer()

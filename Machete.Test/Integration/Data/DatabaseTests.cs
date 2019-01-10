@@ -38,7 +38,7 @@ namespace Machete.Test.Integration.Data
         public void Initialize()
         {
             frb = new FluentRecordBase();
-            frb.AddDBFactory(connStringName: "MacheteConnection");
+            frb.AddDBFactory();
         }
         /// <summary>
         /// Used with SQL Profiler to see what SQL is produced
@@ -50,7 +50,7 @@ namespace Machete.Test.Integration.Data
             var worker = frb.AddWorkerSignin().ToWorker();
             var signin = frb.ToWorkerSignin();
             // Act
-            var q = frb.ToFactory().Get().WorkerSignins.AsQueryable();
+            var q = frb.ToFactory().WorkerSignins.AsQueryable();
             q = q.Where(r => r.dwccardnum == signin.dwccardnum
                              && DbFunctions.DiffDays(r.dateforsignin, signin.dateforsignin) == 0);           
             WorkerSignin result = q.FirstOrDefault();
@@ -66,13 +66,13 @@ namespace Machete.Test.Integration.Data
         public void MacheteReportDefinitions_Initialize_counts_match()
         {
             // Arrange - load test records
-            var context = frb.ToFactory().Get();
+            var context = frb.ToFactory();
             context.Database.ExecuteSqlCommand("TRUNCATE TABLE ReportDefinitions");
             var cache = Machete.Data.MacheteReportDefinitions.cache;
             var count = cache.Count();
             // Act
             Machete.Data.MacheteReportDefinitions.Initialize(context);
-            var result = frb.ToFactory().Get().ReportDefinitions.Count();
+            var result = frb.ToFactory().ReportDefinitions.Count();
             // Assert
             Assert.AreEqual(count, result, "static cache and DB report definitions' count not equal");
         }
