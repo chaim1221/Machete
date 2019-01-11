@@ -33,7 +33,9 @@ using Machete.Domain;
 using Machete.Service;
 using Machete.Web;
 using Machete.Web.Maps;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Machete.Test.Integration
@@ -68,69 +70,83 @@ namespace Machete.Test.Integration
         private IMapper _webMap;
         private IMapper _apiMap;
         private IServiceProvider container;
-        private MacheteContext _dbContext;
         #endregion
+        //private MacheteContext _dbContext;
 
         public FluentRecordBase() {
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json")
+                .Build();
+            
             string[] args = { "" };
-            var host = Program.CreateWebHostBuilder(args).Build()
-                .CreateOrMigrateDatabase();
-                //.Run();
-
+            var host = Program.CreateWebHostBuilder(args)
+                .UseConfiguration(configuration)
+                .UseStartup<Startup>()
+                .ConfigureServices(services => {
+                    new Startup(configuration).ConfigureServices(services);
+                })
+                .Build().CreateOrMigrateDatabase();
+                
             var serviceScope = host.Services.CreateScope();
+            
             container = serviceScope.ServiceProvider;
-
-            AddDBFactory();
+            
+            //_dbContext = container.GetRequiredService<MacheteContext>();
+            //AddDBReadonly(); // need to create the readonlylogin account // TODO uncomment
+            
             ToServ<ILookupService>().populateStaticIds();
-        }
-
-        public void AddDBFactory()
-        {
-            _dbContext = container.GetRequiredService<MacheteContext>();
-            AddDBReadonly(); // need to create the readonlylogin account
         }
 
         private void AddDBReadonly(string connStringName = "readonlyConnection")
         {
-            var connection = _dbContext.Database.GetDbConnection();
-
-            using (var command = connection.CreateCommand())
-            {
-                command.CommandText = "sp_executesql";
-                command.CommandType = CommandType.StoredProcedure;
-                var param = command.CreateParameter();
-                param.ParameterName = "@statement";
-                param.Value = @"
-CREATE LOGIN readonlyLogin WITH PASSWORD='@testPassword1'
-CREATE USER readonlyUser FROM LOGIN readonlyLogin
-EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
-                    ";
-                command.Parameters.Add(param);
-                connection.Open();
-                try {
-                    command.ExecuteNonQuery();
-                } catch (SqlException ex) {
-                    var userAlreadyExists = ex.Errors[0].Number.Equals(15025);
-                    if (!userAlreadyExists)
-                        throw ex;
-                }
-            }
-
-            _dbReadOnly = new ReadOnlyContext(connStringName);
+//            var connection = _dbContext.Database.GetDbConnection();
+//
+//            using (var command = connection.CreateCommand())
+//            {
+//                command.CommandText = "sp_executesql";
+//                command.CommandType = CommandType.StoredProcedure;
+//                var param = command.CreateParameter();
+//                param.ParameterName = "@statement";
+//                param.Value = @"
+//CREATE LOGIN readonlyLogin WITH PASSWORD='@testPassword1'
+//CREATE USER readonlyUser FROM LOGIN readonlyLogin
+//EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
+//                    ";
+//                command.Parameters.Add(param);
+//                connection.Open();
+//                try {
+//                    command.ExecuteNonQuery();
+//                } catch (SqlException ex) {
+//                    var userAlreadyExists = ex.Errors[0].Number.Equals(15025);
+//                    if (!userAlreadyExists)
+//                        throw ex;
+//                } // finally {
+//                  // connection.Close();
+//                  // }
+//            }
+//
+//            _dbReadOnly = new ReadOnlyContext(connStringName);
         }
 
         public void Dispose()
         {
-            if (_dbContext == null) AddDBFactory();
-            _dbContext.Dispose();
+//            if (_dbContext == null) _dbContext = container.GetRequiredService<MacheteContext>();
+//            _dbContext.Dispose();
         }
 
         public MacheteContext ToFactory()
         {
-            if (_dbContext == null) AddDBFactory();
-            return _dbContext;
+//            return _dbContext ?? (_dbContext = container.GetRequiredService<MacheteContext>());
+            return container.GetRequiredService<MacheteContext>();
         }
 
+        public T ToServ<T>()
+        {
+            return container.GetRequiredService<T>();
+            //return default(T);
+        }
+        
         #region Workers
         public FluentRecordBase AddWorker(
             int? skill1 = null,
@@ -172,7 +188,7 @@ EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
 
         public int GetNextMemberID()
         {
-            if (_dbContext == null) AddDBFactory();
+            var _dbContext = container.GetRequiredService<MacheteContext>();
             return Records.GetNextMemberID(_dbContext.Workers);
         }
 
@@ -207,9 +223,9 @@ EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
             if (dateupdated != null) _wr.dateupdated = (DateTime)dateupdated;
             
             // ACT //huh?
-            var Wentry = _dbContext.Entry(_w);
-            var WOentry = _dbContext.Entry(_wo);
-            var WRentry = _dbContext.Entry(_wr);
+//            var Wentry = _dbContext.Entry(_w);
+//            var WOentry = _dbContext.Entry(_wo);
+//            var WRentry = _dbContext.Entry(_wr);
             _servWR.Create(_wr, _user);
             return this;
         }
@@ -281,15 +297,7 @@ EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
 
         #endregion
 
-        #region Activitys
-
-
-        public T ToServ<T>()
-        {
-            //return container.Resolve<T>();
-            return default(T);
-        }
-
+        #region Activities
         public FluentRecordBase AddActivity(
             DateTime? datecreated = null,
             DateTime? dateupdated = null,

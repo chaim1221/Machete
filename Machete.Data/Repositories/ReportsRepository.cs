@@ -4,6 +4,7 @@ using Machete.Domain;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Data.SqlClient;
@@ -203,6 +204,7 @@ namespace Machete.Data
         public string name { get; set; }
         public bool? is_nullable { get; set; }
         public string system_type_name { get; set; }
-        public bool include { get; set; } /// default value for the UI
+        [NotMapped]
+        public bool include { get; set; } // default value for the UI
     }
 }

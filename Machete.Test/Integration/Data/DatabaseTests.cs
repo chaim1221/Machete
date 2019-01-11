@@ -25,6 +25,8 @@ using Machete.Domain;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Machete.Data;
+using Microsoft.Extensions.DependencyInjection;
 using DbFunctions = Machete.Service.DbFunctions;
 
 namespace Machete.Test.Integration.Data
@@ -38,7 +40,7 @@ namespace Machete.Test.Integration.Data
         public void Initialize()
         {
             frb = new FluentRecordBase();
-            frb.AddDBFactory();
+            //frb._dbContext = frb.container.GetRequiredService<MacheteContext>();
         }
         /// <summary>
         /// Used with SQL Profiler to see what SQL is produced
@@ -69,10 +71,12 @@ namespace Machete.Test.Integration.Data
             var context = frb.ToFactory();
             context.Database.ExecuteSqlCommand("TRUNCATE TABLE ReportDefinitions");
             var cache = Machete.Data.MacheteReportDefinitions.cache;
-            var count = cache.Count();
+            var count = cache.Count;
+            
             // Act
             Machete.Data.MacheteReportDefinitions.Initialize(context);
             var result = frb.ToFactory().ReportDefinitions.Count();
+            
             // Assert
             Assert.AreEqual(count, result, "static cache and DB report definitions' count not equal");
         }

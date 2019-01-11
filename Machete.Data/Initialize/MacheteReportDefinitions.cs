@@ -1541,7 +1541,8 @@ where jobcount is not null or actcount is not null or eslcount is not null
             _cache.ForEach(u => {
                 try
                 {
-	                if (context.Database.GetDbConnection().GetType().Name == "SqlServerConnection")
+	                // why do we care? should always happen. TODO rewrite, use .Contains() instead of expecting to throw
+	                if (context.Database.GetDbConnection().GetType().Name == "SqlConnection")
                       context.ReportDefinitions.First(a => a.name == u.name);
                 }
                 catch
@@ -1556,10 +1557,21 @@ where jobcount is not null or actcount is not null or eslcount is not null
                         u.inputsJson = JsonConvert.SerializeObject(inputsStub);
                     }
                     context.ReportDefinitions.Add(u);
+                    //context.Entry(u).State = EntityState.Added;
+                    context.SaveChanges();
                 }
             });
-            context.SaveChanges();
+            // TODO, remove; should be entirely unnecessary. If you inspect the resulting DbSet the IDs are temp values.
+//            context.Database.OpenConnection();
+//            if (context.Database.GetDbConnection().GetType().Name == "SqlConnection")
+//            {
+//	            context.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.ReportDefinitions ON");
+//	            context.SaveChanges();
+//	            context.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.ReportDefinitions OFF");
+//            } else {
+//              context.SaveChanges();
+//            }
+              //context.SaveChanges(); // TODO throws IDENTITY_INSERT error
         }
     }
-
 }
