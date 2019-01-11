@@ -64,7 +64,6 @@ namespace Machete.Data
             raw.Wait();
             var results = raw.Result;
             return results;
-
         }
 
         public DataTable getDataTable(string query, DTO.SearchOptions o)

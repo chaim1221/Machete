@@ -113,6 +113,7 @@ namespace Machete.Web
             services.AddScoped<IActivityRepository, ActivityRepository>();
             services.AddScoped<IConfigRepository, ConfigRepository>();
             services.AddScoped<IActivitySigninRepository, ActivitySigninRepository>();
+            services.AddScoped<ITransportRuleRepository, TransportRuleRepository>();
             services.AddScoped<ITransportProvidersRepository, TransportProvidersRepository>();
             services.AddScoped<ITransportProvidersAvailabilityRepository, TransportProvidersAvailabilityRepository>();
             
@@ -132,6 +133,7 @@ namespace Machete.Web
             services.AddScoped<IImageService, ImageService>();
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IReportsV2Service, ReportsV2Service>();
+            services.AddScoped<ITransportRuleService, TransportRuleService>();
             services.AddScoped<ITransportProvidersService, TransportProvidersService>();
             services.AddScoped<ITransportProvidersAvailabilityService, TransportProvidersAvailabilityService>();
 

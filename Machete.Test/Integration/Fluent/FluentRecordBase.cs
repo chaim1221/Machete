@@ -372,8 +372,7 @@ namespace Machete.Test.Integration
 
         public IReportsRepository ToRepoReports()
         {
-            //return container.Resolve<IReportsRepository>();
-            return null;
+            return container.GetRequiredService<IReportsRepository>();
         }
 
         #endregion
