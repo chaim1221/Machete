@@ -122,6 +122,7 @@ namespace Machete.Web
             services.AddScoped<IActivitySigninService, ActivitySigninService>();
             services.AddScoped<IActivityService, ActivityService>();
             services.AddScoped<IEventService, EventService>();
+            services.AddScoped<IOnlineOrdersService, OnlineOrdersService>();
             services.AddScoped<IPersonService, PersonService>();
             services.AddScoped<IWorkerSigninService, WorkerSigninService>();
             services.AddScoped<IWorkerService, WorkerService>();

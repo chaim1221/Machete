@@ -400,7 +400,7 @@ namespace Machete.Test.Integration
             if (attachmentType != null) _email.attachment = attachmentType;
             //
             // ACT
-            _servEM.Create(_email, _user);
+            _servEM.Create(_email, _user); // this is done twice and it's causing an error with EF Core
             return this;
         }
 
