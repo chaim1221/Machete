@@ -61,11 +61,15 @@ namespace Machete.Data.Infrastructure
             typeof(SqlConnection).GetField("ObjectID", BindFlags);
             
             var builder = new DbContextOptionsBuilder<MacheteContext>();
-            if (string.IsNullOrEmpty(connString) || connString == "Data Source=machete.db")
-                builder.UseSqlite("Data Source=machete.db", with =>
-                    with.MigrationsAssembly("Machete.Data"));
-            else
-                builder.UseSqlServer(connString, with =>
+// don't do this
+//            if (string.IsNullOrEmpty(connString) || connString == "Data Source=machete.db")
+//                builder.UseSqlite("Data Source=machete.db", with =>
+//                    with.MigrationsAssembly("Machete.Data"));
+//            else
+// it ends badly
+                builder
+                    .UseLazyLoadingProxies()
+                    .UseSqlServer(connString, with =>
                     with.MigrationsAssembly("Machete.Data"));
             options = builder.Options;
         }
