@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using Machete.Data.Initialize;
+using Machete.Test.Integration.Fluent;
 
 namespace Machete.Test.Selenium.View
 {

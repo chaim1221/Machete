@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Machete.Web.Maps;
+using Machete.Test.Integration.Fluent;
 
 namespace Machete.Test.Selenium.View
 {
@@ -30,7 +31,7 @@ namespace Machete.Test.Selenium.View
         public static void ClassInitialize(TestContext testContext)
         {
             WebServer.StartIis();
-            var webMapperConfig = new MapperConfigurationFactory().Config;
+            var webMapperConfig = new MvcMapperConfiguration().Config;
             map = webMapperConfig.CreateMapper();
         }
 

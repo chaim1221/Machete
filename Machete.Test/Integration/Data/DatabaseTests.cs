@@ -26,6 +26,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using Machete.Data;
+using Machete.Test.Integration.Fluent;
 using Microsoft.Extensions.DependencyInjection;
 using DbFunctions = Machete.Service.DbFunctions;
 

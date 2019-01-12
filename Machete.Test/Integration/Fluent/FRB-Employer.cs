@@ -1,9 +1,10 @@
-﻿using Machete.Domain;
+﻿using System;
+using Machete.Domain;
 using Machete.Service;
-using System;
 using Microsoft.Extensions.DependencyInjection;
+using ViewModel = Machete.Web.ViewModel;
 
-namespace Machete.Test.Integration
+namespace Machete.Test.Integration.Fluent
 {
     public partial class FluentRecordBase
     {
@@ -32,10 +33,10 @@ namespace Machete.Test.Integration
             return _emp;
         }
 
-        public Web.ViewModel.Employer CloneEmployer()
+        public ViewModel.Employer CloneEmployer()
         {
-            AddMapper();
-            var e = _webMap.Map<Machete.Domain.Employer, Web.ViewModel.Employer>((Employer)Records.employer.Clone());
+            ToWebMapper();
+            var e = _webMap.Map<Employer, ViewModel.Employer>((Employer)Records.employer.Clone());
             e.name = RandomString(10);
             e.email = "changeme@gmail.com";
             return e;

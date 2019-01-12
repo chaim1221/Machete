@@ -14,13 +14,16 @@ using Newtonsoft.Json;
 
 namespace Machete.Test.UnitTests.Controllers
 {
+    /// <summary>
+    /// A note about this class; it may be beyond saving. It would have to be rewritten using the ActionContext and
+    /// ControllerContext of ASP.NET Web API Core, and all it ever really did was to verify the responses being sent
+    /// by the ReportsController. VERY low priority.
+    /// </summary>
     [TestClass]
     public class ReportsControllerTests
     {
         Mock<IDefaults> def;
 
-        // TODO yes, you see that? so stop right there. this is not testing legacy; these are tests for the Api,
-        // TODO which hasn't been ported yet.
         public Mock<IReportsV2Service> serv;
         public IMapper map;
         public ReportsController controller;
@@ -39,12 +42,12 @@ namespace Machete.Test.UnitTests.Controllers
             serv.SetupGetQuery(testStartDate, testEndDate);
             serv.SetupPost();
 
-            var mapperConfig = new MapperConfigurationFactory().Config;
+            var mapperConfig = new MvcMapperConfiguration().Config;
             map = mapperConfig.CreateMapper(); 
-//
+
             controller = new ReportsController(serv.Object, def.Object, map);
 //            controller.Request = new HttpRequestMessage();
-//            //controller.Configuration = new HttpConfiguration();
+//            controller.Configuration = new HttpConfiguration();
         }
 
 //

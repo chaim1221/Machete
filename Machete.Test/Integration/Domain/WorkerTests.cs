@@ -26,6 +26,7 @@ using Machete.Service;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Globalization;
+using Machete.Test.Integration.Fluent;
 
 namespace Machete.Test.Integration.Domain
 {

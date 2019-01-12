@@ -26,6 +26,7 @@ using System;
 using System.Globalization;
 using Machete.Domain;
 using Machete.Service;
+using Machete.Test.Integration.Fluent;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Machete.Test.Integration.Services
@@ -78,7 +79,7 @@ namespace Machete.Test.Integration.Services
             //Arrange
             Person _p = frb.ToPerson();
             Worker _w = frb.ToWorker(); ;
-            _p.firstname2 = "WorkerService_Intergation_CreateWorker";
+            _p.firstname2 = "WorkerService_Integration_CreateWorker";
             _w.height = "tall";
             //_w.Person = _p;
             _w.dwccardnum = frb.GetNextMemberID();

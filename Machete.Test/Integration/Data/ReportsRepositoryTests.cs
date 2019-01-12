@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Machete.Data.Helpers;
 using Machete.Data.DTO;
 using System.Linq;
+using Machete.Test.Integration.Fluent;
 
 namespace Machete.Test.Integration.Data
 {

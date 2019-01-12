@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Globalization;
 using System.Linq;
 using Machete.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -33,12 +34,14 @@ namespace Machete.Test
     public static class Records
     {
         private static readonly DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        public static int GetNextMemberID(DbSet<Worker> db)
+        public static int GetNextMemberID(DbSet<Worker> workers)
         {
             //debug
             //return 10000;
             var first = 10000;
-            var last = db.OrderByDescending(x => x.dwccardnum).Select(x => x.dwccardnum).FirstOrDefault();
+            var orderByDescending = workers.OrderByDescending(x => x.dwccardnum);
+            var queryable = orderByDescending.Select(x => x.dwccardnum);
+            var last = queryable.FirstOrDefault();
             var next = last == 0 ? first + 1 : last + 1;
             if (first > next || last == 99999) throw new ArgumentOutOfRangeException("Sorry, I'm having trouble finding a card number.");
             else return next;
@@ -199,33 +202,33 @@ namespace Machete.Test
             transportTransactID = "#6169"
         };
 
-//        public static Machete.Api.ViewModel.WorkOrder onlineOrder = new Api.ViewModel.WorkOrder
-//        {
-//            workSiteAddress1 = "2400 Main Ave E",
-//            workSiteAddress2 = "Apt 207",
-//            statusID = 42,
-//            city = "Seattle",
-//            state = "WA",
-//            zipcode = "12345",
-//            phone = "123-456-7890",
-//            //typeOfWorkID = 20,
-//            timeFlexible = true,
-//            englishRequired = false,
-//           // lunchSupplied = false,
-//           // permanentPlacement = false,
-//            transportProviderID = 1,
-//            transportFee = 20.75,
-//            //transportFeeExtra = 0,
-//            englishRequiredNote = "",
-//            description = "description string",
-//            dateTimeofWork = DateTime.Today.ToString("o", CultureInfo.InvariantCulture),
-//            datecreated = DateTime.Now.ToString("o", CultureInfo.InvariantCulture),
-//            dateupdated = DateTime.Now.ToString("o", CultureInfo.InvariantCulture),       
-//            createdby = "initialization script",
-//            updatedby = "initialization script",
-//            //transportTransactType = 256,
-//           // transportTransactID = "#6169"
-//        };
+        public static Machete.Api.ViewModel.WorkOrder onlineOrder = new Api.ViewModel.WorkOrder
+        {
+            workSiteAddress1 = "2400 Main Ave E",
+            workSiteAddress2 = "Apt 207",
+            statusID = 42,
+            city = "Seattle",
+            state = "WA",
+            zipcode = "12345",
+            phone = "123-456-7890",
+            //typeOfWorkID = 20,
+            timeFlexible = true,
+            englishRequired = false,
+           // lunchSupplied = false,
+           // permanentPlacement = false,
+            transportProviderID = 1,
+            transportFee = 20.75,
+            //transportFeeExtra = 0,
+            englishRequiredNote = "",
+            description = "description string",
+            dateTimeofWork = DateTime.Today.ToString("o", CultureInfo.InvariantCulture),
+            datecreated = DateTime.Now.ToString("o", CultureInfo.InvariantCulture),
+            dateupdated = DateTime.Now.ToString("o", CultureInfo.InvariantCulture),       
+            createdby = "initialization script",
+            updatedby = "initialization script",
+            //transportTransactType = 256,
+           // transportTransactID = "#6169"
+        };
 
         public static WorkAssignment assignment = new WorkAssignment
         {
