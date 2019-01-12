@@ -175,7 +175,7 @@ namespace Machete.Web.Controllers
             DateTime weekDate;
             DateTime beginDate;
             DateTime endDate;
-            dataTableResult<WeeklySumData> wec;
+            dataTableResult<WeeklySummaryData> wec;
 
             // jQuery passes in parameters that must be mapped to viewOptions
             weekDate = voDate(param);
@@ -223,7 +223,7 @@ namespace Machete.Web.Controllers
             DateTime monthDate;
             DateTime beginDate;
             DateTime endDate;
-            dataTableResult<MonthlySumData> mwd;
+            dataTableResult<MonthlySummaryData> mwd;
 
             monthDate = voDate(param);
             beginDate = new DateTime(monthDate.Year, monthDate.Month, 1, 0, 0, 0);
@@ -684,17 +684,17 @@ namespace Machete.Web.Controllers
             return result; // ...for DataTables.
         }
 
-        private dataTableResult<WeeklySumData> WeekSumView(DateTime beginDate, DateTime endDate)
+        private dataTableResult<WeeklySummaryData> WeekSumView(DateTime beginDate, DateTime endDate)
         {
-            IEnumerable<WeeklySumData> query;
+            IEnumerable<WeeklySummaryData> query;
             query = repServ.WeeklySumController(beginDate, endDate);
             var result = GetDataTableResult(query);
             return result;
         }
 
-        private dataTableResult<MonthlySumData> monthSumView(DateTime beginDate, DateTime endDate)
+        private dataTableResult<MonthlySummaryData> monthSumView(DateTime beginDate, DateTime endDate)
         {
-            IEnumerable<MonthlySumData> query;
+            IEnumerable<MonthlySummaryData> query;
             query = repServ.MonthlySumController(beginDate, endDate);
             var result = GetDataTableResult(query);
             return result;
