@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Machete.Data;
 using Machete.Data.Infrastructure;
+using Machete.Web.Helpers;
 using Machete.Web.Resources;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
