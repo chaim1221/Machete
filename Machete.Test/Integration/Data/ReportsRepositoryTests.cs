@@ -19,21 +19,21 @@ namespace Machete.Test.Integration.Data
             //frb.AddDBFactory(connStringName: "MacheteConnection");
         }
 
-        [TestMethod, TestCategory(TC.IT), TestCategory(TC.Data), TestCategory(TC.Reports)]
-        public void getSimpleAggregate_returns_list()
-        {
-            // arrange
-            frb.AddWorkOrder(dateTimeOfWork: DateTime.Parse("1/2/2013"))
-                .AddWorkAssignment(skill: 63); // known skill ID from machete lookup initializer
-
-            // act
-            var result = frb.ToRepoReports()
-                .getSimpleAggregate(1, DateTime.Parse("2013/1/1"), 
-                                        DateTime.Parse("2014/1/1"));
-            // assert
-            Assert.IsNotNull(result);
-            Assert.AreNotEqual(0, result.Count);
-        }
+//        [TestMethod, TestCategory(TC.IT), TestCategory(TC.Data), TestCategory(TC.Reports)]
+//        public void getSimpleAggregate_returns_list()
+//        {
+//            // arrange
+//            frb.AddWorkOrder(dateTimeOfWork: DateTime.Parse("1/2/2013"))
+//                .AddWorkAssignment(skill: 63); // known skill ID from machete lookup initializer
+//
+//            // act
+//            var result = frb.ToRepoReports()
+//                .getSimpleAggregate(1, DateTime.Parse("2013/1/1"), 
+//                                        DateTime.Parse("2014/1/1"));
+//            // assert
+//            Assert.IsNotNull(result);
+//            Assert.AreNotEqual(0, result.Count);
+//        }
 
         [TestMethod, TestCategory(TC.IT), TestCategory(TC.Data), TestCategory(TC.Reports)]
         public void getDynamicQuery_returns_list()

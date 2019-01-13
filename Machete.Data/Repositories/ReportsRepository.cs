@@ -19,7 +19,7 @@ namespace Machete.Data
 {
     public interface IReportsRepository : IRepository<ReportDefinition>
     {
-        List<SimpleDataRow> getSimpleAggregate(int id, DateTime beginDate, DateTime endDate);
+//        List<SimpleDataRow> getSimpleAggregate(int id, DateTime beginDate, DateTime endDate);
         List<dynamic> getDynamicQuery(int id, DTO.SearchOptions o);
         List<ReportDefinition> getList();
         List<QueryMetadata> getColumns(string tableName);
@@ -37,15 +37,16 @@ namespace Machete.Data
             this.readOnlyContext = readOnlyContext;
         }
 
-        public List<SimpleDataRow> getSimpleAggregate(int id, DateTime beginDate, DateTime endDate)
-        {
-            var rdef = dbset.Single(a => a.ID == id);
-            return dbFactory.Get().Query<SimpleDataRow>().FromSql(rdef.sqlquery,
-            //return db.Get().Database.SqlQuery<SimpleDataRow>(rdef.sqlquery,
-                new SqlParameter { ParameterName = "beginDate", Value = beginDate },
-                new SqlParameter { ParameterName = "endDate", Value = endDate })
-                .ToList();
-        }
+//        public List<SimpleDataRow> getSimpleAggregate(int id, DateTime beginDate, DateTime endDate)
+//        {
+//            var rdef = dbset.Single(a => a.ID == id);
+//            var macheteContext = dbFactory.Get();
+//            var simpleDataRows = macheteContext.Query<SimpleDataRow>().FromSql(rdef.sqlquery,
+//                    new SqlParameter { ParameterName = "beginDate", Value = beginDate },
+//                    new SqlParameter { ParameterName = "endDate", Value = endDate })
+//                .ToList();
+//            return simpleDataRows;
+//        }
 
         public List<dynamic> getDynamicQuery(int id, DTO.SearchOptions o)
         {
@@ -53,7 +54,6 @@ namespace Machete.Data
             var meta = SqlServerUtils.getMetadata(DataContext, rdef.sqlquery);
             var queryType = buildQueryType(meta);
             Task<List<object>> raw = dbFactory.Get().Query<dynamic>().FromSql(
-            //Task<List<object>> raw = db.Get().Database.SqlQuery(
                 //queryType, 
                 rdef.sqlquery,
                 new SqlParameter { ParameterName = "beginDate", Value = o.beginDate },
