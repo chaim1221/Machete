@@ -58,7 +58,9 @@ namespace Machete.Data
         {
             
         }
-        //Machete here defines the database to use, by convention.
+        
+        // Machete here defines the data context to use by EF Core convention.
+        // Entity Framework will not retrieve or modify types not expressed here.
         public DbSet<Person> Persons { get; set; }
         public DbSet<Worker> Workers { get; set; }
         public DbSet<WorkAssignment> WorkAssignments { get; set; }
@@ -110,7 +112,9 @@ namespace Machete.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder); // call the other builders (below):
+            // Implement base OnModelCreating functionality before adding our own. Functionally, this does nothing.
+            // https://stackoverflow.com/a/39577004/2496266
+            base.OnModelCreating(modelBuilder);
             
             // ENTITIES //
             modelBuilder.ApplyConfiguration(new PersonBuilder());
