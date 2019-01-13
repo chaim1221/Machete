@@ -30,6 +30,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Machete.Data.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Activity = Machete.Domain.Activity;
@@ -54,10 +55,7 @@ namespace Machete.Data
     // http://stackoverflow.com/questions/22105583/why-is-asp-net-identity-identitydbcontext-a-black-box
     public class MacheteContext : IdentityDbContext<MacheteUser>
     {
-        public MacheteContext(DbContextOptions<MacheteContext> options) : base(options)
-        {
-            
-        }
+        public MacheteContext(DbContextOptions<MacheteContext> options) : base(options) { }
         
         // Machete here defines the data context to use by EF Core convention.
         // Entity Framework will not retrieve or modify types not expressed here.
@@ -82,6 +80,10 @@ namespace Machete.Data
         public DbSet<TransportCostRule> TransportCostRules { get; set; }
         public DbSet<ScheduleRule> ScheduleRules { get; set; }
         
+        // Here, we define expected queries that are not types. Entity Framework requires query
+        // types to be included in the model for the context unless they are defined here.
+        public DbQuery<DynamicQueryObject> DynamicQuery { get; set; }
+
         public override int SaveChanges()
         {
             // https://github.com/aspnet/EntityFrameworkCore/issues/3680#issuecomment-155502539
@@ -119,23 +121,22 @@ namespace Machete.Data
             // ENTITIES //
             modelBuilder.ApplyConfiguration(new PersonBuilder());
             modelBuilder.ApplyConfiguration(new WorkerBuilder());
-            modelBuilder.Configurations<WorkerSignin>().Add(typeof(WorkerSigninBuilder));
-            modelBuilder.Configurations<Event>().Add(typeof(EventBuilder));
-            modelBuilder.Configurations<JoinEventImage>().Add(typeof(JoinEventImageBuilder));
-            modelBuilder.Configurations<JoinWorkOrderEmail>().Add(typeof(JoinWorkOrderEmailBuilder));
-            modelBuilder.Configurations<ActivitySignin>().Add(typeof(ActivitySigninBuilder));
-            modelBuilder.Configurations<Activity>().Add(typeof(ActivityBuilder));
-            modelBuilder.Configurations<Email>().Add(typeof(EmailBuilder));
-            modelBuilder.Configurations<TransportProvider>().Add(typeof(TransportProviderBuilder));
-            modelBuilder.Configurations<TransportProviderAvailability>()
-                        .Add(typeof(TransportProvidersAvailabilityBuilder));
-            modelBuilder.Configurations<TransportRule>().Add(typeof(TransportRuleBuilder));
-            modelBuilder.Configurations<TransportCostRule>().Add(typeof(TransportCostRuleBuilder));
-            modelBuilder.Configurations<ScheduleRule>().Add(typeof(ScheduleRuleBuilder));
-            modelBuilder.Configurations<Employer>().Add(typeof(EmployerBuilder));
-            modelBuilder.Configurations<WorkOrder>().Add(typeof(WorkOrderBuilder));
-            modelBuilder.Configurations<WorkAssignment>().Add(typeof(WorkAssignmentBuilder));
-            modelBuilder.Configurations<ReportDefinition>().Add(typeof(ReportDefinitionBuilder));
+            modelBuilder.ApplyConfiguration(new WorkerSigninBuilder());
+            modelBuilder.ApplyConfiguration(new EventBuilder());
+            modelBuilder.ApplyConfiguration(new JoinEventImageBuilder());
+            modelBuilder.ApplyConfiguration(new JoinWorkOrderEmailBuilder());
+            modelBuilder.ApplyConfiguration(new ActivitySigninBuilder());
+            modelBuilder.ApplyConfiguration(new ActivityBuilder());
+            modelBuilder.ApplyConfiguration(new EmailBuilder());
+            modelBuilder.ApplyConfiguration(new TransportProviderBuilder());
+            modelBuilder.ApplyConfiguration(new TransportProvidersAvailabilityBuilder());
+            modelBuilder.ApplyConfiguration(new TransportRuleBuilder());
+            modelBuilder.ApplyConfiguration(new TransportCostRuleBuilder());
+            modelBuilder.ApplyConfiguration(new ScheduleRuleBuilder());
+            modelBuilder.ApplyConfiguration(new EmployerBuilder());
+            modelBuilder.ApplyConfiguration(new WorkOrderBuilder());
+            modelBuilder.ApplyConfiguration(new WorkAssignmentBuilder());
+            modelBuilder.ApplyConfiguration(new ReportDefinitionBuilder());
             
             // VIEWS //
             modelBuilder.Query<QueryMetadata>();
