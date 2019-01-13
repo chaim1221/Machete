@@ -126,11 +126,11 @@ namespace Machete.Data
         }
     }
 
-    public class JoinWorkOrderEmailBuilder
+    public class JoinWorkOrderEmailBuilder : IEntityTypeConfiguration<JoinWorkOrderEmail>
     {
-        public JoinWorkOrderEmailBuilder(EntityTypeBuilder<JoinWorkOrderEmail> entity)
+        public void Configure(EntityTypeBuilder<JoinWorkOrderEmail> builder)
         {
-            entity.HasKey(k => new {k.EmailID, k.WorkOrderID});
+            builder.HasKey(k => new {k.EmailID, k.WorkOrderID});
         }
     }
 
@@ -178,20 +178,20 @@ namespace Machete.Data
         }
     }
 
-    public class ReportDefinitionBuilder
+    public class ReportDefinitionBuilder : IEntityTypeConfiguration<ReportDefinition>
     {
-        public ReportDefinitionBuilder(EntityTypeBuilder<ReportDefinition> entity)
+        public void Configure(EntityTypeBuilder<ReportDefinition> builder)
         {
-            entity.HasKey(k => k.ID);
+            builder.HasKey(k => k.ID);
         }
     }
 
-    public class WorkerSigninBuilder
+    public class WorkerSigninBuilder : IEntityTypeConfiguration<WorkerSignin>
     {
-        public WorkerSigninBuilder(EntityTypeBuilder<WorkerSignin> entity)
+        public void Configure(EntityTypeBuilder<WorkerSignin> builder)
         {
-            entity.HasKey(k => k.ID);
-            entity.Property(x => x.ID);
+            builder.HasKey(k => k.ID);
+            builder.Property(x => x.ID);
             // EF6; see ActivitySignin class for EF7 decorator
             // https://stackoverflow.com/questions/36155429/auto-increment-on-partial-primary-key-with-entity-framework-core
             //entity.HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity); 
@@ -209,86 +209,86 @@ namespace Machete.Data
         }
     }
 
-    public class EmployerBuilder
+    public class EmployerBuilder : IEntityTypeConfiguration<Employer>
     {
-        public EmployerBuilder(EntityTypeBuilder<Employer> entity)
+        public void Configure(EntityTypeBuilder<Employer> builder)
         {
-            entity.HasKey(e => e.ID); //being explicit for EF
-            entity.HasMany(e => e.WorkOrders) //define the parent
+            builder.HasKey(e => e.ID); //being explicit for EF
+            builder.HasMany(e => e.WorkOrders) //define the parent
                 .WithOne(w => w.Employer).IsRequired(true) //Virtual property definition
                 .HasForeignKey(wo => wo.EmployerID) //DB foreign key definition
                 .OnDelete(DeleteBehavior.Cascade);
-            entity.ToTable("Employers");
+            builder.ToTable("Employers");
         }
     }
 
-    public class EmailBuilder
+    public class EmailBuilder : IEntityTypeConfiguration<Email>
     {
-        public EmailBuilder(EntityTypeBuilder<Email> entity)
+        public void Configure(EntityTypeBuilder<Email> builder)
         {
-            entity.HasKey(e => e.ID);
+            builder.HasKey(e => e.ID);
         }
     }
 
-    public class WorkOrderBuilder
+    public class WorkOrderBuilder : IEntityTypeConfiguration<WorkOrder>
     {
-        public WorkOrderBuilder(EntityTypeBuilder<WorkOrder> entity)
+        public void Configure(EntityTypeBuilder<WorkOrder> builder)
         {
-            entity.HasKey(k => k.ID);
-            entity.HasOne(p => p.Employer)
+            builder.HasKey(k => k.ID);
+            builder.HasOne(p => p.Employer)
                 .WithMany(e => e.WorkOrders)
                 .HasForeignKey(e => e.EmployerID)
                 .IsRequired(true);
-            entity.ToTable("WorkOrders");
+            builder.ToTable("WorkOrders");
         }
     }
 
-    public class WorkAssignmentBuilder
+    public class WorkAssignmentBuilder : IEntityTypeConfiguration<WorkAssignment>
     {
-        public WorkAssignmentBuilder(EntityTypeBuilder<WorkAssignment> entity)
+        public void Configure(EntityTypeBuilder<WorkAssignment> builder)
         {
-            entity.HasKey(k => k.ID);
-            entity.HasOne(k => k.workOrder)
+            builder.HasKey(k => k.ID);
+            builder.HasOne(k => k.workOrder)
                 .WithMany(a => a.workAssignments)
                 .HasForeignKey(a => a.workOrderID)
                 .IsRequired(true);
-            entity.ToTable("WorkAssignments");
+            builder.ToTable("WorkAssignments");
         }
     }
 
-    public class EventBuilder
+    public class EventBuilder : IEntityTypeConfiguration<Event>
     {
-        public EventBuilder(EntityTypeBuilder<Event> entity)
+        public void Configure(EntityTypeBuilder<Event> builder)
         {
-            entity.HasKey(k => k.ID);
-            entity.HasOne(k => k.Person)
+            builder.HasKey(k => k.ID);
+            builder.HasOne(k => k.Person)
                 .WithMany(e => e.Events)
                 .HasForeignKey(k => k.PersonID)
                 .IsRequired(true);
         }
     }
 
-    public class JoinEventImageBuilder
+    public class JoinEventImageBuilder : IEntityTypeConfiguration<JoinEventImage>
     {
-        public JoinEventImageBuilder(EntityTypeBuilder<JoinEventImage> entity)
+        public void Configure(EntityTypeBuilder<JoinEventImage> builder)
         {
-            entity.HasKey(k => k.ID);
-            entity.HasOne(k => k.Event)
+            builder.HasKey(k => k.ID);
+            builder.HasOne(k => k.Event)
                 //.HasRequired(k => k.event)
                 .WithMany(d => d.JoinEventImages)
                 .HasForeignKey(k => k.EventID)
                 .IsRequired(true);
-            entity.HasOne(k => k.Image).WithOne().IsRequired(true);
+            builder.HasOne(k => k.Image).WithOne().IsRequired(true);
                 //.HasRequired(k => k.image);
         }
     }
 
-    public class ActivityBuilder
+    public class ActivityBuilder : IEntityTypeConfiguration<Activity>
     {
-        public ActivityBuilder(EntityTypeBuilder<Activity> entity)
+        public void Configure(EntityTypeBuilder<Activity> builder)
         {
-            entity.HasKey(k => k.ID);
-            entity.HasMany(e => e.Signins)
+            builder.HasKey(k => k.ID);
+            builder.HasMany(e => e.Signins)
                 .WithOne(w => w.Activity)
                 .IsRequired(true)
                 .HasForeignKey(k => k.activityID)
@@ -296,12 +296,12 @@ namespace Machete.Data
         }
     }
 
-    public class ActivitySigninBuilder
+    public class ActivitySigninBuilder : IEntityTypeConfiguration<ActivitySignin>
     {
-        public ActivitySigninBuilder(EntityTypeBuilder<ActivitySignin> entity)
+        public void Configure(EntityTypeBuilder<ActivitySignin> builder)
         {
-            entity.HasKey(k => k.ID);
-            entity.Property(x => x.ID);
+            builder.HasKey(k => k.ID);
+            builder.Property(x => x.ID);
             // EF6; see ActivitySignin class for EF7 decorator
             // https://stackoverflow.com/questions/36155429/auto-increment-on-partial-primary-key-with-entity-framework-core
             //entity.HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity); 
@@ -319,58 +319,58 @@ namespace Machete.Data
         }
     }
 
-    public class TransportProviderBuilder
+    public class TransportProviderBuilder : IEntityTypeConfiguration<TransportProvider>
     {
-        public TransportProviderBuilder(EntityTypeBuilder<TransportProvider> entity)
+        public void Configure(EntityTypeBuilder<TransportProvider> builder)
         {
-            entity.HasKey(k => k.ID);
-            entity.HasMany(e => e.AvailabilityRules) //define the parent
+            builder.HasKey(k => k.ID);
+            builder.HasMany(e => e.AvailabilityRules) //define the parent
                 .WithOne(w => w.Provider).IsRequired(true) //Virtual property definition
                 .HasForeignKey(w => w.transportProviderID) //DB foreign key definition
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
 
-    public class TransportProvidersAvailabilityBuilder
+    public class TransportProvidersAvailabilityBuilder : IEntityTypeConfiguration<TransportProviderAvailability>
     {
-        public TransportProvidersAvailabilityBuilder(EntityTypeBuilder<TransportProviderAvailability> entity)
+        public void Configure(EntityTypeBuilder<TransportProviderAvailability> builder)
         {
-            entity.HasKey(k => k.ID);
-            entity.HasOne(p => p.Provider)
+            builder.HasKey(k => k.ID);
+            builder.HasOne(p => p.Provider)
                 .WithMany(e => e.AvailabilityRules)
                 .HasForeignKey(e => e.transportProviderID);
         }
     }
 
-    public class TransportRuleBuilder
+    public class TransportRuleBuilder : IEntityTypeConfiguration<TransportRule>
     {
-        public TransportRuleBuilder(EntityTypeBuilder<TransportRule> entity)
+        public void Configure(EntityTypeBuilder<TransportRule> builder)
         {
-            entity.HasKey(k => k.ID);
-            entity.HasMany(c => c.costRules)
+            builder.HasKey(k => k.ID);
+            builder.HasMany(c => c.costRules)
                 .WithOne(r => r.transportRule).IsRequired(true)
                 .HasForeignKey(k => k.transportRuleID)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
 
-    public class TransportCostRuleBuilder
+    public class TransportCostRuleBuilder : IEntityTypeConfiguration<TransportCostRule>
     {
-        public TransportCostRuleBuilder(EntityTypeBuilder<TransportCostRule> entity)
+        public void Configure(EntityTypeBuilder<TransportCostRule> builder)
         {
-            entity.HasKey(k => k.ID);
-            entity.HasOne(k => k.transportRule)
+            builder.HasKey(k => k.ID);
+            builder.HasOne(k => k.transportRule)
                 .WithMany(c => c.costRules)
                 .HasForeignKey(k => k.transportRuleID)
                 .IsRequired(true);
         }
     }
 
-    public class ScheduleRuleBuilder
+    public class ScheduleRuleBuilder : IEntityTypeConfiguration<ScheduleRule>
     {
-        public ScheduleRuleBuilder(EntityTypeBuilder<ScheduleRule> entity)
+        public void Configure(EntityTypeBuilder<ScheduleRule> builder)
         {
-            entity.HasKey(k => k.ID);
+            builder.HasKey(k => k.ID);
         }
     }
 
