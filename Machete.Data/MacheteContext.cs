@@ -22,6 +22,7 @@
 // 
 
 #endregion
+
 using Machete.Domain;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System;
@@ -32,9 +33,20 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Activity = Machete.Domain.Activity;
+
+#region SHUTUP RESHARPER
+// The purpose of suppressing so many inspections in this case is so that I can
+// visually verify the integrity of the file when there are changes.
+//
 // ReSharper disable RedundantArgumentDefaultValue
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable ClassWithVirtualMembersNeverInherited.Global
+// ReSharper disable SuggestBaseTypeForParameter
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable InvertIf
+// ReSharper disable AssignNullToNotNullAttribute
+#endregion
 
 namespace Machete.Data
 
@@ -73,7 +85,7 @@ namespace Machete.Data
             // https://github.com/aspnet/EntityFrameworkCore/issues/3680#issuecomment-155502539
             var validationErrors = ChangeTracker
                 .Entries<IValidatableObject>()
-                .SelectMany(entities => entities.Entity.Validate(null)) // may have to make a validation context?
+                .SelectMany(entities => entities.Entity.Validate(null))
                 .Where(result => result != ValidationResult.Success);
             
             if (validationErrors.Any()) {
@@ -324,9 +336,9 @@ namespace Machete.Data
         public void Configure(EntityTypeBuilder<TransportProvider> builder)
         {
             builder.HasKey(k => k.ID);
-            builder.HasMany(e => e.AvailabilityRules) //define the parent
-                .WithOne(w => w.Provider).IsRequired(true) //Virtual property definition
-                .HasForeignKey(w => w.transportProviderID) //DB foreign key definition
+            builder.HasMany(e => e.AvailabilityRules)      // define the parent.
+                .WithOne(w => w.Provider).IsRequired(true) // define the EF Core virtual property.
+                .HasForeignKey(w => w.transportProviderID) // define the foreign key constraint.
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
@@ -381,9 +393,9 @@ namespace Machete.Data
             return model.Entity<T>();
         }
 
-        public static object Add(this EntityTypeBuilder entity, Type type)
+        public static void Add(this EntityTypeBuilder entity, Type type)
         {
-            return Activator.CreateInstance(type, entity);
+            Activator.CreateInstance(type, entity);
         }
     }
 }
