@@ -1,21 +1,33 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Machete.Service;
 using Machete.Service.DTO;
-using OfficeOpenXml;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Machete.Api.Attributes;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Primitives;
 
+// ReSharper disable UnusedMember.Global
 namespace Machete.Api.Controllers
 {
+    public enum ValidTableNames {
+        Activities,
+        ActivitySignins,
+        Emails,
+        Employers,
+        Events,
+        Lookups,
+        Persons,
+        ReportDefinitions,
+        WorkAssignments,
+        WorkerRequests,
+        Workers,
+        WorkerSignins,
+        WorkOrders
+    }
+    
     [Route("api/[controller]")]
     [ApiController]
     public class ExportsController : ControllerBase
@@ -33,7 +45,7 @@ namespace Machete.Api.Controllers
         [ClaimsAuthorization(claimType: CAType.Role, claimValues: new[] { "Administrator" })]
         public ActionResult Get()
         {
-            var tables = new string[] {
+            var tables = new[] {
                 "Activities",
                 "ActivitySignins",
                 "Emails",
@@ -54,11 +66,10 @@ namespace Machete.Api.Controllers
         }
         //[Authorize(Roles = "Administrator, Manager")]
         [ClaimsAuthorization(claimType: CAType.Role, claimValues: new[] { "Administrator" })]
-        public ActionResult Get(string id)
+        public ActionResult Get(string tableName)
         {
-
-            var result = serv.getColumns(id);
-            // TODO Use Automapper to return column deserialized
+            Enum.TryParse<ValidTableNames>(tableName, out var name); // validate that we've only received a table name
+            var result = serv.getColumns(tableName);
             return new JsonResult(new { data = result });
         }
 
