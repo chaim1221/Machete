@@ -1,48 +1,49 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Reflection;
+using System.Threading.Tasks;
+using Machete.Data.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
-namespace Machete.Data.Infrastructure
+namespace Machete.Data
 {
+    public class MacheteAdoContext
+    {
+        public IEnumerable<string> ExecuteSql(string query)
+        {
+            return new List<string>();
+        }
+
+        public IEnumerable<T> SqlQuery<T>(T type, string rdefSqlquery, SqlParameter sqlParameter, SqlParameter sqlParameter1, SqlParameter sqlParameter2)
+        {
+            return new List<T>();
+        }
+    }
+    
     public interface IReadOnlyContext : IDatabaseFactory
     {
         List<string> ExecuteSql(MacheteContext context, string query);
     }
+    
     public class ReadOnlyContext : Disposable, IReadOnlyContext
     {
         private readonly string _connString;
-        private readonly BindingFlags _bindFlags;
-        private FieldInfo _field;
 
-        // this class cannot be instantiated without a connection string;
-        // the purpose is to make the person who implements it think about
-        // which connection string should be used (i.e., the readonly one).
-        // not validating the connection string here, because this class
-        // should have no knowledge of connection strings.
         public ReadOnlyContext(string connString)
         {
-            _bindFlags = BindingFlags.Instance
-                       | BindingFlags.Public
-                       | BindingFlags.NonPublic
-                       | BindingFlags.Static;
-            _field = typeof(SqlConnection).GetField("ObjectID", _bindFlags);
+            var bindFlags = BindingFlags.Instance
+                                      | BindingFlags.Public
+                                      | BindingFlags.NonPublic
+                                      | BindingFlags.Static;
+            typeof(SqlConnection).GetField("ObjectID", bindFlags);
             _connString = connString;
         }
 
-        // we don't want the base get() because it allows you to pass in
-        // nothing and get MacheteConnection(), which uses "macheteContext"
         public MacheteContext Get()
         {
-            if (String.IsNullOrEmpty(_connString))
-            {
-                throw new ArgumentNullException(
-                    paramName: "_connString",
-                    message: "An instance of MacheteContext was requested but no connection string was provided.");
-            }
-
             var optionsBuilder = new DbContextOptionsBuilder<MacheteContext>();
             optionsBuilder.UseSqlServer(_connString, b =>
                 b.MigrationsAssembly("Machete.Data.Migrations"));
@@ -53,7 +54,7 @@ namespace Machete.Data.Infrastructure
         public List<string> ExecuteSql(MacheteContext context, string query)
         {
             var errors = new List<string>();
-            var connection = (context as Microsoft.EntityFrameworkCore.DbContext).Database.GetDbConnection();
+            var connection = context.Database.GetDbConnection();
 
             using (var command = connection.CreateCommand())
             {
