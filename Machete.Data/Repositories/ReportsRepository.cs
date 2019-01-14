@@ -36,7 +36,7 @@ namespace Machete.Data
         {
             var rdef = dbset.Single(a => a.ID == id);
             var meta = SqlServerUtils.getMetadata(DataContext, rdef.sqlquery);
-            var queryType = ILVoodoo.buildQueryType(meta);
+            var queryType = ILVoodoo.buildQueryType(meta); // don't remove
             Task<List<object>> raw = dbFactory.Get().Query<dynamic>().FromSql(
                 //queryType, 
                 rdef.sqlquery,
@@ -58,7 +58,6 @@ namespace Machete.Data
 
         public List<QueryMetadata> getColumns(string tableName)
         {
-            if (tableName == null) throw new ArgumentNullException("tableName can't be null");
             return SqlServerUtils.getMetadata(DataContext, "select top 0 * from " + tableName);
         }
 

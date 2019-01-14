@@ -80,10 +80,6 @@ namespace Machete.Data
         public DbSet<TransportRule> TransportRules { get; set; }
         public DbSet<TransportCostRule> TransportCostRules { get; set; }
         public DbSet<ScheduleRule> ScheduleRules { get; set; }
-        
-        // Here, we define expected queries that are not types. Entity Framework requires query
-        // types to be included in the model for the context unless they are defined here.
-        public DbQuery<DynamicQueryObject> DynamicQuery { get; set; }
 
         public override int SaveChanges()
         {
