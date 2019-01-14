@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Machete.Api.Maps;
 using Machete.Data;
+using Machete.Data.Repositories;
 using Machete.Domain;
 using Machete.Service;
 using Machete.Web;
@@ -84,40 +85,7 @@ namespace Machete.Test.Integration.Fluent
             
             container = serviceScope.ServiceProvider;
 
-            // causes the connection string property to not be initialized
-//            var unused = AddDBReadonly(container.GetRequiredService<MacheteContext>());
-
             ToServ<ILookupService>().populateStaticIds();
-        }
-
-        private async Task AddDBReadonly(MacheteContext context)
-        {
-            using (var connection = context.Database.GetDbConnection())
-            {
-                await connection.OpenAsync();
-                using (var command = connection.CreateCommand()) {
-                    
-                command.CommandText = "sp_executesql";
-                command.CommandType = CommandType.StoredProcedure;
-                var param = command.CreateParameter();
-                param.ParameterName = "@statement";
-                param.Value = @"
-CREATE LOGIN readonlyLogin WITH PASSWORD='@testPassword1'
-CREATE USER readonlyUser FROM LOGIN readonlyLogin
-EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
-                    ";
-                command.Parameters.Add(param);
-                try {
-                    command.ExecuteNonQuery();
-                } catch (SqlException ex) {
-                    var userAlreadyExists = ex.Errors[0].Number.Equals(15025);
-                    if (!userAlreadyExists)
-                        throw ex;
-                } // finally {
-                  // context.Close();
-                  // }
-                }
-            }
         }
 
         public void Dispose()
