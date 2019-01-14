@@ -1,4 +1,4 @@
-﻿#region COPYRIGHT
+#region COPYRIGHT
 // File:     MacheteContext.cs
 // Author:   Savage Learning, LLC.
 // Created:  2012/06/17 
@@ -156,20 +156,10 @@ namespace Machete.Data
             builder.Property(p => p.ID)
                 .ValueGeneratedOnAdd();
             
-// Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'FOREIGN KEY constraint failed'.
             builder.HasOne(p => p.Worker)
                 .WithOne(w => w.Person)
-                .HasForeignKey<Worker>(w => w.ID) //main.Persons.FK_Persons_Workers_ID (wrong)
+                .HasForeignKey<Worker>(w => w.ID)
                 .OnDelete(DeleteBehavior.Cascade);
-
-//// The child/dependent side could not be determined for the one-to-one relationship ...configure the foreign key property.
-//            builder.HasOne(p => p.Worker)
-//                .WithOne(w => w.Person)
-////                .IsRequired(false) // same
-////              .HasForeignKey<Worker>(w => w.ID) //main.Persons.FK_Persons_Workers_ID
-//                .OnDelete(DeleteBehavior.Cascade);
-            
-            //builder.ToTable("Persons");
         }
     }
 
@@ -177,12 +167,6 @@ namespace Machete.Data
     {
         public void Configure(EntityTypeBuilder<Worker> builder)
         {
-//            builder.HasKey(k => k.ID);
-
-//// FOREIGN KEY constraint failed
-//            builder.HasOne(w => w.Person)
-//                .WithOne(p => p.Worker)//.IsRequired(false);
-//                .HasForeignKey<Person>(p => p.ID); //main.Persons.FK_Persons_Workers_ID
             builder.HasMany(s => s.workersignins)
                 .WithOne(s => s.worker).IsRequired(false)
                 .HasForeignKey(s => s.WorkerID);
@@ -206,20 +190,6 @@ namespace Machete.Data
         {
             builder.HasKey(k => k.ID);
             builder.Property(x => x.ID);
-            // EF6; see ActivitySignin class for EF7 decorator
-            // https://stackoverflow.com/questions/36155429/auto-increment-on-partial-primary-key-with-entity-framework-core
-            //entity.HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity); 
-            // Or try this:
-            //entity.Property(x => x.ID)
-            //    .ValueGeneratedOnAdd();
-
-            // EF6; unnecessary, EF7
-            // https://stackoverflow.com/questions/46290086/how-to-map-entities-with-inheritance-entity-framework-core-2-0
-            //entity.Map(m =>
-            //{
-            //    m.MapInheritedProperties();
-            //    m.ToTable("WorkerSignins");
-            //});
         }
     }
 
@@ -227,10 +197,10 @@ namespace Machete.Data
     {
         public void Configure(EntityTypeBuilder<Employer> builder)
         {
-            builder.HasKey(e => e.ID); //being explicit for EF
-            builder.HasMany(e => e.WorkOrders) //define the parent
-                .WithOne(w => w.Employer).IsRequired(true) //Virtual property definition
-                .HasForeignKey(wo => wo.EmployerID) //DB foreign key definition
+            builder.HasKey(e => e.ID);
+            builder.HasMany(e => e.WorkOrders)             //define the parent
+                .WithOne(w => w.Employer).IsRequired(true) //define the virtual property
+                .HasForeignKey(wo => wo.EmployerID)        //define the foreign key relationship
                 .OnDelete(DeleteBehavior.Cascade);
             builder.ToTable("Employers");
         }
@@ -288,12 +258,10 @@ namespace Machete.Data
         {
             builder.HasKey(k => k.ID);
             builder.HasOne(k => k.Event)
-                //.HasRequired(k => k.event)
                 .WithMany(d => d.JoinEventImages)
                 .HasForeignKey(k => k.EventID)
                 .IsRequired(true);
             builder.HasOne(k => k.Image).WithOne().IsRequired(true);
-                //.HasRequired(k => k.image);
         }
     }
 
@@ -316,20 +284,6 @@ namespace Machete.Data
         {
             builder.HasKey(k => k.ID);
             builder.Property(x => x.ID);
-            // EF6; see ActivitySignin class for EF7 decorator
-            // https://stackoverflow.com/questions/36155429/auto-increment-on-partial-primary-key-with-entity-framework-core
-            //entity.HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity); 
-            // Or try this:
-            //entity.Property(x => x.ID)
-            //    .ValueGeneratedOnAdd();
-
-            // EF6; unnecessary, EF7
-            // https://stackoverflow.com/questions/46290086/how-to-map-entities-with-inheritance-entity-framework-core-2-0
-            //entity.Map(m =>
-            //{
-            //    m.MapInheritedProperties();
-            //    m.ToTable("ActivitySignins");
-            //});
         }
     }
 

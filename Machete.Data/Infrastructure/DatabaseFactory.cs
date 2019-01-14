@@ -1,4 +1,4 @@
-﻿#region COPYRIGHT
+#region COPYRIGHT
 // File:     DatabaseFactory.cs
 // Author:   Savage Learning, LLC.
 // Created:  2012/06/17 
@@ -35,7 +35,6 @@ namespace Machete.Data.Infrastructure
     public interface IDatabaseFactory : IDisposable
     {
         MacheteContext Get();
-        //void Set(MacheteContext context);
     }
     //
     //
@@ -60,14 +59,7 @@ namespace Machete.Data.Infrastructure
             
             typeof(SqlConnection).GetField("ObjectID", BindFlags);
             
-            var builder = new DbContextOptionsBuilder<MacheteContext>();
-// don't do this
-//            if (string.IsNullOrEmpty(connString) || connString == "Data Source=machete.db")
-//                builder.UseSqlite("Data Source=machete.db", with =>
-//                    with.MigrationsAssembly("Machete.Data"));
-//            else
-// it ends badly
-                builder
+            var builder = new DbContextOptionsBuilder<MacheteContext>()
                     .UseLazyLoadingProxies()
                     .UseSqlServer(connString, with =>
                     with.MigrationsAssembly("Machete.Data"));
