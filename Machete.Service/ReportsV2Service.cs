@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Machete.Data.Dynamic;
 using DTO = Machete.Service.DTO;
 
 namespace Machete.Service

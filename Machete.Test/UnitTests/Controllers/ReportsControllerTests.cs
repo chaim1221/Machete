@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using Api.ViewModels;
 using AutoMapper;
+using Machete.Api.Controllers;
 using Machete.Service;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Machete.Web.Helpers;
 using Machete.Web.Maps;
 using Microsoft.AspNetCore.Mvc;
 using Moq.Language.Flow;
@@ -22,8 +23,6 @@ namespace Machete.Test.UnitTests.Controllers
     [TestClass]
     public class ReportsControllerTests
     {
-        Mock<IDefaults> def;
-
         public Mock<IReportsV2Service> serv;
         public IMapper map;
         public ReportsController controller;
@@ -45,7 +44,7 @@ namespace Machete.Test.UnitTests.Controllers
             var mapperConfig = new MvcMapperConfiguration().Config;
             map = mapperConfig.CreateMapper(); 
 
-            controller = new ReportsController(serv.Object, def.Object, map);
+            controller = new ReportsController(serv.Object, map);
 //            controller.Request = new HttpRequestMessage();
 //            controller.Configuration = new HttpConfiguration();
         }
@@ -214,18 +213,6 @@ namespace Machete.Test.UnitTests.Controllers
                     columnsJson = "{ \"columns\": [\"column A\", \"column B\"] }"
                 }
             };
-        }
-    }
-
-    public class ReportQuery { // FAKE
-        public string query { get; set; }
-    }
-    
-    public class ReportsController {
-        
-        public ReportsController(IReportsV2Service servObject, IDefaults def, object o)
-        {
-            //throw new NotImplementedException();
         }
     }
 }
