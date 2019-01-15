@@ -100,7 +100,7 @@ namespace Machete.Data
         public static IEnumerable<string> ValidateQuery(string query)
         {
             var errors = new List<string>();
-            var connection = new SqlConnection();
+            var connection = new SqlConnection(_connectionString);
 
             using (var command = connection.CreateCommand())
             {
