@@ -35,8 +35,7 @@ namespace Machete.Test.Integration.Data
 //            Assert.AreNotEqual(0, result.Count);
 //        }
 
-        // IGNORED, fixing
-        [Ignore, TestMethod, TestCategory(TC.IT), TestCategory(TC.Data), TestCategory(TC.Reports)]
+        [TestMethod, TestCategory(TC.IT), TestCategory(TC.Data), TestCategory(TC.Reports)]
         public void getDynamicQuery_returns_list()
         {
             // arrange

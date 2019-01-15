@@ -29,11 +29,11 @@ namespace Machete.Data.Repositories
             List<QueryMetadata> meta = MacheteAdoContext.getMetadata(report.sqlquery);
             Type queryType = ILVoodoo.buildQueryType(meta);
             List<object> queryResult = MacheteAdoContext.SqlQuery(
-                queryType,
-                report.sqlquery,
-                new SqlParameter { ParameterName = "beginDate", Value = o.beginDate },
-                new SqlParameter { ParameterName = "endDate", Value = o.endDate },
-                new SqlParameter { ParameterName = "dwccardnum", Value = o.dwccardnum })
+                    queryType, // is always Type, so fails
+                    report.sqlquery,
+                    new SqlParameter { ParameterName = "beginDate", Value = o.beginDate },
+                    new SqlParameter { ParameterName = "endDate", Value = o.endDate },
+                    new SqlParameter { ParameterName = "dwccardnum", Value = o.dwccardnum })
                 .ToList<object>();
 
             return queryResult;

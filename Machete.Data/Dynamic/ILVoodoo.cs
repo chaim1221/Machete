@@ -7,8 +7,7 @@ namespace Machete.Data.Dynamic {
     public static class ILVoodoo {
         public static Type buildQueryType(List<QueryMetadata> columns)
         {
-            TypeBuilder builder = CreateTypeBuilder(
-                "MyDynamicAssembly", "MyModule", "dynamicQueryType");
+            TypeBuilder builder = CreateTypeBuilder("MyDynamicAssembly", "MyModule", "dynamicQueryType");
             foreach (QueryMetadata c in columns)
             {
                 if (c.system_type_name == null) throw new ArgumentNullException("getQueryTyped received null for column name");

@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using Castle.Core.Internal;
 using Machete.Data.Dynamic;
 using Newtonsoft.Json;
 
@@ -10,9 +13,10 @@ namespace Machete.Data
 {
     public static class MacheteAdoContext
     {
-        private const string _connectionString = "Server=localhost,1433; Database=machete_db; User=SA; Password=passw0rD!;";
+        // TODO move to appsettings.json
+        private const string _connectionString = "Server=localhost,1433; Database=machete_db; User=readonlylogin; Password=@testPassword1;";
 
-        public static string escapeQueryText(string query)
+        private static string escapeQueryText(string query)
         {
             try {
                 var removedDates = Regex.Replace(query, @"@\w+[Dd]ate", "'1/1/2016'", RegexOptions.None);
@@ -33,9 +37,7 @@ namespace Machete.Data
         
         public static List<QueryMetadata> getMetadata(string fromQuery)
         {
-            var queryText = escapeQueryText(fromQuery);
-            var param = new SqlParameter("@query", queryText);
-            
+            var param = new SqlParameter("@query", escapeQueryText(fromQuery));
             var queryResult = SqlQuery<QueryMetadata>(
                 // https://docs.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-describe-first-result-set-transact-sql
                 // http://stackoverflow.com/questions/13766564/finding-number-of-columns-returned-by-a-query
@@ -46,7 +48,6 @@ namespace Machete.Data
                 param);
             return queryResult.ToList();
         }
-
 
         // used for report initialization
         public static string getUIColumnsJson(string query)
@@ -60,15 +61,45 @@ namespace Machete.Data
                 });
             return JsonConvert.SerializeObject(result);
         }
-       
-        private static IEnumerable<T> SqlQuery<T>(string type, SqlParameter rdefSqlquery)
+
+        public static IEnumerable<T> SqlQuery<T>(T type, string query, params SqlParameter[] sqlParameters) where T : class
         {
-            return new List<T>();
+            return SqlQuery<T>(query, sqlParameters);
         }
 
-        public static IEnumerable<T> SqlQuery<T>(T type, string rdefSqlquery, SqlParameter sqlParameter, SqlParameter sqlParameter1, SqlParameter sqlParameter2)
+        public static IEnumerable<T> SqlQuery<T>(string query, params SqlParameter[] sqlParameters) where T : class
         {
-            return new List<T>();
+            using (var connection = new SqlConnection(_connectionString)) 
+            {
+                var type = typeof(T);
+                var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                var result = new List<T>();
+                
+                var cmd = new SqlCommand(query, connection) { CommandType = CommandType.Text };
+
+                foreach (var parameter in sqlParameters) {
+                    cmd.Parameters.AddWithValue(parameter.ParameterName, parameter.SqlValue);                    
+                }
+                
+                connection.Open();
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read()) {
+                    var instance = (T)Activator.CreateInstance(type);
+                    foreach (var property in properties) {
+                        if (property == null) continue;
+                        if (!property.CanWrite) continue;
+                        try {
+                            var value = reader[property.Name];
+                            property.SetValue(instance, value);
+                        } catch (IndexOutOfRangeException) { /*sorry*/ }
+                    }
+                    result.Add(instance);
+                }
+
+                // G-d help us
+                return result;
+            }
         }
 
         public static IEnumerable<string> ValidateQuery(string query)
