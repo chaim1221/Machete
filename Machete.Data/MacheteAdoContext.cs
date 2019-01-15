@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -62,11 +63,6 @@ namespace Machete.Data
             return JsonConvert.SerializeObject(result);
         }
 
-        public static IEnumerable<T> SqlQuery<T>(T type, string query, params SqlParameter[] sqlParameters) where T : class
-        {
-            return SqlQuery<T>(query, sqlParameters);
-        }
-
         public static IEnumerable<T> SqlQuery<T>(string query, params SqlParameter[] sqlParameters) where T : class
         {
             using (var connection = new SqlConnection(_connectionString)) 
@@ -97,7 +93,6 @@ namespace Machete.Data
                     result.Add(instance);
                 }
 
-                // G-d help us
                 return result;
             }
         }

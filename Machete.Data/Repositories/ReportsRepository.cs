@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 using Machete.Data.DTO;
 using Machete.Data.Dynamic;
 using Machete.Data.Infrastructure;
@@ -28,13 +30,17 @@ namespace Machete.Data.Repositories
             ReportDefinition report = dbset.Single(a => a.ID == id); // TODO move to ADO
             List<QueryMetadata> meta = MacheteAdoContext.getMetadata(report.sqlquery);
             Type queryType = ILVoodoo.buildQueryType(meta);
-            List<object> queryResult = MacheteAdoContext.SqlQuery(
-                    queryType, // is always Type, so fails
-                    report.sqlquery,
-                    new SqlParameter { ParameterName = "beginDate", Value = o.beginDate },
-                    new SqlParameter { ParameterName = "endDate", Value = o.endDate },
-                    new SqlParameter { ParameterName = "dwccardnum", Value = o.dwccardnum })
-                .ToList<object>();
+            MethodInfo method = Type.GetType("Machete.Data.MacheteAdoContext")
+                .GetMethod("SqlQuery", new[] { typeof(string), typeof(SqlParameter[]) });
+            MethodInfo man = method.MakeGenericMethod(queryType);
+            
+            List<object> queryResult = man.Invoke(null, new object[] {
+                    report.sqlquery, new[] {
+                        new SqlParameter { ParameterName = "beginDate", Value = o.beginDate },
+                        new SqlParameter { ParameterName = "endDate", Value = o.endDate },
+                        new SqlParameter { ParameterName = "dwccardnum", Value = o.dwccardnum }
+                    }
+                }) as List<object>;
 
             return queryResult;
         }
