@@ -33,16 +33,16 @@ namespace Machete.Data.Repositories
             MethodInfo method = Type.GetType("Machete.Data.MacheteAdoContext")
                 .GetMethod("SqlQuery", new[] { typeof(string), typeof(SqlParameter[]) });
             MethodInfo man = method.MakeGenericMethod(queryType);
-            
-            List<object> queryResult = man.Invoke(null, new object[] {
+
+            var obj = man.Invoke(null, new object[] {
                     report.sqlquery, new[] {
                         new SqlParameter { ParameterName = "beginDate", Value = o.beginDate },
                         new SqlParameter { ParameterName = "endDate", Value = o.endDate },
                         new SqlParameter { ParameterName = "dwccardnum", Value = o.dwccardnum }
                     }
-                }) as List<object>;
+                });
 
-            return queryResult;
+            return obj as List<dynamic>; // <~ this returns null; what we want is like: (List<dynamic>) obj; (throws)
         }
 
         public List<ReportDefinition> getList()
