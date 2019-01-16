@@ -63,7 +63,7 @@ namespace Machete.Test.UnitTests.Controllers
             _adaptor.Setup(dependency => dependency.TryUpdateModelAsync(It.IsAny<Controller>(), It.IsAny<Record>()))
                 .Returns(Task.FromResult(true));
             
-            _controller = new WorkerController(_wserv.Object, _pserv.Object, _iserv.Object, def.Object, map.Object, _adaptor.Object);
+            _controller = new WorkerController(_wserv.Object, _iserv.Object, def.Object, map.Object, _adaptor.Object);
 
             var fakeFormValues = new Worker {
                 ID = 12345,
@@ -215,7 +215,7 @@ namespace Machete.Test.UnitTests.Controllers
                                          });
 
             //Act
-            var unused = await _controller.Edit(testid, fakeworker, "UnitTest", null) as PartialViewResult;
+            var unused = await _controller.Edit(testid, "UnitTest", null) as PartialViewResult;
             
             //Assert
             Assert.AreEqual(fakeworker, savedworker);
