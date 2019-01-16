@@ -1,8 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Machete.Domain;
-using Machete.Test.Integration;
+﻿using Machete.Domain;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Machete.Test
+namespace Machete.Test.Integration.Fluent
 {
     [TestClass]
     public class FluentRecordTests

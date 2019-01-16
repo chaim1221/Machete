@@ -26,6 +26,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using Machete.Data;
+using Machete.Data.Initialize;
+using Machete.Test.Integration.Fluent;
 using Microsoft.Extensions.DependencyInjection;
 using DbFunctions = Machete.Service.DbFunctions;
 
@@ -70,11 +72,11 @@ namespace Machete.Test.Integration.Data
             // Arrange - load test records
             var context = frb.ToFactory();
             context.Database.ExecuteSqlCommand("TRUNCATE TABLE ReportDefinitions");
-            var cache = Machete.Data.MacheteReportDefinitions.cache;
+            var cache = MacheteReportDefinitions.cache;
             var count = cache.Count;
             
             // Act
-            Machete.Data.MacheteReportDefinitions.Initialize(context);
+            MacheteReportDefinitions.Initialize(context);
             var result = frb.ToFactory().ReportDefinitions.Count();
             
             // Assert

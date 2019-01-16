@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace Machete.Api
+﻿namespace Machete.Api.Attributes
 {
     public struct CAType
     {
@@ -12,5 +7,4 @@ namespace Machete.Api
         public const string nameidentifier = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
         public const string email = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
     }
-
 }

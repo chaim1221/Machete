@@ -25,6 +25,7 @@
 using System.Linq;
 using Machete.Domain;
 using Machete.Service;
+using Machete.Test.Integration.Fluent;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Machete.Test.Integration.Services
@@ -61,7 +62,13 @@ namespace Machete.Test.Integration.Services
         /// <summary>
         /// CreatePerson calls DbSet.Add() and  Context.SaveChanges() This leads to duplication
         /// </summary>
-        [TestMethod, TestCategory(TC.IT), TestCategory(TC.Service), TestCategory(TC.Persons)]
+        /// IGNORED because this is entirely contradictory to the way SaveChanges is setup;
+        /// you can't expect to save a person, get back an ID, and then save the same person
+        /// with an explicit ID and have the framework create an entirely new record with a
+        /// new ID. It errors out as it should. If we rewrite this test, it should expect error:
+        ///
+        /// Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while updating the entries. See the inner exception for details. ---> System.Data.SqlClient.SqlException: Cannot insert explicit value for identity column in table 'Persons' when IDENTITY_INSERT is set to OFF.
+        [Ignore, TestMethod, TestCategory(TC.IT), TestCategory(TC.Service), TestCategory(TC.Persons)]
         public void CreatePersons_TestDuplicateBehavior()
         {
             int reccount = 0;

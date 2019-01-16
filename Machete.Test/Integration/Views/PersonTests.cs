@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using Machete.Data.Initialize;
 using Machete.Web.Maps;
+using Machete.Test.Integration.Fluent;
 
 namespace Machete.Test.Selenium.View
 {
@@ -29,7 +30,7 @@ namespace Machete.Test.Selenium.View
             string solutionDirectory = sharedUI.SolutionDirectory();
             //testdir = solutionDirectory + "\\Machete.test\\";
             testimagefile = solutionDirectory + "\\jimmy_machete.jpg";
-            var mapperConfig = new MapperConfigurationFactory().Config;
+            var mapperConfig = new MvcMapperConfiguration().Config;
             map = mapperConfig.CreateMapper();
             
             WebServer.StartIis();

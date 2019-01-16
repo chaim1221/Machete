@@ -1,9 +1,10 @@
-﻿using Machete.Domain;
+﻿using System;
+using Machete.Domain;
 using Machete.Service;
-using System;
 using Microsoft.Extensions.DependencyInjection;
+using ViewModel = Machete.Web.ViewModel;
 
-namespace Machete.Test.Integration
+namespace Machete.Test.Integration.Fluent
 {
     public partial class FluentRecordBase
     {
@@ -22,7 +23,7 @@ namespace Machete.Test.Integration
             //
             // DEPENDENCIES
             if (_wo == null) AddWorkOrder();
-            if (assignWorker == true && _w == null) AddWorker();
+            if (assignWorker && _w == null) AddWorker();
             _servWA = container.GetRequiredService<IWorkAssignmentService>();
             //
             // ARRANGE
@@ -46,18 +47,18 @@ namespace Machete.Test.Integration
             return _wa;
         }
 
-        public Web.ViewModel.WorkAssignment CloneWorkAssignment()
+        public ViewModel.WorkAssignment CloneWorkAssignment()
         {
-            AddMapper();
-            var wa = _webMap.Map<Machete.Domain.WorkAssignment, Web.ViewModel.WorkAssignment>
+            ToWebMapper();
+            var wa = _webMap.Map<WorkAssignment, ViewModel.WorkAssignment>
                 ((WorkAssignment)Records.assignment.Clone());
             wa.description = RandomString(10);
             return wa;
         }
 
-        public Machete.Domain.WorkAssignment CloneDomainWorkAssignment()
+        public WorkAssignment CloneDomainWorkAssignment()
         {
-            var wa = (Machete.Domain.WorkAssignment)Records.assignment.Clone();
+            var wa = (WorkAssignment)Records.assignment.Clone();
             wa.description = RandomString(10);
             return wa;
         }

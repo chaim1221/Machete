@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Machete.Service;
+using Machete.Test.Integration.Fluent;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DTO = Machete.Service.DTO;
 

@@ -1,8 +1,7 @@
-﻿using System;
-using Machete.Web.Maps;
+﻿using Machete.Web.Maps;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Machete.Test
+namespace Machete.Test.Integration.System
 {
     [TestClass]
     public class MapperTests
@@ -10,7 +9,7 @@ namespace Machete.Test
         [TestMethod]
         public void TestMethod1()
         {
-            var mapperConfig = new MapperConfigurationFactory().Config;
+            var mapperConfig = new MvcMapperConfiguration().Config;
             var mapper = mapperConfig.CreateMapper();
             mapper.ConfigurationProvider.AssertConfigurationIsValid();
         }

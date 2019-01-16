@@ -1,9 +1,9 @@
-﻿using Machete.Domain;
+﻿using System;
+using Machete.Domain;
 using Machete.Service;
-using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Machete.Test.Integration
+namespace Machete.Test.Integration.Fluent
 {
     public partial class FluentRecordBase
     {
@@ -43,7 +43,5 @@ namespace Machete.Test.Integration
             p.lastname1 = RandomString(8);
             return p;
         }
-
-
     }
 }

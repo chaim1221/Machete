@@ -60,7 +60,7 @@ namespace Machete.Test.Selenium.View
             string solutionDirectory = sharedUI.SolutionDirectory();
             //testdir = solutionDirectory + "\\Machete.test\\";
             testimagefile = solutionDirectory + "\\jimmy_machete.jpg";
-            var mapperConfig = new MapperConfigurationFactory().Config;
+            var mapperConfig = new MvcMapperConfiguration().Config;
             map = mapperConfig.CreateMapper();
             
             driver = new ChromeDriver(ConfigurationManager.AppSettings["CHROMEDRIVERPATH"]);
