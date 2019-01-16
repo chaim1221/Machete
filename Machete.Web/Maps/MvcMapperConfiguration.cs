@@ -7,15 +7,13 @@ using Machete.Web.Helpers;
 
 namespace Machete.Web.Maps
 {
-    public class MapperConfigurationFactory : Profile
+    public class MvcMapperConfiguration : Profile
     {
-        private readonly MapperConfiguration _config;
+        public MapperConfiguration Config { get; }
 
-        public MapperConfiguration Config => _config;
-
-        public MapperConfigurationFactory()
+        public MvcMapperConfiguration()
         {
-            _config = new MapperConfiguration(c => {
+            Config = new MapperConfiguration(c => {
                 c.CreateMap<SearchOptions, Data.DTO.SearchOptions>()
                  .ForMember(v => v.beginDate, opt => opt.MapFrom(d => d.beginDate ?? new DateTime(1753, 1, 1)))
                  .ForMember(v => v.endDate, opt => opt.MapFrom(d => d.endDate ?? DateTime.MaxValue))

@@ -26,6 +26,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using Machete.Service;
+using Machete.Test.Integration.Fluent;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Machete.Test.Integration.Services

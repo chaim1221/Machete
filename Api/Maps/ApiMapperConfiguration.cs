@@ -1,19 +1,14 @@
 ﻿using AutoMapper;
-using Machete.Api.Maps;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
-namespace Machete.Api
+namespace Machete.Api.Maps
 {
-    public class MapperConfig
+    public class ApiMapperConfiguration
     {
-        MapperConfiguration cfg;
-        Mapper map;
-        public MapperConfig()
+        public MapperConfiguration Config { get; }
+
+        public ApiMapperConfiguration()
         {
-            cfg = new MapperConfiguration(c =>
+            Config = new MapperConfiguration(c =>
             {
                 c.AddProfile<EmployersMap>();
                 c.AddProfile<LookupsMap>();
@@ -26,10 +21,6 @@ namespace Machete.Api
                 c.AddProfile<TransportProvidersMap>();
                 c.AddProfile<ScheduleRulesMap>();
             });
-        }
-        public IMapper getMapper()
-        {
-            return map ?? (map = new Mapper(cfg));
         }
     }
 }

@@ -98,7 +98,7 @@ namespace Machete.Test.UnitTests.Controllers
             _service.Setup(service => service.Save(_fakeperson, "UnitTest"))
                 .Callback((Person person, string str) => { person = _savedperson; });
             
-            var mapperConfig = new MapperConfigurationFactory().Config;
+            var mapperConfig = new MvcMapperConfiguration().Config;
             _mapper = mapperConfig.CreateMapper();
             
             _adaptor.Setup(dependency => 

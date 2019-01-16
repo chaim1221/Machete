@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using Machete.Data;
 using Machete.Data.Infrastructure;
+using Machete.Data.Repositories;
 using Machete.Service;
 using Machete.Web.Helpers;
 using Machete.Web.Maps;
@@ -43,11 +44,15 @@ namespace Machete.Web
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             services.AddDbContext<MacheteContext>(builder => {
-                if (connString == null || connString == "Data Source=machete.db")
-                    builder.UseSqlite("Data Source=machete.db", with =>
-                        with.MigrationsAssembly("Machete.Data"));
-                else
-                    builder.UseSqlServer(connString, with =>
+// don't do this
+//                if (connString == null || connString == "Data Source=machete.db")
+//                    builder.UseSqlite("Data Source=machete.db", with =>
+//                        with.MigrationsAssembly("Machete.Data"));
+//                else
+// it ends badly
+                    builder
+                        .UseLazyLoadingProxies()
+                        .UseSqlServer(connString, with =>
                         with.MigrationsAssembly("Machete.Data"));
             });
             
@@ -85,7 +90,7 @@ namespace Machete.Web
                 options.SlidingExpiration = true;
             });
 
-            var mapperConfig = new MapperConfigurationFactory().Config;
+            var mapperConfig = new MvcMapperConfiguration().Config;
             var mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
             
@@ -97,46 +102,46 @@ namespace Machete.Web
             services.AddScoped<IDatabaseFactory, DatabaseFactory>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             
+            services.AddScoped<IActivityRepository, ActivityRepository>();
+            services.AddScoped<IActivitySigninRepository, ActivitySigninRepository>();
+            services.AddScoped<IConfigRepository, ConfigRepository>();
             services.AddScoped<IEmailConfig, EmailConfig>();
+            services.AddScoped<IEmailRepository, EmailRepository>();
+            services.AddScoped<IEmployerRepository, EmployerRepository>();
+            services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<IImageRepository, ImageRepository>();
+            services.AddScoped<ILookupRepository, LookupRepository>();
             services.AddScoped<IPersonRepository, PersonRepository>();
-            services.AddScoped<IWorkerSigninRepository, WorkerSigninRepository>();
+            services.AddScoped<IReportsRepository, ReportsRepository>();
+            services.AddScoped<IWorkAssignmentRepository, WorkAssignmentRepository>();
             services.AddScoped<IWorkerRepository, WorkerRepository>();
             services.AddScoped<IWorkerRequestRepository, WorkerRequestRepository>();
-            services.AddScoped<IImageRepository, ImageRepository>();
-            services.AddScoped<IEmployerRepository, EmployerRepository>();
-            services.AddScoped<IEmailRepository, EmailRepository>();
+            services.AddScoped<IWorkerSigninRepository, WorkerSigninRepository>();
             services.AddScoped<IWorkOrderRepository, WorkOrderRepository>();
-            services.AddScoped<IWorkAssignmentRepository, WorkAssignmentRepository>();
-            services.AddScoped<ILookupRepository, LookupRepository>();
-            services.AddScoped<IReportsRepository, ReportsRepository>();
-            services.AddScoped<IEventRepository, EventRepository>();
-            services.AddScoped<IActivityRepository, ActivityRepository>();
-            services.AddScoped<IConfigRepository, ConfigRepository>();
-            services.AddScoped<IActivitySigninRepository, ActivitySigninRepository>();
             services.AddScoped<ITransportRuleRepository, TransportRuleRepository>();
             services.AddScoped<ITransportProvidersRepository, TransportProvidersRepository>();
             services.AddScoped<ITransportProvidersAvailabilityRepository, TransportProvidersAvailabilityRepository>();
             
-            services.AddScoped<IConfigService, ConfigService>();
-            services.AddScoped<ILookupService, LookupService>();
-            services.AddScoped<IActivitySigninService, ActivitySigninService>();
             services.AddScoped<IActivityService, ActivityService>();
-            services.AddScoped<IEventService, EventService>();
-            services.AddScoped<IOnlineOrdersService, OnlineOrdersService>();
-            services.AddScoped<IPersonService, PersonService>();
-            services.AddScoped<IWorkerSigninService, WorkerSigninService>();
-            services.AddScoped<IWorkerService, WorkerService>();
-            services.AddScoped<IWorkerRequestService, WorkerRequestService>();
+            services.AddScoped<IActivitySigninService, ActivitySigninService>();
+            services.AddScoped<IConfigService, ConfigService>();
             services.AddScoped<IEmployerService, EmployerService>();
             services.AddScoped<IEmailService, EmailService>();
-            services.AddScoped<IWorkOrderService, WorkOrderService>();
-            services.AddScoped<IWorkAssignmentService, WorkAssignmentService>();
+            services.AddScoped<IEventService, EventService>();
             services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<ILookupService, LookupService>();
+            services.AddScoped<IOnlineOrdersService, OnlineOrdersService>();
+            services.AddScoped<IPersonService, PersonService>();
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IReportsV2Service, ReportsV2Service>();
             services.AddScoped<ITransportRuleService, TransportRuleService>();
             services.AddScoped<ITransportProvidersService, TransportProvidersService>();
             services.AddScoped<ITransportProvidersAvailabilityService, TransportProvidersAvailabilityService>();
+            services.AddScoped<IWorkAssignmentService, WorkAssignmentService>();
+            services.AddScoped<IWorkerRequestService, WorkerRequestService>();
+            services.AddScoped<IWorkerSigninService, WorkerSigninService>();
+            services.AddScoped<IWorkerService, WorkerService>();
+            services.AddScoped<IWorkOrderService, WorkOrderService>();
 
             services.AddScoped<IDefaults, Defaults>();
             services.AddScoped<IModelBindingAdaptor, ModelBindingAdaptor>();

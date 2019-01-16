@@ -26,9 +26,11 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
+using Machete.Api.Maps;
 using Machete.Data;
-using Machete.Data.Infrastructure;
+using Machete.Data.Repositories;
 using Machete.Domain;
 using Machete.Service;
 using Machete.Web;
@@ -38,27 +40,20 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Machete.Test.Integration
+namespace Machete.Test.Integration.Fluent
 {
     public partial class FluentRecordBase : IDisposable
     {
-        #region internal fields
-        private IReadOnlyContext _dbReadOnly;
         private IWorkerService _servW;
         private IImageService _servI;
-        private IConfigService _servC;
         private IWorkerRequestService _servWR;
         private IActivityService _servA;
         private IActivitySigninService _servAS;
-//        private ReportService _servR;
-//        private ReportsV2Service _servRV2;
         private IEmailService _servEM;
         private IEventService _servEV;
         private ILookupService _servL;
-//        private IEmailConfig _emCfg;
         private Email _email;
         private Event _event;
-        private Config _config = null;
         private Worker _w;
         private WorkerRequest  _wr;
         private Activity  _a;
@@ -66,12 +61,10 @@ namespace Machete.Test.Integration
         private Lookup _l;
         private Image _i;
         private string _user = "FluentRecordBase";
-        private Random _random = new Random((int)DateTime.Now.Ticks);
+        private readonly Random _random = new Random((int)DateTime.Now.Ticks);
         private IMapper _webMap;
         private IMapper _apiMap;
-        private IServiceProvider container;
-        #endregion
-        //private MacheteContext _dbContext;
+        private readonly IServiceProvider container;
 
         public FluentRecordBase() {
             IConfigurationRoot configuration = new ConfigurationBuilder()
@@ -91,42 +84,8 @@ namespace Machete.Test.Integration
             var serviceScope = host.Services.CreateScope();
             
             container = serviceScope.ServiceProvider;
-            
-            //_dbContext = container.GetRequiredService<MacheteContext>();
-            //AddDBReadonly(); // need to create the readonlylogin account // TODO uncomment
-            
-            ToServ<ILookupService>().populateStaticIds();
-        }
 
-        private void AddDBReadonly(string connStringName = "readonlyConnection")
-        {
-//            var connection = _dbContext.Database.GetDbConnection();
-//
-//            using (var command = connection.CreateCommand())
-//            {
-//                command.CommandText = "sp_executesql";
-//                command.CommandType = CommandType.StoredProcedure;
-//                var param = command.CreateParameter();
-//                param.ParameterName = "@statement";
-//                param.Value = @"
-//CREATE LOGIN readonlyLogin WITH PASSWORD='@testPassword1'
-//CREATE USER readonlyUser FROM LOGIN readonlyLogin
-//EXEC sp_addrolemember 'db_datareader', 'readonlyUser';
-//                    ";
-//                command.Parameters.Add(param);
-//                connection.Open();
-//                try {
-//                    command.ExecuteNonQuery();
-//                } catch (SqlException ex) {
-//                    var userAlreadyExists = ex.Errors[0].Number.Equals(15025);
-//                    if (!userAlreadyExists)
-//                        throw ex;
-//                } // finally {
-//                  // connection.Close();
-//                  // }
-//            }
-//
-//            _dbReadOnly = new ReadOnlyContext(connStringName);
+            ToServ<ILookupService>().populateStaticIds();
         }
 
         public void Dispose()
@@ -160,12 +119,9 @@ namespace Machete.Test.Integration
             string testID = null
         )
         {
-            //
-            // DEPENDENCIES
+            // ARRANGE
             if (_p == null) AddPerson();
             _servW = container.GetRequiredService<IWorkerService>();
-            //
-            // ARRANGE
             _w = (Worker)Records.worker.Clone();
             _w.Person = _p;
             _w.ID = _p.ID; // mimics MVC UI behavior. the POST to create worker includes the person record's ID
@@ -178,9 +134,8 @@ namespace Machete.Test.Integration
             if (memberexpirationdate != null) _w.memberexpirationdate = (DateTime)memberexpirationdate;
             if (memberReactivateDate != null) _w.memberReactivateDate = (DateTime)memberReactivateDate;
             if (testID != null) _w.Person.firstname2 = testID;
-            // kludge
-            _w.dwccardnum = Records.GetNextMemberID(ToFactory().Workers);
-            //
+            _w.dwccardnum = GetNextMemberID();
+
             // ACT
             _servW.Create(_w, _user);
             return this;
@@ -188,8 +143,8 @@ namespace Machete.Test.Integration
 
         public int GetNextMemberID()
         {
-            var _dbContext = container.GetRequiredService<MacheteContext>();
-            return Records.GetNextMemberID(_dbContext.Workers);
+            var dbContext = container.GetRequiredService<MacheteContext>();
+            return Records.GetNextMemberID(dbContext.Workers);
         }
 
         public Worker ToWorker()
@@ -454,44 +409,22 @@ namespace Machete.Test.Integration
         }
         #endregion
 
-        #region Configs
-
-        public FluentRecordBase AddConfig()
-        {
-            //
-            // DEPENDENCIES
-            _servC = ToServ<IConfigService>();
-
-            //
-            // ARRANGE
-            _config.updatedby = _user;
-            _config.createdby = _user;
-            //
-            // ACT
-            _servC.Create(_config, _user);
-            return this;
-        }
-
-        #endregion
-
-        public FluentRecordBase AddMapper()
-        {
-            var mapperConfig = new MapperConfigurationFactory().Config;
-            _webMap = mapperConfig.CreateMapper();
-            //_apiMap = new Machete.Api.MapperConfig().getMapper();
-
-            return this;
-        }
-
         public IMapper ToWebMapper()
         {
-            if (_webMap == null) AddMapper();
+            if (_webMap != null) return _webMap;
+            
+            var mvcConfig = new MvcMapperConfiguration().Config;
+            _webMap = mvcConfig.CreateMapper();
             return _webMap;
         }
 
         public IMapper ToApiMapper()
         {
-            if (_apiMap == null) AddMapper();
+            if (_apiMap != null) return _apiMap;
+
+            var apiConfig = new ApiMapperConfiguration().Config;
+            _apiMap = apiConfig.CreateMapper();
+
             return _apiMap;
         }    
 

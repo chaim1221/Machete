@@ -89,7 +89,7 @@ namespace Machete.Test.UnitTests.Controllers
 
             def = new Mock<IDefaults>();
 
-            var mapperConfig = new MapperConfigurationFactory().Config;
+            var mapperConfig = new MvcMapperConfiguration().Config;
             map = mapperConfig.CreateMapper();
 
             _workerRequest = new List<WorkerRequest>();
