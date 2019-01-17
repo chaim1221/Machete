@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using Machete.Data;
@@ -41,6 +42,7 @@ namespace Machete.Web
                     options.LoginPath = "/Account/Login"
                 );
 
+            // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/localization?view=aspnetcore-2.2#configure-localization
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             services.AddDbContext<MacheteContext>(builder => {
@@ -89,6 +91,7 @@ namespace Machete.Web
             services.AddSingleton(mapper);
             
             services.AddMvc(/*config => { config.Filters.Add(new AuthorizeFilter()); }*/)
+                // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/localization?view=aspnetcore-2.2#configure-localization
                 .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
                 .AddDataAnnotationsLocalization()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
@@ -139,6 +142,22 @@ namespace Machete.Web
 
             services.AddScoped<IDefaults, Defaults>();
             services.AddScoped<IModelBindingAdaptor, ModelBindingAdaptor>();
+            
+            // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/localization?view=aspnetcore-2.2#use-a-custom-provider
+            // They imply that this is only for "custom" providers but the RequestLocalizationOptions in Configure aren't populated
+            // unless you use this.
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var supportedCultures = new List<CultureInfo>
+                {
+                    new CultureInfo("en-US"),
+                    new CultureInfo("es-ES")
+                };
+
+                options.DefaultRequestCulture = new RequestCulture("en-US");
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
