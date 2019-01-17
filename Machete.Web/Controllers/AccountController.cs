@@ -501,11 +501,5 @@ namespace Machete.Web.Controllers
 
             return RedirectToAction("Index", "Home");
         }
-
-        // Change Culture (DEPRECATED)
-        public ActionResult ChangeCulture(string lang, string returnUrl)
-        {
-            return Redirect(returnUrl);
-        }
     }
 }
