@@ -151,7 +151,8 @@ namespace Machete.Web
                 var supportedCultures = new List<CultureInfo>
                 {
                     new CultureInfo("en-US"),
-                    new CultureInfo("es-ES")
+                    new CultureInfo("es-US")
+                    // we use es-US because we are not fully equipped to support international dates.
                 };
 
                 options.DefaultRequestCulture = new RequestCulture("en-US");
@@ -181,7 +182,8 @@ namespace Machete.Web
                 // https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
                 // https://en.wikipedia.org/wiki/ISO_3166-1
                 new CultureInfo("en-US"),
-                new CultureInfo("es-ES"),
+                new CultureInfo("es-US"),
+                // we use es-US because we are not fully equipped to support international dates.
             };
             app.UseRequestLocalization(new RequestLocalizationOptions
             {
