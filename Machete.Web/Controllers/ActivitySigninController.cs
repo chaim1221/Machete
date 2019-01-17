@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using AutoMapper;
@@ -42,7 +41,6 @@ namespace Machete.Web.Controllers
         private readonly IActivitySigninService serv;
         private readonly IMapper map;
         private readonly IDefaults def;
-        private CultureInfo CI;
 
         public ActivitySigninController(
             IActivitySigninService serv, 
@@ -54,11 +52,6 @@ namespace Machete.Web.Controllers
             this.def = def;
         }
 
-        protected override void Initialize(ActionContext requestContext)
-        {
-            base.Initialize(requestContext);
-            CI = Session["Culture"];
-        }
         /// <summary>
         /// 
         /// </summary>
@@ -126,7 +119,6 @@ namespace Machete.Web.Controllers
         public ActionResult AjaxHandler(jQueryDataTableParam param)
         {
             var vo = map.Map<jQueryDataTableParam, viewOptions>(param);
-            vo.CI = CI;
             dataTableResult<ActivitySigninList> list = serv.GetIndexView(vo);
             var result = list.query
                 .Select(

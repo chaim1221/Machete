@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -48,7 +47,6 @@ namespace Machete.Web.Controllers
         private readonly IWorkerSigninService wsiServ;
         private readonly IMapper map;
         private readonly IDefaults def;
-        private CultureInfo CI;
         private IModelBindingAdaptor _adaptor;
 
         public WorkAssignmentController(IWorkAssignmentService workAssignmentService,
@@ -70,7 +68,6 @@ namespace Machete.Web.Controllers
         protected override void Initialize(ActionContext requestContext)
         {
             base.Initialize(requestContext);
-            CI = Session["Culture"];
         }
 
         // GET: /WorkAssignment/
@@ -88,7 +85,6 @@ namespace Machete.Web.Controllers
         {
             //Get all the records            
             var vo = map.Map<jQueryDataTableParam, viewOptions>(param);
-            vo.CI = CI;
             dataTableResult<WorkAssignmentsList> was = waServ.GetIndexView(vo);
             var result = was.query
                 .Select(e => map.Map<WorkAssignmentsList, ViewModel.WorkAssignmentsList>(e))

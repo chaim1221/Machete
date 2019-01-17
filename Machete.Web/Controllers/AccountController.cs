@@ -1,6 +1,5 @@
 
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Machete.Data;
@@ -506,7 +505,6 @@ namespace Machete.Web.Controllers
         // Change Culture (DEPRECATED)
         public ActionResult ChangeCulture(string lang, string returnUrl)
         {
-            Session["Culture"] = new CultureInfo(lang);
             return Redirect(returnUrl);
         }
     }

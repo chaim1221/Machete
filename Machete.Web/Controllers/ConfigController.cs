@@ -23,7 +23,6 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -45,7 +44,6 @@ namespace Machete.Web.Controllers
         private readonly ILookupService serv;
         private readonly IMapper map;
         private readonly IDefaults def;
-        CultureInfo CI;
         public LookupController(ILookupService serv,
             IDefaults def,
             IMapper map)
@@ -55,11 +53,7 @@ namespace Machete.Web.Controllers
             this.def = def;
             ViewBag.configCategories = def.configCategories();
         }
-        protected override void Initialize(ActionContext requestContext)
-        {
-            base.Initialize(requestContext);
-            CI = Session["Culture"];
-        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -74,7 +68,6 @@ namespace Machete.Web.Controllers
         {
             //Get all the records
             var vo = map.Map<jQueryDataTableParam, viewOptions>(param);
-            vo.CI = CI;
             IEnumerable<LookupList> list = serv.GetIndexView(vo);
             var result = list
                 .Select(

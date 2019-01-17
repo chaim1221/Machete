@@ -44,12 +44,6 @@ namespace Machete.Web
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             services.AddDbContext<MacheteContext>(builder => {
-// don't do this
-//                if (connString == null || connString == "Data Source=machete.db")
-//                    builder.UseSqlite("Data Source=machete.db", with =>
-//                        with.MigrationsAssembly("Machete.Data"));
-//                else
-// it ends badly
                     builder
                         .UseLazyLoadingProxies()
                         .UseSqlServer(connString, with =>
@@ -161,10 +155,14 @@ namespace Machete.Web
                 app.UseHsts();
             }
 
+            // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/localization?view=aspnetcore-2.2 (Ibid.)
             var supportedCultures = new[]
             {
+                // Ibid. #globalization-and-localization-terms
+                // https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+                // https://en.wikipedia.org/wiki/ISO_3166-1
                 new CultureInfo("en-US"),
-                new CultureInfo("es"),
+                new CultureInfo("es-ES"),
             };
             app.UseRequestLocalization(new RequestLocalizationOptions
             {
@@ -174,6 +172,8 @@ namespace Machete.Web
                 // UI strings that we have localized.
                 SupportedUICultures = supportedCultures
             });
+            // the preceding will attempt to guess the user's culture. For several reasons that's not what we want.
+            // Ibid. #set-the-culture-programmatically
             
             app.UseHttpsRedirection();
 

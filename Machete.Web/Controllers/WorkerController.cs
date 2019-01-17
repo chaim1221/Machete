@@ -22,10 +22,8 @@
 // 
 #endregion
 
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using Machete.Domain;
@@ -46,7 +44,6 @@ namespace Machete.Web.Controllers
         private readonly IMapper map;
         private readonly IDefaults def;
         private readonly IModelBindingAdaptor _adaptor;
-        CultureInfo CI;
 
         public WorkerController(IWorkerService workerService,
                                 IImageService  imageServ,
@@ -60,14 +57,7 @@ namespace Machete.Web.Controllers
             _adaptor = adaptor;
             this.def = def;
         }
-        protected override void Initialize(ActionContext requestContext)
-        {
-            base.Initialize(requestContext);
-            CI = Session["Culture"];
-            // TODO this needs to be scheduled elsewhere
-            //serv.ExpireMembers();
-            //serv.ReactivateMembers();
-        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -86,7 +76,6 @@ namespace Machete.Web.Controllers
         public ActionResult AjaxHandler(jQueryDataTableParam param)
         {
             var vo = map.Map<jQueryDataTableParam, viewOptions>(param);
-            vo.CI = CI;
             dataTableResult<WorkerList> list = serv.GetIndexView(vo);
             var result = list.query
             .Select(

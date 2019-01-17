@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -47,7 +46,6 @@ namespace Machete.Web.Controllers
         private readonly IWorkOrderService woServ;
         private readonly IMapper map;
         private readonly IDefaults def;
-        CultureInfo CI;
         private IModelBindingAdaptor _adaptor;
 
         /// <summary>
@@ -58,7 +56,7 @@ namespace Machete.Web.Controllers
         /// <param name="woServ">Work Order service</param>
         /// <param name="def">Default config values</param>
         /// <param name="map">AutoMapper service</param>
-        /// <param name="adaptorObject"></param>
+        /// <param name="adaptor"></param>
         public WorkOrderController(IWorkOrderService woServ,
             IDefaults def,
             IMapper map,
@@ -76,7 +74,7 @@ namespace Machete.Web.Controllers
         protected override void Initialize(ActionContext requestContext)
         {
             base.Initialize(requestContext);
-            CI = Session["Culture"];
+            //CI = Session["Culture"];
             ViewBag.def = def;
         }
         /// <summary>
@@ -143,7 +141,6 @@ namespace Machete.Web.Controllers
         public ActionResult AjaxHandler(jQueryDataTableParam param)
         {
             var vo = map.Map<jQueryDataTableParam, viewOptions>(param);
-            vo.CI =  CI;
             //Get all the records
             var dataTableResult = woServ.GetIndexView(vo);
             var result = dataTableResult.query

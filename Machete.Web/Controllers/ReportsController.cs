@@ -27,7 +27,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using AutoMapper;
 using Machete.Service;
@@ -45,7 +44,6 @@ namespace Machete.Web.Controllers
         private readonly IReportService repServ;
         private readonly IMapper map;
         private readonly IDefaults def;
-        CultureInfo CI;
 
         public ReportsController(IReportService repServ,
             IDefaults def,
@@ -54,16 +52,6 @@ namespace Machete.Web.Controllers
             this.repServ = repServ;
             this.map = map;
             this.def = def;
-        }
-
-        /// <summary>
-        /// Initialize the controller context for the reports.
-        /// </summary>
-        /// <param name="requestContext">RequestContext</param>
-        protected override void Initialize(ActionContext requestContext)
-        {
-            base.Initialize(requestContext);
-            CI = Session["Culture"];
         }
 
         #region Index

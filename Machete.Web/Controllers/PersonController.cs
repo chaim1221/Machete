@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -43,8 +42,7 @@ namespace Machete.Web.Controllers
         private readonly IPersonService serv;
         private readonly IMapper map;
         private readonly IDefaults def;
-        CultureInfo CI;
-        private IModelBindingAdaptor _adaptor;
+        private readonly IModelBindingAdaptor _adaptor;
 
         public PersonController(
             IPersonService pServ,
@@ -56,12 +54,6 @@ namespace Machete.Web.Controllers
             this.map = map;
             _adaptor = adaptor;
             this.def = def;
-        }
-
-        protected override void Initialize(ActionContext requestContext)
-        {
-            base.Initialize(requestContext);
-            CI = Session["Culture"];
         }
 
         // GET /Person/Index
@@ -76,7 +68,6 @@ namespace Machete.Web.Controllers
         {
             //Get all the records            
             var vo = map.Map<jQueryDataTableParam, viewOptions>(param);
-            vo.CI = CI;
             dataTableResult<PersonList> list = serv.GetIndexView(vo);
             var result = list.query
                 .Select(e => map.Map<PersonList, ViewModel.PersonList>(e))
