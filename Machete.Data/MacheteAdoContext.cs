@@ -12,9 +12,6 @@ namespace Machete.Data
 {
     public static class MacheteAdoContext
     {
-        // TODO move to appsettings.json
-        private const string _connectionString = "Server=localhost,1433; Database=machete_db; User=readonlylogin; Password=@testPassword1;";
-
         private static string escapeQueryText(string query)
         {
             try {
@@ -26,15 +23,15 @@ namespace Machete.Data
             }
         }
 
-        public static int Fill(string query, out DataTable dataTable)
+        public static int Fill(string query, string connectionString, out DataTable dataTable)
         {
             dataTable = new DataTable();
-            using (var adapter = new SqlDataAdapter(query, _connectionString)) {
+            using (var adapter = new SqlDataAdapter(query, connectionString)) {
                 return adapter.Fill(dataTable);
             }
         }
         
-        public static List<QueryMetadata> getMetadata(string fromQuery)
+        public static List<QueryMetadata> getMetadata(string fromQuery, string connectionString)
         {
             var param = new SqlParameter("@query", escapeQueryText(fromQuery));
             var queryResult = SqlQuery<QueryMetadata>(
@@ -44,14 +41,15 @@ namespace Machete.Data
                     name, is_nullable, system_type_name
                 FROM
                     sys.dm_exec_describe_first_result_set(@query, NULL, 0);",
+                connectionString,
                 param);
             return queryResult.ToList();
         }
 
         // used for report initialization
-        public static string getUIColumnsJson(string query)
+        public static string getUIColumnsJson(string query, string connectionString)
         {
-            var cols = getMetadata(query);
+            var cols = getMetadata(query, connectionString);
             var result = cols.Select(a => 
                 new {
                     field = a.name,
@@ -61,9 +59,9 @@ namespace Machete.Data
             return JsonConvert.SerializeObject(result);
         }
 
-        public static IEnumerable<T> SqlQuery<T>(string query, params SqlParameter[] sqlParameters) where T : class
+        public static IEnumerable<T> SqlQuery<T>(string query, string connectionString, params SqlParameter[] sqlParameters) where T : class
         {
-            using (var connection = new SqlConnection(_connectionString)) 
+            using (var connection = new SqlConnection(connectionString)) 
             {
                 var type = typeof(T);
                 var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -95,10 +93,10 @@ namespace Machete.Data
             }
         }
 
-        public static IEnumerable<string> ValidateQuery(string query)
+        public static IEnumerable<string> ValidateQuery(string query, string connectionString)
         {
             var errors = new List<string>();
-            var connection = new SqlConnection(_connectionString);
+            var connection = new SqlConnection(connectionString);
 
             using (var command = connection.CreateCommand())
             {

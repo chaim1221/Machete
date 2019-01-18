@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -9,6 +8,7 @@ using Machete.Data.DTO;
 using Machete.Data.Dynamic;
 using Machete.Data.Infrastructure;
 using Machete.Domain;
+using Microsoft.Extensions.Configuration;
 
 namespace Machete.Data.Repositories
 {   
@@ -21,21 +21,29 @@ namespace Machete.Data.Repositories
         List<string> validate(string query);
     }
 
-    public class ReportsRepository : RepositoryBase<ReportDefinition>, IReportsRepository {
+    public class ReportsRepository : RepositoryBase<ReportDefinition>, IReportsRepository
+    {
+        private string connectionString { get; }
 
-        public ReportsRepository(IDatabaseFactory databaseFactory) : base(databaseFactory) { }
+        public ReportsRepository(IDatabaseFactory databaseFactory, IConfiguration configuration) : base(databaseFactory)
+        {
+            connectionString = configuration.GetConnectionString("ReadOnlyConnection");
+        }
+
 
         public List<dynamic> getDynamicQuery(int id, SearchOptions o)
         {
             ReportDefinition report = dbset.Single(a => a.ID == id); // TODO move to ADO
-            List<QueryMetadata> meta = MacheteAdoContext.getMetadata(report.sqlquery);
+            List<QueryMetadata> meta = MacheteAdoContext.getMetadata(report.sqlquery, connectionString);
             Type queryType = ILVoodoo.buildQueryType(meta);
             MethodInfo method = Type.GetType("Machete.Data.MacheteAdoContext")
-                .GetMethod("SqlQuery", new[] { typeof(string), typeof(SqlParameter[]) });
+                .GetMethod("SqlQuery", new[] { typeof(string), typeof(string), typeof(SqlParameter[]) });
             MethodInfo man = method.MakeGenericMethod(queryType);
 
             dynamic dynamicQuery = man.Invoke(null, new object[] {
-                    report.sqlquery, new[] {
+                    report.sqlquery,
+                    connectionString,
+                    new[] {
                         new SqlParameter { ParameterName = "beginDate", Value = o.beginDate },
                         new SqlParameter { ParameterName = "endDate", Value = o.endDate },
                         new SqlParameter { ParameterName = "dwccardnum", Value = o.dwccardnum }
@@ -57,19 +65,19 @@ namespace Machete.Data.Repositories
 
         public List<QueryMetadata> getColumns(string tableName)
         {
-            return MacheteAdoContext.getMetadata($"select top 0 * from {tableName}");
+            return MacheteAdoContext.getMetadata($"select top 0 * from {tableName}", connectionString);
         }
 
         public DataTable getDataTable(string query)
         {
             // https://stackoverflow.com/documentation/epplus/8223/filling-the-document-with-data
-            MacheteAdoContext.Fill(query, out var dataTable);
+            MacheteAdoContext.Fill(query, connectionString, out var dataTable);
             return dataTable;
         }
 
         public List<string> validate(string query)
         {
-            return MacheteAdoContext.ValidateQuery(query).ToList();
+            return MacheteAdoContext.ValidateQuery(query, connectionString).ToList();
         }
     }
 }

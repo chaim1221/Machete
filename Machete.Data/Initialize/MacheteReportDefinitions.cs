@@ -1541,8 +1541,8 @@ where jobcount is not null or actcount is not null or eslcount is not null
                     u.datecreated = DateTime.Now;
                     u.dateupdated = DateTime.Now;
                     u.createdby = "Init T. Script";
-                    u.updatedby = "Init T. Script";
-                    u.columnsJson = MacheteAdoContext.getUIColumnsJson(u.sqlquery);
+                    u.updatedby = "Init T. Script"; // this next part is a little bit of a mess, but it is only run once during initialization.
+                    u.columnsJson = MacheteAdoContext.getUIColumnsJson(u.sqlquery, context.Database.GetDbConnection().ConnectionString);
                     if (u.inputsJson == null)
                     {
                         u.inputsJson = JsonConvert.SerializeObject(new
