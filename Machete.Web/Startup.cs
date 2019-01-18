@@ -24,7 +24,6 @@ namespace Machete.Web
 {
     public class Startup
     {
-
         // ReSharper disable once MemberCanBePrivate.Global
         public IConfiguration Configuration { get; }
 
