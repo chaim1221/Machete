@@ -56,7 +56,8 @@ namespace Machete.Web.Maps
     {
         protected static string getCI()
         {
-            return Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName.ToUpperInvariant();
+            var upperInvariant = Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName.ToUpperInvariant();
+            return upperInvariant;
         }
     }
 }

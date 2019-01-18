@@ -164,7 +164,7 @@
             ],
             // callback populates html attr with row data from JSON
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $(nRow).attr('recordid', aData['EID']);
+                $(nRow).attr('recordid', aData['eid']);
                 return nRow;
             }
         }).fnSetFilteringDelay(250);
@@ -180,7 +180,7 @@
             title: '@WorkOrders.empChgConfirmSubmit'
         });
         $('#employerSelectDialog').hide();
-        $('#employerSelectTable').hide()
+        $('#employerSelectTable').hide();
         return true;
     });
 </script>

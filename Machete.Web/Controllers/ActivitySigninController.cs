@@ -67,13 +67,11 @@ namespace Machete.Web.Controllers
         /// <param name="dwccardnum"></param>
         /// <param name="activityID"></param>
         /// <param name="userName"></param>
-        /// <returns></returns>
         [HttpPost]
         [UserNameFilter]
         [Authorize(Roles = "Manager, Administrator, Check-in, Teacher")]
         public ActionResult Index(int dwccardnum, int activityID, string userName)
         {
-            // The card just swiped
             var _asi = new ActivitySignin();
             _asi.dateforsignin = DateTime.Now;
             _asi.activityID = activityID;
