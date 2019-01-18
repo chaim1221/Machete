@@ -24,7 +24,6 @@
 
 using System;
 using System.Linq;
-using System.Security.Claims;
 using AutoMapper;
 using Machete.Domain;
 using Machete.Service;
@@ -53,7 +52,7 @@ namespace Machete.Web.Controllers
         }
 
         /// <summary>
-        /// 
+        /// GET /Activity/Index
         /// </summary>
         /// <returns></returns>
         [Authorize(Roles = "Manager, Administrator, Check-in, Teacher")]
@@ -61,26 +60,28 @@ namespace Machete.Web.Controllers
         {
             return View("~/Views/Shared/ActivitySigninIndex.cshtml");
         }
+
         /// <summary>
-        /// 
+        /// POST /Activity/Index
         /// </summary>
         /// <param name="dwccardnum"></param>
         /// <param name="activityID"></param>
+        /// <param name="userName"></param>
         /// <returns></returns>
         [HttpPost]
+        [UserNameFilter]
         [Authorize(Roles = "Manager, Administrator, Check-in, Teacher")]
-        public ActionResult Index(int dwccardnum, int activityID)
+        public ActionResult Index(int dwccardnum, int activityID, string userName)
         {
             // The card just swiped
             var _asi = new ActivitySignin();
             _asi.dateforsignin = DateTime.Now;
             _asi.activityID = activityID;
             _asi.dwccardnum = dwccardnum;
-            string imageRef = serv.getImageRef(dwccardnum);
-            var userIdentity = new ClaimsIdentity("Cookies");
 
-            Worker w = serv.CreateSignin(_asi, userIdentity.Name);
             //Get picture from checkin, show with next view
+            string imageRef = serv.getImageRef(dwccardnum);
+            Worker w = serv.CreateSignin(_asi, userName);
 
             return Json(new
             {
