@@ -1,4 +1,8 @@
 @model Machete.Web.ViewModel.SelectRoleEditorViewModel
+
+@* tried https://stackoverflow.com/questions/40555543/how-do-i-implement-a-checkbox-list-in-asp-net-core *@
+@* but did not see any difference; problem is likely with the form *@
+
 @Html.HiddenFor(model => model.RoleName)
 <tr>
     <td style="text-align:center">

@@ -255,7 +255,6 @@ namespace Machete.Web.ViewModel
     // Used to display a single role with a checkbox, within a list structure:
     public class SelectRoleEditorViewModel
     {
-        public SelectRoleEditorViewModel() {}
         public SelectRoleEditorViewModel(IdentityRole role)
         {
             RoleName = role.Name;
@@ -266,6 +265,6 @@ namespace Machete.Web.ViewModel
 
         [Required(ErrorMessageResourceName = "Required", ErrorMessageResourceType = typeof(ValidationStrings))]
         public string RoleName { get; set; }
-        public string RoleId { get; set; }
+        public string RoleId { get; }
     }
 }
