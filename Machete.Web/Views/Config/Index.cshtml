@@ -21,6 +21,7 @@
     <div id="configList">
         @Html.Label("Category")
         @Html.DropDownList("category", ViewBag.configCategories as IEnumerable<SelectListItem>)
+        <button id="goButton">Go</button>
         <table id="configTable" class="display">
             <thead>
                 <tr>
@@ -82,8 +83,9 @@
             changeTitle: "@Shared.changeTitle",
             updateDatatable: true
         });
-        $('#category').click(function(e) {
+        $('#goButton').click(function(e) {
 //            e.preventDefault();
+            console.log('clicked');
             $("#configTable").dataTable().fnDraw();
         });
     });

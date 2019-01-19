@@ -61,7 +61,7 @@ namespace Machete.Web.Controllers
         [Authorize(Roles = "Administrator, Manager")]
         public ActionResult Index()
         {
-            ViewBag.configCategories = (IEnumerable<SelectListItem>)def.configCategories();
+            ViewBag.configCategories = def.configCategories();
             return View("~/Views/Config/Index.cshtml");
         }
         [Authorize(Roles = "Administrator, Manager")]
