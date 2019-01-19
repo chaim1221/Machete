@@ -91,12 +91,7 @@ namespace Machete.Web.Controllers
                 expirationDate = w.memberexpirationdate
             });
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="userName"></param>
-        /// <returns></returns>
+
         [UserNameFilter]
         [Authorize(Roles = "Administrator, Manager, Check-in, Teacher")]
         public ActionResult Delete(int id, string userName)
@@ -109,11 +104,7 @@ namespace Machete.Web.Controllers
                 deletedID = id
             });
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="param"></param>
-        /// <returns></returns>
+
         [Authorize(Roles = "Administrator, Manager, Check-in, Teacher")]
         public ActionResult AjaxHandler(jQueryDataTableParam param)
         {
@@ -131,6 +122,5 @@ namespace Machete.Web.Controllers
                 aaData = result
             });
         }
-
     }
 }
