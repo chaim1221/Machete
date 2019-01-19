@@ -34,6 +34,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace Machete.Web.Controllers
@@ -51,7 +52,6 @@ namespace Machete.Web.Controllers
             this.serv = serv;
             this.map = map;
             this.def = def;
-            ViewBag.configCategories = def.configCategories();
         }
 
         /// <summary>
@@ -61,6 +61,7 @@ namespace Machete.Web.Controllers
         [Authorize(Roles = "Administrator, Manager")]
         public ActionResult Index()
         {
+            ViewBag.configCategories = (IEnumerable<SelectListItem>)def.configCategories();
             return View("~/Views/Config/Index.cshtml");
         }
         [Authorize(Roles = "Administrator, Manager")]
