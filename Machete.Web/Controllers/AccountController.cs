@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Machete.Data;
@@ -45,20 +46,25 @@ namespace Machete.Web.Controllers
     {
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
         readonly LogEventInfo _levent = new LogEventInfo(LogLevel.Debug, "AccountController", "");
-        private UserManager<MacheteUser> UserManager { get; set; }
-        private SignInManager<MacheteUser> SignInManager { get; }
         private readonly MacheteContext _context;
         private const int PasswordExpirationInMonths = 6; // this constant represents number of months where users passwords expire 
 
         public AccountController(
             UserManager<MacheteUser> userManager,
             SignInManager<MacheteUser> signInManager,
+            RoleManager<IdentityRole> roleManager,
             MacheteContext context)
         {
             UserManager = userManager;
             SignInManager = signInManager;
+            _roleManager = roleManager;
             _context = context;
         }
+
+        // TODO naming _
+        private UserManager<MacheteUser> UserManager { get; }
+        private SignInManager<MacheteUser> SignInManager { get; }
+        private RoleManager<IdentityRole> _roleManager { get; }
 
         // URL: /Account/Index
         [Authorize(Roles = "Manager, Administrator")]
@@ -406,10 +412,12 @@ namespace Machete.Web.Controllers
         [Authorize(Roles = "Administrator, Manager")]
         public ActionResult UserRoles(string id)
         {
-            var user = _context.Users.First(u => u.Id == id);
-            return View(new SelectUserRolesViewModel(user, _context));
+            var userBeingModified = _context.Users.First(u => u.Id == id);
+            List<IdentityRole> allRoles = _roleManager.Roles.ToList();
+            return View(new SelectUserRolesViewModel(userBeingModified, allRoles, UserManager));
         }
 
+        // note to self 2019-01-18; this part is working, don't touch it.
         [HttpPost]
         [Authorize(Roles = "Administrator, Manager")]
         [ValidateAntiForgeryToken]
@@ -444,7 +452,7 @@ namespace Machete.Web.Controllers
                 }
             }
 
-            return RedirectToAction("index");
+            return RedirectToAction("Index");
         }
 
         // GET: /Account/LogOff

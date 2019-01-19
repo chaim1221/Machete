@@ -5,10 +5,11 @@
 
 @Html.HiddenFor(model => model.RoleName)
 <tr>
-    <td style="text-align:center">
-        @Html.CheckBoxFor(model => model.Selected)
+    <td style="text-align: center">
+        <input type="checkbox" asp-for="@Model.Selected" />
     </td>
     <td>
-        @Html.DisplayFor(model => model.RoleName)
+        <label asp-for="@Model.Selected">@Model.RoleName</label>
+        <input type="hidden" asp-for="@Model.RoleId" />
     </td>
 </tr>
