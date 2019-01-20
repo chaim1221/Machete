@@ -14,7 +14,8 @@
       "Content/bundles/styles.js"
     ],
     "minify": {
-      "enabled": false
+      "enabled": false,
+      "renameLocals": true
     },
     "sourceMap": true
   },
@@ -28,7 +29,8 @@
       "Content/bundles/main.js"
     ],
     "minify": {
-      "enabled": false
+      "enabled": false,
+      "renameLocals": true
     },
     "sourceMap": true
   },

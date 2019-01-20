@@ -35,6 +35,7 @@ namespace Machete.Api
 
             app.UseHttpsRedirection();
             app.UseMvc();
+            app.UseStaticFiles();
         }
     }
 }
