@@ -32,7 +32,7 @@ namespace Machete.Api.Controllers
 
         // GET: api/Configs/5
         [ClaimsAuthorization(claimType: CAType.Role, claimValues: new[] { CV.Admin })]
-        [HttpGet]
+        [HttpGet("{id}")]
         public JsonResult Get(int id)
         {
             var result = serv.Get(id);
