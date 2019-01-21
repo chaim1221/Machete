@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Machete.Api.Identity;
 
 namespace Machete.Api.Maps
 {
@@ -20,6 +21,8 @@ namespace Machete.Api.Maps
                 c.AddProfile<TransportRulesMap>();
                 c.AddProfile<TransportProvidersMap>();
                 c.AddProfile<ScheduleRulesMap>();
+                
+                c.AddProfile<MacheteUserMap>();
             });
         }
     }

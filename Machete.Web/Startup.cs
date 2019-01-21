@@ -58,7 +58,7 @@ namespace Machete.Web
 
             services.Configure<IdentityOptions>(options =>
             {
-                // Password settings TODO uncomment
+                // Password settings; we are relying on validation
 //                options.Password.RequireDigit = true;
 //                options.Password.RequiredLength = 8;
 //                options.Password.RequireNonAlphanumeric = false;
