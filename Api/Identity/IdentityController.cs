@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -95,7 +96,45 @@ namespace Machete.Api.Identity // Not part of Controllers namespace; we don't wa
         [Route(".well-known/openid-configuration")]
         public async Task<IActionResult> OpenIdConfiguration()
         {
-            return new JsonResult(new WellKnownViewModel());
+            // These are brittle. A better way to do this would be to have a static class that both the configuration
+            // and this endpoint utilize.
+
+            var pathBase = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
+            var root = $"{pathBase}/id";
+            var wellKnown = $"{root}/.well-known";
+            var connect = $"{root}/connect";
+            
+            var viewModel = new WellKnownViewModel();
+            viewModel.issuer = root;
+            viewModel.jwks_uri = $"{wellKnown}/jwks";
+            viewModel.authorization_endpoint = $"{connect}/authorize";
+            viewModel.token_endpoint = $"{connect}/token";
+            viewModel.userinfo_endpoint = $"{connect}/userinfo";
+            viewModel.end_session_endpoint = $"{connect}/endsession";
+            viewModel.check_session_iframe = $"{connect}/checksession";
+            viewModel.revocation_endpoint = $"{connect}/revocation";
+            viewModel.introspection_endpoint = $"{connect}/introspection";
+            viewModel.frontchannel_logout_supported = true;
+            viewModel.frontchannel_logout_session_supported = true;
+            viewModel.scopes_supported =
+                new List<string> { "openid", "profile", "email", "roles", "offline_access", "api" };
+            viewModel.claims_supported = 
+                new List<string> { "sub", "name", "family_name", "given_name", "middle_name", "nickname",
+                                   "preferred_username", "profile", "picture", "website", "gender", "birthdate",
+                                   "zoneinfo", "locale", "updated_at", "email", "email_verified", "role" };
+            viewModel.response_types_supported =
+                new List<string> { "code", "token", "id_token", "id_token token", "code id_token", "code token",
+                                   "code id_token token"};
+            viewModel.response_modes_supported = new List<string> { "form_post", "query", "fragment" };
+            viewModel.grant_types_supported =
+                new List<string> { "authorization_code", "client_credentials", "password", "refresh_token", "implicit" };
+            viewModel.subject_types_supported = new List<string> { "public" };
+            viewModel.id_token_signing_alg_values_supported = new List<string> { "RS256" };
+            viewModel.code_challenge_methods_supported = new List<string> { "plain", "S256" };
+            viewModel.token_endpoint_auth_methods_supported =
+                new List<string> { "client_secret_post", "client_secret_basic" };
+            
+            return new JsonResult(viewModel);
         }
     }
 }
