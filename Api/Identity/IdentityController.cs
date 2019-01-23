@@ -71,7 +71,6 @@ namespace Machete.Api.Identity // Not part of Controllers namespace; we don't wa
 
             return new OkObjectResult(jwt);
         }
-
         private async Task<ClaimsIdentity> GetClaimsIdentity(string username, string password)
         {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
@@ -90,12 +89,13 @@ namespace Machete.Api.Identity // Not part of Controllers namespace; we don't wa
             // Credentials are invalid, or account doesn't exist
             return await Task.FromResult<ClaimsIdentity>(null);
         }
-
+        
         //https://github.com/IdentityServer/IdentityServer3/blob/master/source/Core/Endpoints/Connect/DiscoveryEndpointController.cs
-        [HttpGet(".well-known/openid-configuration")]
-        private async Task<ActionResult> GetConfiguration()
+        [HttpGet]
+        [Route(".well-known/openid-configuration")]
+        public async Task<IActionResult> OpenIdConfiguration()
         {
-            return null;
+            return new JsonResult(new WellKnownViewModel());
         }
-}
+    }
 }
