@@ -1,7 +1,8 @@
 using AutoMapper;
+using Machete.Api.Identity.ViewModels;
 using Machete.Data;
 
-namespace Machete.Api.Identity {
+namespace Machete.Api.Identity.Maps {
     public class MacheteUserMap : Profile
     {
         public MacheteUserMap()

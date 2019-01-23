@@ -1,4 +1,4 @@
-namespace Machete.Api.Identity {
+namespace Machete.Api.Identity.Helpers {
     public static class Constants
     {
         public static class Strings

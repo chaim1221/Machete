@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Machete.Api.Identity;
+using Machete.Api.Identity.Maps;
 
 namespace Machete.Api.Maps
 {

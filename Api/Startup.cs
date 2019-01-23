@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Machete.Api.Identity;
+using Machete.Api.Identity.Helpers;
 using Machete.Api.Maps;
 using Machete.Data;
 using Machete.Data.Infrastructure;
@@ -125,6 +126,8 @@ namespace Machete.Api
             services.AddScoped<IConfigRepository, ConfigRepository>();
             
             services.AddScoped<IConfigService, ConfigService>();
+            
+            services.AddScoped<JwtIssuerOptions>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -141,7 +144,7 @@ namespace Machete.Api
             
             app.UseCors("AllowAllOrigins"); // TODO
 
-            //app.UseHttpsRedirection(); // also TODO
+            app.UseHttpsRedirection(); // also TODO
             app.UseAuthentication();
             //app.UseDefaultFiles(); //?
             app.UseStaticFiles();
@@ -153,16 +156,22 @@ namespace Machete.Api
                     constraints: new { controller = GetControllerNames() }
                 );
                 routes.MapRoute(
-                    name: "IdentityApi",
+                    name: "LoginApi",
                     template: "id/{action}",
                     defaults: new { controller = "Identity" },
-                    constraints: new { action = "accounts"}//|authorize|token|userinfo|discovery|logout|revocation|introspection|accesstokenvalidation|identitytokenvalidation" }
+                    constraints: new { action = "accounts"}
+                );
+                routes.MapRoute(
+                    name: "IdentityApi",
+                    template: "id/connect/{action}",
+                    defaults: new { controller = "Identity" },
+                    constraints: new { action = "authorize|token|userinfo|discovery|logout|revocation|introspection|accesstokenvalidation|identitytokenvalidation" }
                 );
                 routes.MapRoute(
                     name: "WellKnownToken",
-                    template: ".well-known/{action}",
+                    template: "id/.well-known/{action}",
                     defaults: new { controller = "Identity" },
-                    constraints: new { action = "openid-configuration" }
+                    constraints: new { action = "openid-configuration|jwks" }
                 );
                 routes.MapRoute(
                     name: "NotFound",

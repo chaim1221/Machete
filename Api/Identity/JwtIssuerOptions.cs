@@ -85,7 +85,7 @@ namespace Machete.Api.Identity
         /// <summary>
         /// "idp"; (IdentityServer value: "idsrv")
         /// </summary>
-        public string IdentityProvider => "Machete";
+        public string IdentityProvider => "machete";
         
         /// <summary>
         /// Set the timespan the token will be valid for (default is 120 min)

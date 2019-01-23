@@ -11,13 +11,13 @@ namespace Machete.Api.Controllers
     [ApiController]
     public class ConfigsController : MacheteApiController
     {
-        private readonly IConfigService serv;
-        private readonly IMapper map;
+        private readonly IConfigService _serv;
+        private readonly IMapper _map; 
 
         public ConfigsController(IConfigService serv, IMapper map)
         {
-            this.serv = serv;
-            this.map = map;
+            this._serv = serv;
+            this._map = map;
         }
 
         // GET: api/Configs
@@ -26,7 +26,7 @@ namespace Machete.Api.Controllers
         [HttpGet]
         public ActionResult Get()
         {
-            var result = serv.GetMany(c => c.publicConfig == true);
+            var result = _serv.GetMany(c => c.publicConfig == true);
             return new JsonResult(new { data = result });
         }
 
@@ -35,7 +35,7 @@ namespace Machete.Api.Controllers
         [HttpGet("{id}")]
         public JsonResult Get(int id)
         {
-            var result = serv.Get(id);
+            var result = _serv.Get(id);
             return new JsonResult(new { data = result });
         }
 
