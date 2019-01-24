@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 namespace Machete.Api.Identity
 {
     // https://fullstackmark.com/post/13/jwt-authentication-with-aspnet-core-2-web-api-angular-5-net-core-identity-and-facebook-login
-    // https://github.com/mmacneil/AngularASPNETCore2WebApiAuth/tree/master/src/Auth
+    // https://github.com/mmacneil/AngularASPNETCore2WebApiAuth/tree/master/src/Auth (MIT)
     public interface IJwtFactory
     {
         JwtIssuerOptions JwtOptions { get; set; }

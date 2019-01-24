@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using AutoMapper;
 using Machete.Api.Identity.Helpers;
@@ -13,12 +10,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
-namespace Machete.Api.
-    Identity // Not part of Controllers namespace; we don't want default route requests to end up here 
+namespace Machete.Api.Identity
 {
-    // https://fullstackmark.com/post/13/jwt-authentication-with-aspnet-core-2-web-api-angular-5-net-core-identity-and-facebook-login
-    // https://github.com/mmacneil/AngularASPNETCore2WebApiAuth/blob/master/src/Controllers/AccountsController.cs
-    // https://github.com/mmacneil/AngularASPNETCore2WebApiAuth/blob/master/src/Controllers/AuthController.cs
+    #region [Summary]
+    ///<summary>
+    /// 
+    /// This controller exists outside the Machete.Api.Controllers because it serves a different purpose and because the
+    /// routes are defined separately. Its fields and dependencies were created to replicate the functionality of
+    /// IdentityServer3 without having to modify the https://github.com/SavageLearning/machete-ui project beyond port
+    /// mappings and domain names. As such, the namespace division exists to call out that this could be (and once was)
+    /// a separate project.
+    ///
+    /// Sources used:
+    /// https://fullstackmark.com/post/13/jwt-authentication-with-aspnet-core-2-web-api-angular-5-net-core-identity-and-facebook-login
+    /// https://github.com/mmacneil/AngularASPNETCore2WebApiAuth/blob/master/src/Controllers/AccountsController.cs (MIT)
+    /// https://github.com/mmacneil/AngularASPNETCore2WebApiAuth/blob/master/src/Controllers/AuthController.cs (MIT)
+    /// https://github.com/IdentityServer/IdentityServer3 (Apache-2.0)
+    /// https://github.com/IdentityServer/IdentityServer4 (Apache-2.0)
+    /// 
+    /// </summary>
+    #endregion [Summary]
     [Route("id")]
     public class IdentityController : Controller
     {
@@ -26,19 +37,16 @@ namespace Machete.Api.
         private readonly IMapper _mapper;
 
         private readonly IJwtFactory _jwtFactory;
-        //private readonly JwtIssuerOptions _jwtOptions;
 
         public IdentityController(
             UserManager<MacheteUser> userManager,
             IMapper mapper,
-            IJwtFactory jwtFactory //,
-            //JwtIssuerOptions jwtOptions
+            IJwtFactory jwtFactory
         )
         {
             _userManager = userManager;
             _mapper = mapper;
             _jwtFactory = jwtFactory;
-            //_jwtOptions = jwtOptions;
         }
 
         // POST id/accounts
@@ -53,20 +61,15 @@ namespace Machete.Api.
 
             if (!result.Succeeded) return new BadRequestObjectResult(Errors.AddErrorsToModelState(result, ModelState));
 
-            // This doesn't make any sense to me, it's already created the user above, and this just errors out.
-//            await _appDbContext.Users.AddAsync(new MacheteUser { Id = userIdentity.Id });
-//            await _appDbContext.SaveChangesAsync();
-
             return new JsonResult("Account created");
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult>
-            Login(string signin, [FromBody] CredentialsViewModel creds) // "signin" is from IS3, TODO
+        [HttpPost("login")]                       // "signin" is from IS3, TODO see if we can remove this param
+        public async Task<IActionResult> Login(string signin, [FromBody]CredentialsViewModel creds)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var identity = await GetClaimsIdentity(creds.UserName, creds.Password); // IS3: "Username" (should be fine)
+            var identity = await GetClaimsIdentity(creds.UserName, creds.Password);
 
             if (identity == null)
                 return BadRequest(
@@ -74,8 +77,7 @@ namespace Machete.Api.
                 );
 
             var jwt = await Tokens.GenerateJwt(identity, _jwtFactory, creds.UserName,
-                _jwtFactory.JwtOptions, // _jwtOptions, // bug?
-                new JsonSerializerSettings {Formatting = Formatting.Indented});
+                _jwtFactory.JwtOptions, new JsonSerializerSettings {Formatting = Formatting.Indented});
 
             return new OkObjectResult(jwt);
         }
@@ -99,7 +101,6 @@ namespace Machete.Api.
             return await Task.FromResult<ClaimsIdentity>(null);
         }
 
-        //https://github.com/IdentityServer/IdentityServer3/blob/master/source/Core/Endpoints/Connect/DiscoveryEndpointController.cs
         [HttpGet]
         [Route(".well-known/openid-configuration")]
         public async Task<IActionResult> OpenIdConfiguration()
@@ -150,6 +151,7 @@ namespace Machete.Api.
         }
 
         // Surprisingly little documentation exists on how to make one of these
+        // https://github.com/IdentityServer/IdentityServer4/blob/63a50d7838af25896fbf836ea4e4f37b5e179cd8/src/ResponseHandling/Default/DiscoveryResponseGenerator.cs
         [HttpGet]
         [Route(".well-known/jwks")]
         public async Task<IActionResult> JsonWebKeySet()
@@ -157,34 +159,6 @@ namespace Machete.Api.
             JwksViewModel webKey = new JwksViewModel();
             var key = _jwtFactory.JwtOptions.SigningCredentials.Key;
 
-            // this should not work
-//            if (key is X509SecurityKey x509Key) {
-//                var cert64 = Convert.ToBase64String(x509Key.Certificate.RawData);
-//                var thumbprint = Base64UrlEncoder.Encode(x509Key.Certificate.GetCertHash());
-//
-//                var pubKey = x509Key.PublicKey as RSA;
-//                var parameters = pubKey.ExportParameters(false);
-//                var exponent = Base64UrlEncoder.Encode(parameters.Exponent);
-//                var modulus = Base64UrlEncoder.Encode(parameters.Modulus);
-//
-//                webKey = new JwksViewModel {
-//                    kty = "RSA",
-//                    use = "sig",
-//                    kid = x509Key.KeyId,
-//                    x5t = thumbprint,
-//                    e = exponent,
-//                    n = modulus,
-//                    x5c = new List<string> { cert64 },
-////                    alg = algorithm
-//                };
-//            }
-
-//            // test, not used
-//            if (key is SymmetricSecurityKey symm) {
-//                webKey = null;
-//            }
-
-            // this should work
             if (key is RsaSecurityKey rsaKey) {
                 var parameters = rsaKey.Rsa?.ExportParameters(false) ?? rsaKey.Parameters;
                 var exponent = Base64UrlEncoder.Encode(parameters.Exponent);
@@ -199,19 +173,6 @@ namespace Machete.Api.
 //                    alg = algorithm
                 };
             }
-
-//            if (key is JsonWebKey jsonWebKey) {
-//                webKey = new JwksViewModel {
-//                    kty = jsonWebKey.Kty,
-//                    use = jsonWebKey.Use ?? "sig",
-//                    kid = jsonWebKey.Kid,
-//                    x5t = jsonWebKey.X5t,
-//                    e = jsonWebKey.E,
-//                    n = jsonWebKey.N,
-//                    x5c = jsonWebKey.X5c?.Count == 0 ? null : jsonWebKey.X5c.ToList(),
-////                    alg = jsonWebKey.Alg
-//                };
-//            }
 
             return await Task.FromResult(new JsonResult(new {
                     keys = new List<JwksViewModel> { webKey }
