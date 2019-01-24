@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using Machete.Api.Identity;
 using Machete.Api.Identity.Helpers;
@@ -22,20 +23,27 @@ namespace Machete.Api
 {
     public class Startup
     {
+        private SecurityKey _signingKey;
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            using (RSA rsa = RSA.Create()) {
+                rsa.KeySize = 4096;                
+                _signingKey = new RsaSecurityKey(rsa);
+            }
         }
 
         public IConfiguration Configuration { get; }
-        private readonly SymmetricSecurityKey _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
-        public static string SecretKey = "7XbQdx9DceB8wjtNqa8dHkc4rbnTPsqg"; // just a silly value for development
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // JWT: https://github.com/mmacneil/AngularASPNETCore2WebApiAuth/blob/master/src/Startup.cs
         public void ConfigureServices(IServiceCollection services)
         {
             var connString = Configuration.GetConnectionString("DefaultConnection");
+            var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
+            var credentials = new SigningCredentials(_signingKey, SecurityAlgorithms.RsaSha256); // mmacneil was HS256
             
             services.AddDbContext<MacheteContext>(builder => {
                 builder
@@ -45,14 +53,12 @@ namespace Machete.Api
             });
             
             services.AddSingleton<IJwtFactory, JwtFactory>();
-            
-            var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
-            
+
             services.Configure<JwtIssuerOptions>(options =>
             {
                 options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
                 options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
-                options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
+                options.SigningCredentials = credentials;
             });
             
             var tokenValidationParameters = new TokenValidationParameters

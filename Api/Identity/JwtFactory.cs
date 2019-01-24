@@ -12,27 +12,27 @@ namespace Machete.Api.Identity
     // https://github.com/mmacneil/AngularASPNETCore2WebApiAuth/tree/master/src/Auth
     public interface IJwtFactory
     {
+        JwtIssuerOptions JwtOptions { get; set; }
         Task<string> GenerateEncodedToken(string userName, ClaimsIdentity identity);
         ClaimsIdentity GenerateClaimsIdentity(string userName, string id);
     }
 
-
     public class JwtFactory : IJwtFactory
     {
-        private readonly JwtIssuerOptions _jwtOptions;
-
         public JwtFactory(IOptions<JwtIssuerOptions> jwtOptions)
         {
-            _jwtOptions = jwtOptions.Value;
-            ThrowIfInvalidOptions(_jwtOptions);
+            JwtOptions = jwtOptions.Value;
+            ThrowIfInvalidOptions(JwtOptions);
         }
+
+        public JwtIssuerOptions JwtOptions { get; set; }
 
         public async Task<string> GenerateEncodedToken(string userName, ClaimsIdentity identity)
         {
             var claims = new[] {
                 new Claim(JwtRegisteredClaimNames.Sub, userName),
-                new Claim(JwtRegisteredClaimNames.Jti, await _jwtOptions.JtiGenerator()),
-                new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(),
+                new Claim(JwtRegisteredClaimNames.Jti, await JwtOptions.JtiGenerator()),
+                new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(JwtOptions.IssuedAt).ToString(),
                     ClaimValueTypes.Integer64),
                 identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Role),
                 identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Id)
@@ -40,12 +40,12 @@ namespace Machete.Api.Identity
 
             // Create the JWT security token and encode it.
             var jwt = new JwtSecurityToken(
-                issuer: _jwtOptions.Issuer,
-                audience: _jwtOptions.Audience,
+                issuer: JwtOptions.Issuer,
+                audience: JwtOptions.Audience,
                 claims: claims,
-                notBefore: _jwtOptions.NotBefore,
-                expires: _jwtOptions.Expiration,
-                signingCredentials: _jwtOptions.SigningCredentials);
+                notBefore: JwtOptions.NotBefore,
+                expires: JwtOptions.Expiration,
+                signingCredentials: JwtOptions.SigningCredentials);
 
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
