@@ -160,11 +160,18 @@ namespace Machete.Api
             app.UseHttpsRedirection(); // also TODO
             app.UseAuthentication();
             
-            var fileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Identity", "React"));
+            var fileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"Identity", @"React"));
+            var requestPath = new PathString("/id/login");
+            app.UseDefaultFiles(new DefaultFilesOptions {
+                FileProvider = fileProvider,
+                RequestPath = requestPath
+            });
             app.UseStaticFiles(new StaticFileOptions {
                 FileProvider = fileProvider,
-                RequestPath = new PathString("/id/login")
+                RequestPath = requestPath
             });
+            app.UseDefaultFiles();
+            app.UseStaticFiles(); // wwwroot
             
             app.UseMvc(routes => {
                 routes.MapRoute(
