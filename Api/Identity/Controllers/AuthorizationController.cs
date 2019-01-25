@@ -34,12 +34,11 @@ namespace Machete.Api.Identity
             // TODO: DRY
             var pathBase = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
             var root = $"{pathBase}/id";
-            var connect = $"{root}/connect";
-            var connectAuthorizationEndpoint = $"{connect}/authorize";
+            var login = $"{root}/login";
             
             // IS3 cached these and provided a cookie equal to the GUID of the authorization request. We pass them on.
             var builder = new StringBuilder();
-            builder.Append(connectAuthorizationEndpoint);
+            builder.Append(login);
             builder.Append($"?client_id={clientId}");
             builder.Append($"&redirect_uri={redirectUri}");
             builder.Append($"&response_type={responseType}");
@@ -47,7 +46,7 @@ namespace Machete.Api.Identity
             builder.Append($"&state={state}");
             builder.Append($"&nonce={nonce}");
             
-            return new RedirectResult(builder.ToString());
+            return await Task.FromResult(new RedirectResult(builder.ToString()));
         }
     }
 }

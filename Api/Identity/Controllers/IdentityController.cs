@@ -112,11 +112,12 @@ namespace Machete.Api.Identity
             var root = $"{pathBase}/id";
             var wellKnown = $"{root}/.well-known";
             var connect = $"{root}/connect";
+            var connectAuthorizationEndpoint = $"{connect}/authorize";
 
             var viewModel = new WellKnownViewModel();
             viewModel.issuer = root;
             viewModel.jwks_uri = $"{wellKnown}/jwks";
-            viewModel.authorization_endpoint = $"{connect}/authorize";
+            viewModel.authorization_endpoint = connectAuthorizationEndpoint;
             viewModel.token_endpoint = $"{connect}/token";
             viewModel.userinfo_endpoint = $"{connect}/userinfo";
             viewModel.end_session_endpoint = $"{connect}/endsession";

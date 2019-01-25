@@ -9,7 +9,37 @@
     <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script type="text/babel">
 
-class LoginForm extends React.Component {
+class ExternalLoginForm extends React.Component {
+  render() {
+    return (
+
+<div className='panel-container external-providers'>
+  <p>If you are a new employer, please use one of the following web services to authenticate.
+  If you have a legacy email and password account, you may also use it to authenticate.  
+  We are migrating to web services for authenticate because of the increased
+  security,  account management, and password reset options.</p>
+  <div className='panel'>
+    <div className='panel-heading'>
+      <h3 className='panel-title'>Web services available</h3>
+    </div>
+    <div className='panel-body'>
+      <ul className='list-inline'>
+        <li>
+          <a className='btn'>Sign in with Facebook</a>
+        </li>
+        <li>
+          <a className='btn'>Sign in with Google</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+    );
+  }
+}
+
+class LegacyLoginForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -36,6 +66,13 @@ class LoginForm extends React.Component {
 
   render() {
     return (
+
+<div className='panel-container'>
+  <div className='panel'>
+    <div className='panel-heading'>
+      <h3 className='panel-title'>Legacy account</h3>
+    </div>
+    <div className='panel-body'>
       <form onSubmit={this.handleSubmit}>
         <div className='form-group'>
           <label>
@@ -59,6 +96,10 @@ class LoginForm extends React.Component {
           <input type='submit' value='Login' />
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
     );
   }
 }
@@ -79,37 +120,8 @@ const container = (
         <strong>Error: </strong>
       </div>
       <div className='row'>
-        <div className='panel-container external-providers'>
-          <p>If you are a new employer, please use one of the following web services to authenticate.
-          If you have a legacy email and password account, you may also use it to authenticate.  
-          We are migrating to web services for authenticate because of the increased
-          security,  account management, and password reset options.</p>
-          <div className='panel'>
-            <div className='panel-heading'>
-              <h3 className='panel-title'>Web services available</h3>
-            </div>
-            <div className='panel-body'>
-              <ul className='list-inline'>
-                <li>
-                  <a className='btn'>Sign in with Facebook</a>
-                </li>
-                <li>
-                  <a className='btn'>Sign in with Google</a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div className='panel-container'>
-          <div className='panel'>
-            <div className='panel-heading'>
-              <h3 className='panel-title'>Legacy account</h3>
-            </div>
-            <div className='panel-body'>
-              <LoginForm />
-            </div>
-          </div>
-        </div>
+        <ExternalLoginForm />
+        <LegacyLoginForm />
       </div>
     </div>
   </div>

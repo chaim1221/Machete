@@ -23,4 +23,12 @@
   <ItemGroup>
     <Compile Remove="Controllers\ValuesController.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Identity\Login" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Identity\React\favicon.ico">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

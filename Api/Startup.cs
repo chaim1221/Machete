@@ -1,8 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
-using System.Text;
 using Machete.Api.Identity;
 using Machete.Api.Identity.Helpers;
 using Machete.Api.Maps;
@@ -12,15 +12,22 @@ using Machete.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Machete.Api
 {
+    /// <summary>
+    /// Configuration class for an API that serves information about Machete clients and jobs.
+    /// Pipelines: API, static pages, Identity using JWT and RSA
+    /// https://piotrgankiewicz.com/2017/07/24/jwt-rsa-hmac-asp-net-core/
+    /// </summary>
     public class Startup
     {
         private SecurityKey _signingKey;
@@ -152,8 +159,13 @@ namespace Machete.Api
 
             app.UseHttpsRedirection(); // also TODO
             app.UseAuthentication();
-            //app.UseDefaultFiles(); //?
-            app.UseStaticFiles();
+            
+            var fileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Identity", "React"));
+            app.UseStaticFiles(new StaticFileOptions {
+                FileProvider = fileProvider,
+                RequestPath = new PathString("/id/login")
+            });
+            
             app.UseMvc(routes => {
                 routes.MapRoute(
                     name: "DefaultApi",
