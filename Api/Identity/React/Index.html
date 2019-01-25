@@ -1,0 +1,123 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="app.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel">
+
+class LoginForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      username: '',
+      password: '',
+      remember: false
+    };
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleChange(event) {
+    this.setState({
+      username: event.target.username,
+      password: event.target.password,
+      remember: event.target.remember
+    });
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+  }
+
+  render() {
+    return (
+      <form onSubmit={this.handleSubmit}>
+        <div className='form-group'>
+          <label>
+            Username
+            <input type='text' value={this.state.username} onChange={this.handleChange} />
+          </label>
+        </div>
+        <div className='form-group'>
+          <label>
+            Password
+            <input type='text' value={this.state.password} onChange={this.handleChange} />
+          </label>
+        </div>
+        <div className='form-group'>
+          <label>
+            <input type='checkbox' value={this.state.remember} onChange={this.handleChange} />
+            Remember My Login
+          </label>
+        </div>
+        <div className='form-group'>
+          <input type='submit' value='Login' />
+        </div>
+      </form>
+    );
+  }
+}
+
+const container = (
+  <div className='container'>
+    <div className='navbar'>
+      <div className='navbar-header'>
+        <span className='navbar-brand'>Casa Latina</span>
+      </div>
+    </div>
+    <div className='page-login'>
+      <div className='page-header'>
+        <h1>Worker Requests</h1>
+        <h2>Please log in</h2>
+      </div>
+      <div className='row error-message'>
+        <strong>Error: </strong>
+      </div>
+      <div className='row'>
+        <div className='panel-container external-providers'>
+          <p>If you are a new employer, please use one of the following web services to authenticate.
+          If you have a legacy email and password account, you may also use it to authenticate.  
+          We are migrating to web services for authenticate because of the increased
+          security,  account management, and password reset options.</p>
+          <div className='panel'>
+            <div className='panel-heading'>
+              <h3 className='panel-title'>Web services available</h3>
+            </div>
+            <div className='panel-body'>
+              <ul className='list-inline'>
+                <li>
+                  <a className='btn'>Sign in with Facebook</a>
+                </li>
+                <li>
+                  <a className='btn'>Sign in with Google</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div className='panel-container'>
+          <div className='panel'>
+            <div className='panel-heading'>
+              <h3 className='panel-title'>Legacy account</h3>
+            </div>
+            <div className='panel-body'>
+              <LoginForm />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const root = document.getElementById('root')
+ReactDOM.render(container, root)
+
+    </script>
+  </body>
+</html>
