@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -36,10 +37,10 @@ namespace Machete.Api.Identity
             var root = $"{pathBase}/id";
             var login = $"{root}/login";
             
-            // IS3 cached these and provided a cookie equal to the GUID of the authorization request. We pass them on.
+            // IS3 cached these and provided a cookie equal to the GUID of the authorization request. We pass them on.            
             var builder = new StringBuilder();
             builder.Append(login);
-            builder.Append($"&client_id={clientId}");
+            builder.Append($"?client_id={clientId}");
             builder.Append($"&redirect_uri={redirectUri}");
             builder.Append($"&response_type={responseType}");
             builder.Append($"&scope={scope}");

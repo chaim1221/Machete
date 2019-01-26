@@ -76,11 +76,13 @@ class LegacyLoginForm extends React.Component {
   handleSubmit(event) {
     event.preventDefault();
 
+    var queryString = document.location.href.split('?')[1];
     var url = window.location.protocol + '//' + window.location.host + window.location.pathname;
     var data = JSON.stringify({
       'username': this.state.username,
       'password': this.state.password,
-      'remember': this.state.remember
+      'remember': this.state.remember,
+      'queryString': queryString
     });
     var config = {
       headers: {
@@ -90,8 +92,9 @@ class LegacyLoginForm extends React.Component {
     };
 
     axios.post(url, data, config)
-         .then((response) => { console.log(response) })
-         .catch((error) => this.handleError(error));
+         .then((response) => {
+           console.log(response)
+       }).catch((error) => this.handleError(error));
   }
 
   render() {

@@ -127,4 +127,21 @@ Content-Length: 0
 
 Our goal: Allow them to obtain authorization and pass through if
 they are already logged in, or login with what they've already passed
-in and grant a JWT.
+in and grant a JWT; then, send it to:
+
+HTTP/1.1 302 Found
+Location: https://casa.machetessl.org/V2/authorize
+`#id_token=the first JWT
+ &access_token=the SECOND JWT wtf?
+ &token_type=Bearer
+ &expires_in=3600
+ &scope=openid%20email%20roles%20api%20profile
+ &state={state}
+ &session_state=tLaH1bLFMi55B0_6R5fyL9jldbzwmwyCTwBVnpSXXS4.ec3183d0f51f277cfed7340853e91054
+
+Server: Microsoft-IIS/8.5
+Set-Cookie: idsvr.clients=WyJtYWNoZXRlLWNhc2EtcHJvZCJd; path=/id; secure; HttpOnly
+X-Powered-By: ASP.NET
+Date: Sat, 26 Jan 2019 06:21:34 GMT
+Content-Length: 0
+

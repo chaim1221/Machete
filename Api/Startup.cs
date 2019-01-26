@@ -131,6 +131,12 @@ namespace Machete.Api
             var mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
             
+            services.AddDistributedMemoryCache();
+            services.AddSession(options => {
+                options.IdleTimeout = TimeSpan.FromSeconds(10); // TODO
+                options.Cookie.HttpOnly = true; // prevent JavaScript access
+            });
+            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             
             services.AddScoped<IDatabaseFactory, DatabaseFactory>();
@@ -173,6 +179,9 @@ namespace Machete.Api
             });
             app.UseDefaultFiles();
             app.UseStaticFiles(); // wwwroot
+            
+            app.UseCookiePolicy();
+            app.UseSession();
             
             app.UseMvc(routes => {
                 routes.MapRoute(

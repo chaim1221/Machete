@@ -1,10 +1,14 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Machete.Api.Identity.Helpers;
 using Machete.Api.Identity.ViewModels;
 using Machete.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -76,10 +80,27 @@ namespace Machete.Api.Identity
                     Errors.AddErrorToModelState("login_failure", "Invalid username or password.", ModelState)
                 );
 
-            var jwt = await Tokens.GenerateJwt(identity, _jwtFactory, creds.UserName,
-                _jwtFactory.JwtOptions, new JsonSerializerSettings {Formatting = Formatting.Indented});
+            var id = identity.Claims.Single(c => c.Type == "id").Value;
+            var jwt = await _jwtFactory.GenerateEncodedToken(creds.UserName, identity);
+            var expires = (int)_jwtFactory.JwtOptions.ValidFor.TotalSeconds;
 
-            return new OkObjectResult(jwt);
+            if (creds.Remember) {
+                // remember them fondly?
+            }
+
+            var splitQuery = creds.QueryString.Split('&');
+            var redirect = splitQuery[1].Split('=')[1]; //right?
+            var scope = splitQuery[3];
+            var state = splitQuery[4];
+            var uri = Uri.UnescapeDataString(redirect);
+            var builder = new StringBuilder();
+            builder.Append(uri);
+            builder.Append($"#id_token={jwt}&access_token={jwt}&token_Type=Bearer&");
+            builder.Append($"expires_in={expires}&");
+            builder.Append($"{scope}&");
+            builder.Append($"{state}&session_state=obsolete");
+
+            return new RedirectResult(builder.ToString());
         }
 
         private async Task<ClaimsIdentity> GetClaimsIdentity(string username, string password)
