@@ -100,7 +100,7 @@ namespace Machete.Api.Identity
             builder.Append($"{scope}&");
             builder.Append($"{state}&session_state=obsolete");
 
-            return new RedirectResult(builder.ToString());
+            return new OkObjectResult(builder.ToString());
         }
 
         private async Task<ClaimsIdentity> GetClaimsIdentity(string username, string password)

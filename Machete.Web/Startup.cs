@@ -86,6 +86,11 @@ namespace Machete.Web
                 options.SlidingExpiration = true;
             });
 
+            services.AddCors(options => options.AddPolicy("AllowAllOrigins", builder => {
+                    builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod(); // TODO
+                })
+            );
+
             var mapperConfig = new MvcMapperConfiguration().Config;
             var mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
@@ -196,6 +201,8 @@ namespace Machete.Web
             // the preceding will attempt to guess the user's culture. For several reasons that's not what we want.
             // Ibid. #set-the-culture-programmatically
             
+            app.UseCors("AllowAllOrigins"); // TODO
+
             app.UseHttpsRedirection();
 
             //app.UseStaticFiles(); // ?
