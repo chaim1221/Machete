@@ -164,7 +164,8 @@ namespace Machete.Api
             var requestPath = new PathString("/id/login");
             app.UseDefaultFiles(new DefaultFilesOptions {
                 FileProvider = fileProvider,
-                RequestPath = requestPath
+                RequestPath = requestPath,
+                DefaultFileNames = new[] { "index.html" }
             });
             app.UseStaticFiles(new StaticFileOptions {
                 FileProvider = fileProvider,

@@ -39,7 +39,7 @@ namespace Machete.Api.Identity
             // IS3 cached these and provided a cookie equal to the GUID of the authorization request. We pass them on.
             var builder = new StringBuilder();
             builder.Append(login);
-            builder.Append($"?client_id={clientId}");
+            builder.Append($"&client_id={clientId}");
             builder.Append($"&redirect_uri={redirectUri}");
             builder.Append($"&response_type={responseType}");
             builder.Append($"&scope={scope}");
