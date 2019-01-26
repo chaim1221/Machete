@@ -126,18 +126,24 @@ input[type=submit] {
 }
 
 .row {
-  display: table;
   content: " ";
   clear: both;
   margin-left: -15px;
   margin-right: -15px;
 }
 
-.error-message {
+.hide {
   display: none !important;
+}
+
+.error-message {
   background-color: #f2dede;
   border-color: #ebccd1;
+  border-radius: 3px;
   color: #a94442;
+  padding: 15px;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
 .external-providers {
