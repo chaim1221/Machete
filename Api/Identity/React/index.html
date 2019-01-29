@@ -4,15 +4,15 @@
   </head>
   <body>
     <div id="root"></div>
-    <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script crossorigin src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script  src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script  src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script  src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script  src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script type="text/babel">
 
 axios.defaults.headers.common = {
   "Content-Type": "application/json"
-}
+};
 
 class ExternalLoginForm extends React.Component {
   render() {
@@ -76,14 +76,40 @@ class LegacyLoginForm extends React.Component {
   handleSubmit(event) {
     event.preventDefault();
 
+    var dictionary = {};
+    
     var queryString = document.location.href.split('?')[1];
+    var parts = queryString.split('&');
+
+    for(var i = 0; i < parts.length; i++) {
+      var p = parts[i];
+      // Step 2: Split Key/Value pair
+      var keyValuePair = p.split('=');
+
+      // Step 3: Add Key/Value pair to Dictionary object
+      var key = keyValuePair[0];
+      var value = keyValuePair[1];
+
+      // decode URI encoded string
+      value = decodeURIComponent(value);
+      value = value.replace(/\+/g, ' ');
+
+      dictionary[key] = value;
+    }
+    
     var url = window.location.protocol + '//' + window.location.host + window.location.pathname;
     var data = JSON.stringify({
       'username': this.state.username,
       'password': this.state.password,
       'remember': this.state.remember,
-      'queryString': queryString
+      'clientid': dictionary['client_id'],
+      'redirect': dictionary['redirect_uri'],
+      'response': dictionary['response_type'],
+      'scope'   : dictionary['scope'],
+      'state'   : dictionary['state'],
+      'nonce'   : dictionary['nonce']
     });
+    
     var config = {
       headers: {
         'Content-Type': 'application/json',

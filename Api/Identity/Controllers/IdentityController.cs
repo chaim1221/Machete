@@ -80,27 +80,14 @@ namespace Machete.Api.Identity
                     Errors.AddErrorToModelState("login_failure", "Invalid username or password.", ModelState)
                 );
 
-            var id = identity.Claims.Single(c => c.Type == "id").Value;
-            var jwt = await _jwtFactory.GenerateEncodedToken(creds.UserName, identity);
-            var expires = (int)_jwtFactory.JwtOptions.ValidFor.TotalSeconds;
+            var host = Routes.GetHostFrom(Request);
+            var jwt = await _jwtFactory.GenerateEncodedToken(host, creds, identity);
 
             if (creds.Remember) {
                 // remember them fondly?
             }
 
-            var splitQuery = creds.QueryString.Split('&');
-            var redirect = splitQuery[1].Split('=')[1]; //right?
-            var scope = splitQuery[3];
-            var state = splitQuery[4];
-            var uri = Uri.UnescapeDataString(redirect);
-            var builder = new StringBuilder();
-            builder.Append(uri);
-            builder.Append($"#id_token={jwt}&access_token={jwt}&token_Type=Bearer&");
-            builder.Append($"expires_in={expires}&");
-            builder.Append($"{scope}&");
-            builder.Append($"{state}&session_state=obsolete");
-
-            return new OkObjectResult(builder.ToString());
+            return new OkObjectResult(jwt);
         }
 
         private async Task<ClaimsIdentity> GetClaimsIdentity(string username, string password)
@@ -121,30 +108,23 @@ namespace Machete.Api.Identity
             // Credentials are invalid, or account doesn't exist
             return await Task.FromResult<ClaimsIdentity>(null);
         }
-
+       
         [HttpGet]
         [Route(".well-known/openid-configuration")]
         public async Task<IActionResult> OpenIdConfiguration()
         {
-            // These are brittle. A better way to do this would be to have a static class that both the configuration
-            // and this endpoint utilize.
-
-            var pathBase = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
-            var root = $"{pathBase}/id";
-            var wellKnown = $"{root}/.well-known";
-            var connect = $"{root}/connect";
-            var connectAuthorizationEndpoint = $"{connect}/authorize";
+            var host = Routes.GetHostFrom(Request);
 
             var viewModel = new WellKnownViewModel();
-            viewModel.issuer = root;
-            viewModel.jwks_uri = $"{wellKnown}/jwks";
-            viewModel.authorization_endpoint = connectAuthorizationEndpoint;
-            viewModel.token_endpoint = $"{connect}/token";
-            viewModel.userinfo_endpoint = $"{connect}/userinfo";
-            viewModel.end_session_endpoint = $"{connect}/endsession";
-            viewModel.check_session_iframe = $"{connect}/checksession";
-            viewModel.revocation_endpoint = $"{connect}/revocation";
-            viewModel.introspection_endpoint = $"{connect}/introspection";
+            viewModel.issuer = host.Identity();
+            viewModel.jwks_uri = host.JsonWebKeySet();
+            viewModel.authorization_endpoint = host.AuthorizationEndpoint();
+            viewModel.token_endpoint = host.TokenEndpoint();
+            viewModel.userinfo_endpoint = host.UserInfoEndpoint();
+            viewModel.end_session_endpoint = host.EndSessionEndpoint();
+            viewModel.check_session_iframe = host.CheckSessionEndpoint();
+            viewModel.revocation_endpoint = host.RevocationEndpoint();
+            viewModel.introspection_endpoint = host.IntrospectionEndpoint();
             viewModel.frontchannel_logout_supported = true;
             viewModel.frontchannel_logout_session_supported = true;
             viewModel.scopes_supported =

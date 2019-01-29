@@ -96,7 +96,7 @@ namespace Machete.Api
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("ApiUser", policy =>
-                    policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Role, Constants.Strings.JwtClaims.ApiAccess));
+                    policy.RequireClaim("role", "api_access"));
             });
             
             services.AddIdentity<MacheteUser, IdentityRole>()

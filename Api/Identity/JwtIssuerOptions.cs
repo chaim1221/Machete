@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 
@@ -28,7 +29,7 @@ namespace Machete.Api.Identity
         /// <summary>
         /// 4.1.4.  "exp" (Expiration Time) Claim - The "exp" (expiration time) claim identifies the expiration time on or after which the JWT MUST NOT be accepted for processing.
         /// </summary>
-        public DateTime Expiration => IssuedAt.Add(ValidFor);
+        public DateTime Expiration => IssuedAt.AddSeconds(ValidFor);
 
         /// <summary>
         /// 4.1.5.  "nbf" (Not Before) Claim - The "nbf" (not before) claim identifies the time before which the JWT MUST NOT be accepted for processing.
@@ -90,7 +91,7 @@ namespace Machete.Api.Identity
         /// <summary>
         /// Set the timespan the token will be valid for (default is 120 min)
         /// </summary>
-        public TimeSpan ValidFor { get; set; } = TimeSpan.FromMinutes(120);
+        public int ValidFor { get; set; } = (int)TimeSpan.FromMinutes(120).TotalSeconds;
 
         /// <summary>
         /// The signing key to use when generating tokens.
