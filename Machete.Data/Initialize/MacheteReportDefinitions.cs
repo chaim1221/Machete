@@ -1567,7 +1567,7 @@ where jobcount is not null or actcount is not null or eslcount is not null
         {
 	        using (var connection = context.Database.GetDbConnection())
 	        {
-		        connection.Open();
+		        //connection.Open();
 		        using (var command = connection.CreateCommand()) {
                     
 			        command.CommandText = "sp_executesql";

@@ -45,9 +45,11 @@ namespace Machete.Api.Identity
 
         private readonly IJwtFactory _jwtFactory;
         private readonly JwtIssuerOptions _jwtOptions;
+        private readonly List<IdentityRole> _roles;
 
         public IdentityController(
             UserManager<MacheteUser> userManager,
+            RoleManager<IdentityRole> roleManager,
             IMapper mapper,
             IJwtFactory jwtFactory,
             IOptions<JwtIssuerOptions> jwtOptions
@@ -56,6 +58,7 @@ namespace Machete.Api.Identity
             ThrowIfInvalidOptions(jwtOptions.Value);
             
             _userManager = userManager;
+            _roles = roleManager.Roles.ToList();
             _mapper = mapper;
             _jwtFactory = jwtFactory;
             _jwtOptions = jwtOptions.Value;
@@ -94,6 +97,11 @@ namespace Machete.Api.Identity
             }
 
             // Token issuance
+            foreach (var role in _roles) // TODO to complain to the EF Core crew; this is a hack because Roles was empty
+            {
+                var isInRole = await _userManager.IsInRoleAsync(userToVerify, role.Name);
+                if (isInRole) userToVerify.Roles.Add(role);
+            }
             _jwtOptions.Issuer = Routes.GetHostFrom(Request).IdentityRoute();
             _jwtOptions.Nonce = creds.Nonce;
             var claimsIdentity = await _jwtFactory.GenerateClaimsIdentity(userToVerify, _jwtOptions);
