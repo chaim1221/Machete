@@ -8,11 +8,14 @@ using AutoMapper;
 using Machete.Api.Identity.Helpers;
 using Machete.Api.Identity.ViewModels;
 using Machete.Data;
+using Machete.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using RestSharp.Validation;
 
 namespace Machete.Api.Identity
 {
@@ -41,16 +44,21 @@ namespace Machete.Api.Identity
         private readonly IMapper _mapper;
 
         private readonly IJwtFactory _jwtFactory;
+        private readonly JwtIssuerOptions _jwtOptions;
 
         public IdentityController(
             UserManager<MacheteUser> userManager,
             IMapper mapper,
-            IJwtFactory jwtFactory
+            IJwtFactory jwtFactory,
+            IOptions<JwtIssuerOptions> jwtOptions
         )
         {
+            ThrowIfInvalidOptions(jwtOptions.Value);
+            
             _userManager = userManager;
             _mapper = mapper;
             _jwtFactory = jwtFactory;
+            _jwtOptions = jwtOptions.Value;
         }
 
         // POST id/accounts
@@ -68,47 +76,48 @@ namespace Machete.Api.Identity
             return new JsonResult("Account created");
         }
 
-        [HttpPost("login")]                       // "signin" is from IS3, TODO see if we can remove this param
-        public async Task<IActionResult> Login(string signin, [FromBody]CredentialsViewModel creds)
+        [HttpPost("login")] // "signin" is from IS3, TODO see if we can remove this param
+        public async Task<IActionResult> Login(string signin, [FromBody] CredentialsViewModel creds)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var identity = await GetClaimsIdentity(creds.UserName, creds.Password);
-
-            if (identity == null)
-                return BadRequest(
-                    Errors.AddErrorToModelState("login_failure", "Invalid username or password.", ModelState)
-                );
-
-            var host = Routes.GetHostFrom(Request);
-            var jwt = await _jwtFactory.GenerateEncodedToken(host, creds, identity);
-
-            if (creds.Remember) {
-                // remember them fondly?
+            // Validation logic
+            if (!ValidateLogin(creds)) return BadRequest(ModelState);
+            var userToVerify = await _userManager.FindByNameAsync(creds.UserName);
+            if (userToVerify == null)
+            {
+                ModelState.TryAddModelError("invalid_request", "Could not find user.");
+                return BadRequest(ModelState);
+            }
+            if (!await _userManager.CheckPasswordAsync(userToVerify, creds.Password))
+            {
+                ModelState.TryAddModelError("invalid_request", "Invalid username or password.");
+                return BadRequest(ModelState);
             }
 
+            // Token issuance
+            _jwtOptions.Issuer = Routes.GetHostFrom(Request).IdentityRoute();
+            _jwtOptions.Nonce = creds.Nonce;
+            var claimsIdentity = await _jwtFactory.GenerateClaimsIdentity(userToVerify, _jwtOptions);
+            var jwt = await _jwtFactory.GenerateEncodedToken(claimsIdentity, _jwtOptions);
+            if (creds.Remember)
+            {
+                // TODO: remember them fondly?
+            }
             return new OkObjectResult(jwt);
         }
 
-        private async Task<ClaimsIdentity> GetClaimsIdentity(string username, string password)
+        private bool ValidateLogin(CredentialsViewModel creds)
         {
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-                return await Task.FromResult<ClaimsIdentity>(null);
-
-            // get the user to verify
-            var userToVerify = await _userManager.FindByNameAsync(username);
-
-            if (userToVerify == null) return await Task.FromResult<ClaimsIdentity>(null);
-
-            // check the credentials
-            if (await _userManager.CheckPasswordAsync(userToVerify, password)) {
-                return await Task.FromResult(_jwtFactory.GenerateClaimsIdentity(username, userToVerify.Id));
-            }
-
-            // Credentials are invalid, or account doesn't exist
-            return await Task.FromResult<ClaimsIdentity>(null);
+            if (!ModelState.IsValid)
+                ModelState.TryAddModelError("invalid_request", "Invalid request.");
+            if (string.IsNullOrEmpty(creds.UserName) || string.IsNullOrEmpty(creds.Password))
+                ModelState.TryAddModelError("login_failure", "Invalid username or password.");
+            if (!string.Equals(creds.ClientId, _jwtOptions.Audience))
+                ModelState.TryAddModelError("environment_mismatch", "Could not verify audience.");
+            if (!Guid.TryParse(creds.Nonce, out var unused))
+                ModelState.TryAddModelError("invalid_request", "Could not verify nonce.");
+            return ModelState.ErrorCount == 0;
         }
-       
+
         [HttpGet]
         [Route(".well-known/openid-configuration")]
         public async Task<IActionResult> OpenIdConfiguration()
@@ -116,8 +125,8 @@ namespace Machete.Api.Identity
             var host = Routes.GetHostFrom(Request);
 
             var viewModel = new WellKnownViewModel();
-            viewModel.issuer = host.Identity();
-            viewModel.jwks_uri = host.JsonWebKeySet();
+            viewModel.issuer = host.IdentityRoute();
+            viewModel.jwks_uri = host.JsonWebKeySetEndpoint();
             viewModel.authorization_endpoint = host.AuthorizationEndpoint();
             viewModel.token_endpoint = host.TokenEndpoint();
             viewModel.userinfo_endpoint = host.UserInfoEndpoint();
@@ -159,7 +168,7 @@ namespace Machete.Api.Identity
         public async Task<IActionResult> JsonWebKeySet()
         {
             JwksViewModel webKey = new JwksViewModel();
-            var key = _jwtFactory.JwtOptions.SigningCredentials.Key;
+            var key = _jwtOptions.SigningCredentials.Key;
 
             if (key is RsaSecurityKey rsaKey) {
                 var parameters = rsaKey.Rsa?.ExportParameters(false) ?? rsaKey.Parameters;
@@ -180,6 +189,23 @@ namespace Machete.Api.Identity
                     keys = new List<JwksViewModel> { webKey }
                 })
             );
+        }
+        
+        private static void ThrowIfInvalidOptions(JwtIssuerOptions options)
+        {
+            if (options == null) throw new ArgumentNullException(nameof(options));
+
+            if (options.ValidFor <= 0) {
+                throw new ArgumentException("Must be a non-zero TimeSpan.", nameof(JwtIssuerOptions.ValidFor));
+            }
+
+            if (options.SigningCredentials == null) {
+                throw new ArgumentNullException(nameof(JwtIssuerOptions.SigningCredentials));
+            }
+
+            if (options.JtiGenerator == null) {
+                throw new ArgumentNullException(nameof(JwtIssuerOptions.JtiGenerator));
+            }
         }
     }
 }

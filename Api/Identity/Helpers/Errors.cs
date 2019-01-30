@@ -13,11 +13,5 @@ namespace Machete.Api.Identity.Helpers {
 
             return modelState;
         }
-
-        public static ModelStateDictionary AddErrorToModelState(string code, string description, ModelStateDictionary modelState)
-        {
-            modelState.TryAddModelError(code, description);
-            return modelState;
-        }
     }
 }

@@ -8,8 +8,8 @@ using System.Security.Principal;
 using System.Threading.Tasks;
 using Machete.Api.Identity.Helpers;
 using Machete.Api.Identity.ViewModels;
+using Machete.Data;
 using Machete.Service;
-using Microsoft.Extensions.Options;
 
 namespace Machete.Api.Identity
 {
@@ -17,61 +17,39 @@ namespace Machete.Api.Identity
     // https://github.com/mmacneil/AngularASPNETCore2WebApiAuth/tree/master/src/Auth (MIT)
     public interface IJwtFactory
     {
-        JwtIssuerOptions JwtOptions { get; set; }
-        Task<string> GenerateEncodedToken(string host, CredentialsViewModel creds, ClaimsIdentity identity);
-        ClaimsIdentity GenerateClaimsIdentity(string userName, string id);
+        Task<string> GenerateEncodedToken(ClaimsIdentity claimsIdentity, JwtIssuerOptions jwtOptions);
+        Task<ClaimsIdentity> GenerateClaimsIdentity(MacheteUser subject, JwtIssuerOptions options);
     }
-
     public class JwtFactory : IJwtFactory
     {
-        public JwtFactory(IOptions<JwtIssuerOptions> jwtOptions)
+        public async Task<string> GenerateEncodedToken(ClaimsIdentity claimsIdentity, JwtIssuerOptions jwtOptions)
         {
-            JwtOptions = jwtOptions.Value;
-            ThrowIfInvalidOptions(JwtOptions);
+            return await Task.FromResult(new JwtSecurityTokenHandler().WriteToken(
+                new JwtSecurityToken(claims: claimsIdentity.Claims, signingCredentials: jwtOptions.SigningCredentials)
+            ));
         }
 
-        public JwtIssuerOptions JwtOptions { get; set; }
-
-        public async Task<string> GenerateEncodedToken(string host, CredentialsViewModel creds, ClaimsIdentity identity)
+        public async Task<ClaimsIdentity> GenerateClaimsIdentity(MacheteUser subject, JwtIssuerOptions jwtOptions)
         {
-            if (!string.Equals(creds.ClientId, JwtOptions.Audience))
-                throw new MacheteValidationException("Could not verify audience. Potential environment/build mismatch.");
-            if (!Guid.TryParse(creds.Nonce, out var unused))
-                throw new MacheteValidationException("Could not verify nonce. Potential injection risk.");
-
-            var claims = new List<Claim> {
-                new Claim(JwtRegisteredClaimNames.Iss, host.Identity()),
-                new Claim(JwtRegisteredClaimNames.Aud, JwtOptions.Audience),
-                new Claim(JwtRegisteredClaimNames.Exp, UnixEpochDateFor(JwtOptions.Expiration)),
-                new Claim(JwtRegisteredClaimNames.Nbf, UnixEpochDateFor(JwtOptions.NotBefore)),
-                new Claim(JwtRegisteredClaimNames.Nonce, creds.Nonce), 
-                new Claim(JwtRegisteredClaimNames.Jti, await JwtOptions.JtiGenerator()),
-                new Claim(JwtRegisteredClaimNames.Iat, UnixEpochDateFor(JwtOptions.IssuedAt)),
+            var claims = new List<Claim>
+            {
+                new Claim("id", subject.Id),
+                new Claim(JwtRegisteredClaimNames.Iss, jwtOptions.Issuer),
+                new Claim(JwtRegisteredClaimNames.Aud, jwtOptions.Audience),
+                new Claim(JwtRegisteredClaimNames.Exp, UnixEpochDateFor(jwtOptions.Expiration)),
+                new Claim(JwtRegisteredClaimNames.Nbf, UnixEpochDateFor(jwtOptions.NotBefore)),
+                new Claim(JwtRegisteredClaimNames.Nonce, jwtOptions.Nonce), 
+                new Claim(JwtRegisteredClaimNames.Jti, await jwtOptions.JtiGenerator()),
+                new Claim(JwtRegisteredClaimNames.Iat, UnixEpochDateFor(jwtOptions.IssuedAt)),
                 //new Claim(JwtRegisteredClaimNames.AtHash, ???),
-                //new Claim(JwtRegisteredClaimNames.Sid, ???), 
-                new Claim(JwtRegisteredClaimNames.Sub, identity.Claims.Single(c => c.Type == "id").Value),
-                new Claim(JwtRegisteredClaimNames.AuthTime, UnixEpochDateFor(JwtOptions.IssuedAt))
+                //new Claim(JwtRegisteredClaimNames.Sid, ???),
+                new Claim(JwtRegisteredClaimNames.Sub, subject.Id),
+                new Claim(JwtRegisteredClaimNames.AuthTime, UnixEpochDateFor(jwtOptions.IssuedAt))
             };
-            claims.AddRange(identity.FindAll("role"));
+            claims.AddRange(subject.Roles.Select(role => new Claim("role", role.Name)));
             claims.Add(new Claim(JwtRegisteredClaimNames.Amr, "password"));
 
-            // Create the JWT security token and encode it. You can add individual claims here, but that's confusing;
-            // we just created all the claims that should be in the token, above.
-            var jwt = new JwtSecurityToken(
-                claims: claims,
-                signingCredentials: JwtOptions.SigningCredentials);
-
-            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-
-            return encodedJwt;
-        }
-
-        public ClaimsIdentity GenerateClaimsIdentity(string userName, string id)
-        {
-            return new ClaimsIdentity(new GenericIdentity(userName, "Token"), new[] {
-                new Claim("id", id),
-                new Claim("role", "api_access")
-            });
+            return new ClaimsIdentity(new GenericIdentity(subject.UserName, "Token"), claims);
         }
         
         /// <returns>Date converted to seconds since Unix epoch (Jan 1, 1970, midnight UTC).</returns>
@@ -79,22 +57,5 @@ namespace Machete.Api.Identity
             => ((long) Math.Round((date.ToUniversalTime() -
                                   new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero))
                 .TotalSeconds)).ToString(CultureInfo.InvariantCulture);
-
-        private static void ThrowIfInvalidOptions(JwtIssuerOptions options)
-        {
-            if (options == null) throw new ArgumentNullException(nameof(options));
-
-            if (options.ValidFor <= 0) {
-                throw new ArgumentException("Must be a non-zero TimeSpan.", nameof(JwtIssuerOptions.ValidFor));
-            }
-
-            if (options.SigningCredentials == null) {
-                throw new ArgumentNullException(nameof(JwtIssuerOptions.SigningCredentials));
-            }
-
-            if (options.JtiGenerator == null) {
-                throw new ArgumentNullException(nameof(JwtIssuerOptions.JtiGenerator));
-            }
-        }
     }
 }

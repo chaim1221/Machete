@@ -4,10 +4,10 @@
   </head>
   <body>
     <div id="root"></div>
-    <script  src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
-    <script  src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
-    <script  src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script  src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script type="text/babel">
 
 axios.defaults.headers.common = {
@@ -64,10 +64,10 @@ class LegacyLoginForm extends React.Component {
   }
 
   handleError(error) {
-    console.log(error.response);
-
     if (error.response && error.response.status === 400) {
       this.props.handler({ show: true, message: error.response.data.login_failure[0] });
+    } else if (error.response && error.response === 'not sent' ) {
+      this.props.handler({ show: true, message: 'Your request was not sent because this is an invalid request.'});
     } else {
       this.props.handler({ show: true, message: this.props.defaultMessage });
     }
@@ -79,49 +79,52 @@ class LegacyLoginForm extends React.Component {
     var dictionary = {};
     
     var queryString = document.location.href.split('?')[1];
-    var parts = queryString.split('&');
-
-    for(var i = 0; i < parts.length; i++) {
-      var p = parts[i];
-      // Step 2: Split Key/Value pair
-      var keyValuePair = p.split('=');
-
-      // Step 3: Add Key/Value pair to Dictionary object
-      var key = keyValuePair[0];
-      var value = keyValuePair[1];
-
-      // decode URI encoded string
-      value = decodeURIComponent(value);
-      value = value.replace(/\+/g, ' ');
-
-      dictionary[key] = value;
-    }
     
-    var url = window.location.protocol + '//' + window.location.host + window.location.pathname;
-    var data = JSON.stringify({
-      'username': this.state.username,
-      'password': this.state.password,
-      'remember': this.state.remember,
-      'clientid': dictionary['client_id'],
-      'redirect': dictionary['redirect_uri'],
-      'response': dictionary['response_type'],
-      'scope'   : dictionary['scope'],
-      'state'   : dictionary['state'],
-      'nonce'   : dictionary['nonce']
-    });
-    
-    var config = {
-      headers: {
-        'Content-Type': 'application/json',
-        'cache-control': 'no-cache'
+    if (queryString) {
+      var parts = queryString.split('&');
+
+      for (var i = 0; i < parts.length; i++) {
+        var p = parts[i];
+        // Step 2: Split Key/Value pair
+        var keyValuePair = p.split('=');
+
+        // Step 3: Add Key/Value pair to Dictionary object
+        var key = keyValuePair[0];
+        var value = keyValuePair[1];
+
+        // decode URI encoded string
+        value = decodeURIComponent(value);
+        value = value.replace(/\+/g, ' ');
+
+        dictionary[key] = value;
       }
-    };
 
-    axios.post(url, data, config)
-         .then((response) => {
-           console.log(response.status, response.statusText);
-           window.location = response.data;
-       }).catch((error) => this.handleError(error));
+      var url = window.location.protocol + '//' + window.location.host + window.location.pathname;
+      var data = JSON.stringify({
+        'username': this.state.username,
+        'password': this.state.password,
+        'remember': this.state.remember,
+        'clientid': dictionary['client_id'],
+        'redirect': dictionary['redirect_uri'],
+        'response': dictionary['response_type'],
+        'scope': dictionary['scope'],
+        'state': dictionary['state'],
+        'nonce': dictionary['nonce']
+      });
+
+      var config = {
+        headers: {
+          'Content-Type': 'application/json',
+          'cache-control': 'no-cache'
+        }
+      };
+
+      axios.post(url, data, config)
+              .then((response) => {
+                console.log(response.status, response.statusText);
+                //window.location = response.data;
+              }).catch((error) => this.handleError(error));
+    } else { this.handleError({ response: 'not sent' }) }
   }
 
   render() {

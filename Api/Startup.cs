@@ -79,8 +79,9 @@ namespace Machete.Api
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = _signingKey,
 
-                RequireExpirationTime = false,
+                RequireExpirationTime = true,
                 ValidateLifetime = true,
+                
                 ClockSkew = TimeSpan.Zero
             };
             
@@ -182,6 +183,8 @@ namespace Machete.Api
             
             app.UseCookiePolicy();
             app.UseSession();
+
+            var host = string.Empty;
             
             app.UseMvc(routes => {
                 routes.MapRoute(
@@ -192,19 +195,19 @@ namespace Machete.Api
                 );
                 routes.MapRoute(
                     name: "LoginApi",
-                    template: "id/{action}",
+                    template: $"{host.IdentityRoute()}{{action}}",
                     defaults: new { controller = "Identity" },
                     constraints: new { action = "accounts"}
                 );
                 routes.MapRoute(
                     name: "IdentityApi",
-                    template: "id/connect/{action}",
-                    defaults: new { controller = "Identity" },
+                    template: $"{host.ConnectRoute()}{{action}}",
+                    defaults: new { controller = "Identity" }, // To disable routes, remove them from the following line.
                     constraints: new { action = "authorize|token|userinfo|discovery|logout|revocation|introspection|accesstokenvalidation|identitytokenvalidation" }
                 );
                 routes.MapRoute(
                     name: "WellKnownToken",
-                    template: "id/.well-known/{action}",
+                    template: $"{host.WellKnownRoute()}{{action}}",
                     defaults: new { controller = "Identity" },
                     constraints: new { action = "openid-configuration|jwks" }
                 );

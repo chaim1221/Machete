@@ -44,19 +44,18 @@ namespace Machete.Api.Identity
         /// <summary>
         /// 4.1.7. "jti" (JWT ID) Claim (default ID is a GUID)
         /// </summary>
-        public Func<Task<string>> JtiGenerator =>
-            () => Task.FromResult(Guid.NewGuid().ToString());
+        public Func<Task<string>> JtiGenerator => () => Task.FromResult(Guid.NewGuid().ToString());
         
         // Machete 1.13 tokens included OpenID values: (see https://www.iana.org/assignments/jwt/jwt.xhtml)
         // so, implemented here:       
         
         /// <summary>
-        /// _OpenID Connect Core 1.0, §2. "nonce" Value used to associate a Client session with an ID Token
+        /// _OpenID Connect Core 1.0, §2. "nonce" Value used to associate a Client session with an ID Token.
         /// see: https://security.stackexchange.com/questions/188166/why-does-openid-connect-oidc-use-a-nonce-claim-instead-of-the-jti-regist
+        /// Set by client in the request.
         /// </summary>
-        public Func<Task<string>> NonceGenerator => 
-            () => Task.FromResult(Guid.NewGuid().ToString());
-        
+        public string Nonce { get; set; } // TODO stricter Guid enforcement
+
         /// <summary>
         /// _OpenID Connect Core 1.0, §2. "auth_time" Time when the authentication occurred
         /// </summary>
