@@ -28,4 +28,10 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\favicon.ico" />
+    <_ContentIncludedByDefault Remove="wwwroot\index.html" />
+    <_ContentIncludedByDefault Remove="wwwroot\logo2x.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\profile-bg-dark.jpeg" />
+  </ItemGroup>
 </Project>
