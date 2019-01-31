@@ -5,7 +5,6 @@ using Machete.Service;
 using DTO = Machete.Service.DTO;
 using System.Linq;
 using Machete.Api.Attributes;
-using Machete.Api.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using Machete.Api.Attributes;
 using Microsoft.AspNetCore.Mvc;
+using TransportProvider = Machete.Api.ViewModels.TransportProvider;
 
 namespace Machete.Api.Controllers
 {
@@ -32,7 +33,7 @@ namespace Machete.Api.Controllers
             {
                 var result = serv.GetMany(w => w.active == true)
                     .Select(e => 
-                    map.Map<Domain.TransportProvider, ViewModel.TransportProvider>(e))
+                    map.Map<Domain.TransportProvider, TransportProvider>(e))
                     .AsEnumerable();
                 return new JsonResult(new { data = result });
             }
@@ -46,7 +47,7 @@ namespace Machete.Api.Controllers
         [ClaimsAuthorization(claimType: CAType.Role, claimValues: new[] { CV.Any })]
         public ActionResult Get(int id)
         {
-            var result = map.Map<Domain.TransportProvider, ViewModel.TransportProvider>(serv.Get(id));
+            var result = map.Map<Domain.TransportProvider, TransportProvider>(serv.Get(id));
             if (result == null) return NotFound();
 
             return new JsonResult(new { data = result });
@@ -54,19 +55,19 @@ namespace Machete.Api.Controllers
 
         // POST: api/TransportProvider
         [ClaimsAuthorization(claimType: CAType.Role, claimValues: new[] { CV.Admin, CV.Manager })]
-        public void Post([FromBody]ViewModel.TransportProvider value)
+        public void Post([FromBody]TransportProvider value)
         {
-            var domain = map.Map<ViewModel.TransportProvider, Domain.TransportProvider>(value);
+            var domain = map.Map<TransportProvider, Domain.TransportProvider>(value);
             serv.Save(domain, userEmail);
         }
 
         // PUT: api/TransportProvider/5
         [ClaimsAuthorization(claimType: CAType.Role, claimValues: new[] { CV.Admin, CV.Manager })]
-        public void Put(int id, [FromBody]ViewModel.TransportProvider value)
+        public void Put(int id, [FromBody]TransportProvider value)
         {
             var domain = serv.Get(value.id);
             // TODO employers must only be able to edit their record
-            map.Map<ViewModel.TransportProvider, Domain.TransportProvider>(value, domain);
+            map.Map<TransportProvider, Domain.TransportProvider>(value, domain);
             serv.Save(domain, userEmail);
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Machete.Api.ViewModels;
 
 namespace Machete.Api.Maps
 {
@@ -9,21 +10,21 @@ namespace Machete.Api.Maps
     {
         public TransportRulesMap()
         {
-            CreateMap<Domain.TransportRule, ViewModel.TransportRule>()
+            CreateMap<Domain.TransportRule, TransportRule>()
                 .ForMember(v => v.id, opt => opt.MapFrom(d => d.ID));
-            CreateMap<Domain.TransportCostRule, ViewModel.TransportCostRule>();
+            CreateMap<Domain.TransportCostRule, TransportCostRule>();
         }
     }
     public class TransportProvidersMap : MacheteProfile
     {
         public TransportProvidersMap()
         {
-            CreateMap<Domain.TransportProvider, ViewModel.TransportProvider>()
+            CreateMap<Domain.TransportProvider, TransportProvider>()
                 .ForMember(v => v.id, opt => opt.MapFrom(d => d.ID))
                 .ForMember(v => v.text, opt => opt.MapFrom(d => d.text_EN));
-            CreateMap<Domain.TransportProviderAvailability, ViewModel.TransportProviderAvailability>();
+            CreateMap<Domain.TransportProviderAvailability, TransportProviderAvailability>();
 
-            CreateMap<ViewModel.TransportProviderAvailability, Domain.TransportProviderAvailability>();
+            CreateMap<TransportProviderAvailability, Domain.TransportProviderAvailability>();
         }
     }
 }

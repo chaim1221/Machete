@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Machete.Api.ViewModel;
+using Machete.Api.ViewModels;
 using Newtonsoft.Json;
 
 namespace Machete.Api.Maps

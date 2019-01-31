@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Web;
-using Machete.Api.ViewModels;
+﻿using System.Collections.ObjectModel;
 
-namespace Machete.Api.ViewModel
+namespace Machete.Api.ViewModels
 {
     public class WorkOrder : Record
     {

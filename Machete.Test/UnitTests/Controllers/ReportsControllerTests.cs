@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using Api.ViewModels;
 using AutoMapper;
 using Machete.Api.Controllers;
+using Machete.Api.ViewModels;
 using Machete.Service;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

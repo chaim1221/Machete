@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Machete.Api.ViewModel;
 using Newtonsoft.Json;
 using System.Globalization;
+using Machete.Api.ViewModels;
 
 namespace Machete.Api.Maps
 {

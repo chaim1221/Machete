@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
-using Machete.Api.ViewModel;
 using Machete.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-
+using Machete.Api.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Machete.Api.Controllers

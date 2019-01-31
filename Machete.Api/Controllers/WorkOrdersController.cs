@@ -4,12 +4,12 @@ using DTO = Machete.Service.DTO;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-using Machete.Api.ViewModel;
 using System.Security.Claims;
 using Machete.Api.Attributes;
 using Machete.Domain;
 
 using Microsoft.AspNetCore.Mvc;
+using WorkOrder = Machete.Api.ViewModels.WorkOrder;
 
 namespace Machete.Api.Controllers
 {
@@ -41,7 +41,7 @@ namespace Machete.Api.Controllers
             dataTableResult<DTO.WorkOrdersList> list = serv.GetIndexView(vo);
             var result = list.query
                 .Select(
-                    e => map.Map<DTO.WorkOrdersList, ViewModel.WorkOrder>(e)
+                    e => map.Map<DTO.WorkOrdersList, WorkOrder>(e)
                 ).AsEnumerable();            
             return new JsonResult(new { data =  result });
         }
@@ -50,25 +50,25 @@ namespace Machete.Api.Controllers
         [ClaimsAuthorization(claimType: CAType.Role, claimValues: new[] { CV.Admin })]
         public ActionResult Get(int id)
         {
-            var result = map.Map<Domain.WorkOrder, ViewModel.WorkOrder>(serv.Get(id));
+            var result = map.Map<Domain.WorkOrder, WorkOrder>(serv.Get(id));
             return new JsonResult(new { data = result });
         }
 
         // POST api/values
         [ClaimsAuthorization(claimType: CAType.Role, claimValues: new[] { CV.Admin })]
-        public void Post([FromBody]ViewModel.WorkOrder order)
+        public void Post([FromBody]WorkOrder order)
         {
-            var domain = map.Map<ViewModel.WorkOrder, Domain.WorkOrder>(order);
+            var domain = map.Map<WorkOrder, Domain.WorkOrder>(order);
             serv.Save(domain, userEmail);
         }
 
         // PUT api/values/5
         [ClaimsAuthorization(claimType: CAType.Role, claimValues: new[] { CV.Admin })]
-        public void Put(int id, [FromBody]ViewModel.WorkOrder order)
+        public void Put(int id, [FromBody]WorkOrder order)
         {
             var domain = serv.Get(order.id);
             // TODO employers must only be able to edit their record
-            map.Map<ViewModel.WorkOrder, Domain.WorkOrder>(order, domain);
+            map.Map<WorkOrder, Domain.WorkOrder>(order, domain);
             serv.Save(domain,userEmail);
         }
 

@@ -1,5 +1,4 @@
-﻿using Api.ViewModels;
-using AutoMapper;
+﻿using AutoMapper;
 using Machete.Service;
 using Newtonsoft.Json;
 using System;
@@ -7,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using Machete.Api.Attributes;
+using Machete.Api.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Machete.Api.Controllers

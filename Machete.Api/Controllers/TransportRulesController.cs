@@ -8,23 +8,24 @@ using System.Net;
 using System.Net.Http;
 using Machete.Api.Attributes;
 using Microsoft.AspNetCore.Mvc;
+using TransportRule = Machete.Api.ViewModels.TransportRule;
 
 namespace Machete.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ScheduleRulesController : MacheteApiController
+    public class TransportRulesController : MacheteApiController
     {
-        private readonly IScheduleRuleService serv;
+        private readonly ITransportRuleService serv;
         private readonly IMapper map;
 
-        public ScheduleRulesController(IScheduleRuleService serv, IMapper map)
+        public TransportRulesController(ITransportRuleService serv, IMapper map)
         {
             this.serv = serv;
             this.map = map;
         }
 
-        // GET: api/ScheduleRules
+        // GET: api/TransportRule
         [ClaimsAuthorization(claimType: CAType.Role, claimValues: new[] { CV.Admin, CV.Employer })]
         public ActionResult Get()
         {
@@ -32,7 +33,7 @@ namespace Machete.Api.Controllers
             try
             {
                 var result = serv.GetAll()
-                    .Select(e => map.Map<Domain.ScheduleRule, ViewModel.ScheduleRule>(e))
+                    .Select(e => map.Map<Domain.TransportRule, TransportRule>(e))
                     .AsEnumerable();
                 return new JsonResult(new { data = result });
             }
@@ -42,23 +43,23 @@ namespace Machete.Api.Controllers
             }
         }
 
-        // GET: api/ScheduleRules/5
+        // GET: api/TransportRule/5
         public string Get(int id)
         {
             return "value";
         }
 
-        // POST: api/ScheduleRules
+        // POST: api/TransportRule
         public void Post([FromBody]string value)
         {
         }
 
-        // PUT: api/ScheduleRules/5
+        // PUT: api/TransportRule/5
         public void Put(int id, [FromBody]string value)
         {
         }
 
-        // DELETE: api/ScheduleRules/5
+        // DELETE: api/TransportRule/5
         public void Delete(int id)
         {
         }

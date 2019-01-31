@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Machete.Api.ViewModels;
 
 namespace Machete.Api.Maps
 {
@@ -9,7 +10,7 @@ namespace Machete.Api.Maps
     {
         public ScheduleRulesMap()
         {
-            CreateMap<Domain.ScheduleRule, ViewModel.ScheduleRule>()
+            CreateMap<Domain.ScheduleRule, ScheduleRule>()
                 .ForMember(v => v.id, opt => opt.MapFrom(d => d.ID));
 
         }

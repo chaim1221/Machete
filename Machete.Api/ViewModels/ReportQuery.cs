@@ -1,4 +1,4 @@
-﻿namespace Api.ViewModels
+﻿namespace Machete.Api.ViewModels
 {
     public class ReportQuery
     {

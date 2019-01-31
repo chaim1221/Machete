@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Machete.Api.ViewModel;
 using Machete.Service;
 using Newtonsoft.Json;
 using RestSharp;
@@ -18,6 +17,7 @@ using Machete.Domain;
 using System.Globalization;
 using Machete.Api.Attributes;
 using Microsoft.AspNetCore.Mvc;
+using WorkOrder = Machete.Api.ViewModels.WorkOrder;
 
 namespace Machete.Api.Controllers
 {
@@ -79,7 +79,7 @@ namespace Machete.Api.Controllers
             dataTableResult<Service.DTO.WorkOrdersList> list = woServ.GetIndexView(vo);
             var result = list.query
                 .Select(
-                    e => map.Map<Service.DTO.WorkOrdersList, ViewModel.WorkOrder>(e)
+                    e => map.Map<Service.DTO.WorkOrdersList, WorkOrder>(e)
                 ).AsEnumerable();
             return new JsonResult(new { data = result });
         }
@@ -105,17 +105,17 @@ namespace Machete.Api.Controllers
 
             // TODO: Not mapping to view object throws JsonSerializationException, good to test error
             // handling with...(delay in error)
-            var result = map.Map<Domain.WorkOrder, ViewModel.WorkOrder>(order);
+            var result = map.Map<Domain.WorkOrder, WorkOrder>(order);
             return new JsonResult(new { data = result });
         }
 
         // POST: api/OnlineOrders
         [HttpPost]
         [ClaimsAuthorization(claimType: CAType.Role, claimValues: new[] { CV.Admin, CV.Employer })]
-        public ActionResult Post([FromBody]ViewModel.WorkOrder order)
+        public ActionResult Post([FromBody]WorkOrder order)
         {
 
-            var domain = map.Map<ViewModel.WorkOrder, Domain.WorkOrder>(order);
+            var domain = map.Map<WorkOrder, Domain.WorkOrder>(order);
             domain.Employer = employer;
             domain.EmployerID = employer.ID;
             domain.onlineSource = true;
@@ -140,7 +140,7 @@ namespace Machete.Api.Controllers
                 };
                 return BadRequest(res);
             }
-            var result = map.Map<Domain.WorkOrder, ViewModel.WorkOrder>(newOrder);
+            var result = map.Map<Domain.WorkOrder, WorkOrder>(newOrder);
             return new JsonResult(new { data = result });
         }
 
