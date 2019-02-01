@@ -11,16 +11,15 @@ namespace Machete.Web
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build()
-      /* o.O */ .CreateOrMigrateDatabase() // O.o */
+            WebHost
+                .CreateDefaultBuilder(args)
+                .UseStartup<Startup>()
+                .Build()
+      /* o.O    .CreateOrMigrateDatabase() // O.o */
                 .Run();
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost
-                .CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
     }
 
     public static class ProgramBuilder

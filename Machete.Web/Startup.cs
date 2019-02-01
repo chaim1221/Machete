@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
@@ -34,21 +35,41 @@ namespace Machete.Web
         // ReSharper disable once MemberCanBePrivate.Global
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        // This method is for the FluentRecordBase test harness.
+        public void ConfigureServicesMock(IServiceCollection services)
         {
             services.ConfigureMvcServices(Configuration);
         }
+        
+        // This method gets called by the runtime.
+        public void ConfigureServices(IServiceCollection services)
+        {
+//            services.ConfigureMvcServices(Configuration);
+        }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder builder, IHostingEnvironment env)
         {
-            app.Map(StaticConfiguration.RootPath, mvc => mvc.ConfigureMvcBuilder(env));
+//            builder.Map(StaticConfiguration.RootPath, mvc => { mvc.ConfigureMvcBuilder(env); });
+            builder.CreateServiceBranch(StaticConfiguration.RootPath,
+                services => { services.ConfigureMvcServices(Configuration); },
+                app => { app.ConfigureMvcBuilder(env); }
+            );
         }
+    }
+    
+    /// <summary>
+    /// A shim to help facilitate running multiple pipelines. Required by StaticConfiguration.
+    /// </summary>
+    public sealed class StartupHarness
+    {
+        public void ConfigureServices(IServiceCollection services) { }
+        public void Configure(IApplicationBuilder app) { }
     }
 
     static class StaticConfiguration
     {
+        public static PathString RootPath = PathString.Empty;
         public static void ConfigureMvcBuilder(this IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
@@ -257,6 +278,40 @@ namespace Machete.Web
             });
         }
 
-        public static PathString RootPath = PathString.Empty;
+        // https://www.strathweb.com/2017/04/running-multiple-independent-asp-net-core-pipelines-side-by-side-in-the-same-application/
+        // https://github.com/filipw/aspnetcore-parallel-pipelines/blob/master/WebApplication2/ApplicationBuilderExtensions.cs#L12
+        public static IApplicationBuilder CreateServiceBranch(this IApplicationBuilder app,
+            PathString path, Action<IServiceCollection> servicesConfiguration,
+            Action<IApplicationBuilder> appBuilderConfiguration)
+        {
+            var webhost = new WebHostBuilder()
+                .UseKestrel()
+                .ConfigureServices(servicesConfiguration)
+                .UseStartup<StartupHarness>()
+                .Build()
+      /* ojO */ .CreateOrMigrateDatabase(); /* Ojo */
+            
+            var serviceProvider = webhost.Services;
+            var featureCollection = webhost.ServerFeatures;
+            var appFactory = serviceProvider.GetRequiredService<IApplicationBuilderFactory>();
+            var branchBuilder = appFactory.CreateBuilder(featureCollection);
+            var factory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
+
+            branchBuilder.Use(async (context, next) => {
+                using (var scope = factory.CreateScope()) {
+                    context.RequestServices = scope.ServiceProvider;
+                    await next();
+                }
+            });
+
+            appBuilderConfiguration(branchBuilder);
+
+            var branchDelegate = branchBuilder.Build();
+
+            return app.Map(path, builder => { builder.Use(async (context, next) => {
+                await branchDelegate(context);
+              });
+            });
+        }
     }
 }
