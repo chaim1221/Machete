@@ -49,21 +49,18 @@ namespace Machete.Web.Controllers
         readonly LogEventInfo _levent = new LogEventInfo(LogLevel.Debug, "AccountController", "");
         private readonly MacheteContext _context;
         private const int PasswordExpirationInMonths = 6; // this constant represents number of months where users passwords expire 
-        //private new readonly HttpContext HttpContext;
 
         public AccountController(
             UserManager<MacheteUser> userManager,
             SignInManager<MacheteUser> signInManager,
             RoleManager<IdentityRole> roleManager,
             MacheteContext context
-            //, IHttpContextAccessor httpContext
         )
         {
             UserManager = userManager;
             SignInManager = signInManager;
             RoleManager = roleManager;
             _context = context;
-            //HttpContext = httpContext.HttpContext;
         }
 
         // TODO naming _

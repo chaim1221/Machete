@@ -56,7 +56,6 @@ namespace Machete.Api
         {
             app.ConfigureApiBuilder(env);
         }
-
     }
     
     static class StaticConfiguration {

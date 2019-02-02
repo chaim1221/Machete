@@ -49,7 +49,6 @@
 
   <ItemGroup>
     <Content Remove="App_Start\**" />
-    <Content Include="Identity\React\favicon.ico" />
   </ItemGroup>
 
   <ItemGroup>
