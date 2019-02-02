@@ -17,7 +17,8 @@ namespace Machete.Api.Identity.Helpers
         {
             return $"{Request.Scheme}://{Request.Host}{Request.PathBase}/";
         }
-        
+
+        public static string ApiRoute(this string host) => $"{host}api/";
         public static string IdentityRoute(this string host) => $"{host}id/";
         public static string ConnectRoute(this string host) => $"{host.IdentityRoute()}connect/";
         public static string WellKnownRoute(this string host) => $"{host.IdentityRoute()}.well-known/";

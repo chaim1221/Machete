@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Machete.Web
 {
-    // ReSharper disable once ClassNeverInstantiated.Global
     public class Program
     {
         public static void Main(string[] args)
@@ -17,23 +16,6 @@ namespace Machete.Web
                 .Build()
       /* o.O    .CreateOrMigrateDatabase() // O.o */
                 .Run();
-        }
-
-        // ReSharper disable once MemberCanBePrivate.Global
-    }
-
-    public static class ProgramBuilder
-    {
-        public static IWebHost CreateOrMigrateDatabase(this IWebHost webhost)
-        {
-            using (var scope = webhost.Services.CreateScope())
-            {
-                var context = scope.ServiceProvider.GetService<MacheteContext>();
-                context.Database.Migrate();
-                MacheteConfiguration.Seed(context, webhost.Services);
-            }
-
-            return webhost;
         }
     }
 }
