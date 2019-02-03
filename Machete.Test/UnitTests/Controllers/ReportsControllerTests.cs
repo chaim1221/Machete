@@ -40,7 +40,7 @@ namespace Machete.Test.UnitTests.Controllers
             serv.SetupGetQuery(testStartDate, testEndDate);
             serv.SetupPost();
 
-            var mapperConfig = new MvcMapperConfiguration().Config;
+            var mapperConfig = new MapperConfiguration(config => { config.ConfigureMvc(); });
             map = mapperConfig.CreateMapper(); 
 
             controller = new ReportsController(serv.Object, map);

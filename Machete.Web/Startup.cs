@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Security.Cryptography;
+using AutoMapper;
 using Machete.Data;
 using Machete.Data.Infrastructure;
 using Machete.Data.Repositories;
@@ -101,22 +102,20 @@ namespace Machete.Web
                 options.SlidingExpiration = true;
             });
 
-            services.AddCors(options => options.AddPolicy("AllowAllOrigins", builder =>
-                {
+            services.AddCors(options => options.AddPolicy("AllowAllOrigins", builder => {
                     builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod(); // TODO review
                 })
             );
 
-            var mvcMapperConfig = new MvcMapperConfiguration().Config;
-            var mvcMapper = mvcMapperConfig.CreateMapper();
-            services.AddSingleton(mvcMapper);
-            var apiMapperConfig = new ApiMapperConfiguration().Config;
-            var apiMapper = apiMapperConfig.CreateMapper();
-            services.AddSingleton(apiMapper);
+            var mapperConfig = new MapperConfiguration(maps => {
+                maps.ConfigureMvc();
+                maps.ConfigureApi();
+            });
+            var mapper = mapperConfig.CreateMapper();
+            services.AddSingleton(mapper);
 
-
+            // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/localization?view=aspnetcore-2.2#configure-localization
             services.AddMvc( /*config => { config.Filters.Add(new AuthorizeFilter()); }*/)
-                // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/localization?view=aspnetcore-2.2#configure-localization
                 .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
                 .AddDataAnnotationsLocalization()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
@@ -185,7 +184,7 @@ namespace Machete.Web
                 options.SupportedUICultures = supportedCultures;
             });
             
-//            services.AddDistributedMemoryCache(); // TODO check if needed
+//          services.AddDistributedMemoryCache(); // TODO check if needed
             services.JwtCrapToDelete(Configuration, _signingKey);
         }
 

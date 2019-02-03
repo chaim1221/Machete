@@ -416,8 +416,9 @@ namespace Machete.Test.Integration.Fluent
         {
             if (_webMap != null) return _webMap;
             
-            var mvcConfig = new MvcMapperConfiguration().Config;
-            _webMap = mvcConfig.CreateMapper();
+            var mapperConfig = new MapperConfiguration(config => { config.ConfigureMvc(); });
+            _webMap = mapperConfig.CreateMapper();
+            
             return _webMap;
         }
 
@@ -425,7 +426,7 @@ namespace Machete.Test.Integration.Fluent
         {
             if (_apiMap != null) return _apiMap;
 
-            var apiConfig = new ApiMapperConfiguration().Config;
+            var apiConfig = new MapperConfiguration(config => { config.ConfigureApi(); });
             _apiMap = apiConfig.CreateMapper();
 
             return _apiMap;
