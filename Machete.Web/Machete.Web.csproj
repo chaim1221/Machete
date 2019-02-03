@@ -26,10 +26,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="2.1.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.4" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.6" PrivateAssets="All" />
+    <PackageReference Include="RestSharp" Version="106.6.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Machete.Api\Machete.Api.csproj" />
     <ProjectReference Include="..\Machete.Data\Machete.Data.csproj" />
     <ProjectReference Include="..\Machete.Service\Machete.Service.csproj" />
   </ItemGroup>

@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Machete.Api\Machete.Api.csproj" />
     <ProjectReference Include="..\Machete.Web\Machete.Web.csproj" />
   </ItemGroup>
 
