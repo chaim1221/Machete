@@ -61,12 +61,9 @@ namespace Machete.Web
             // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/localization?view=aspnetcore-2.2#configure-localization
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-            services.AddDbContext<MacheteContext>(builder =>
-            {
-                builder
-                    .UseLazyLoadingProxies()
-                    .UseSqlServer(connString, with =>
-                        with.MigrationsAssembly("Machete.Data"));
+            services.AddDbContext<MacheteContext>(builder => { builder
+                .UseLazyLoadingProxies()
+                .UseSqlServer(connString, with => with.MigrationsAssembly("Machete.Data"));
             });
 
             services.AddIdentity<MacheteUser, IdentityRole>()
@@ -77,7 +74,7 @@ namespace Machete.Web
             {
                 // Password settings; we are relying on validation
 //                options.Password.RequireDigit = true;
-//                options.Password.RequiredLength = 8;
+                options.Password.RequiredLength = 8;
 //                options.Password.RequireNonAlphanumeric = false;
 //                options.Password.RequireUppercase = true;
 //                options.Password.RequireLowercase = false;
@@ -272,8 +269,6 @@ namespace Machete.Web
             app.UseCookiePolicy();
 
             app.UseAuthentication();
-            
-            // app.UseSession(); // TODO do we need this?
 
             // note the separation here; keep these separate for future port to api-only project
             app.UseMvc(routes => {
@@ -286,8 +281,6 @@ namespace Machete.Web
                 FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Content")),
                 RequestPath = "/Content"
             });
-
-            app.UseMvcWithDefaultRoute();
         }
     }
 }
