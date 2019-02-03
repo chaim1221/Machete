@@ -20,6 +20,7 @@ namespace Machete.Api.Identity.Helpers
 
         public static string IdentityRoute(this string host) => $"{host}id/";
         public static string ConnectRoute(this string host) => $"{host.IdentityRoute()}connect/";
+        public static string V2Route(this string host) => $"{host}V2/";
         public static string WellKnownRoute(this string host) => $"{host.IdentityRoute()}.well-known/";
         public static string LoginEndpoint(this string host) => $"{host.IdentityRoute()}login";
         public static string JsonWebKeySetEndpoint(this string host) => $"{host.WellKnownRoute()}jwks";
@@ -30,5 +31,6 @@ namespace Machete.Api.Identity.Helpers
         public static string CheckSessionEndpoint(this string host) => $"{host.ConnectRoute()}checksession";
         public static string RevocationEndpoint(this string host) => $"{host.ConnectRoute()}revocation";
         public static string IntrospectionEndpoint(this string host) => $"{host.ConnectRoute()}introspection";
+        public static string V2AuthorizationEndpoint(this string host) => $"{host.V2Route()}authorize";
     }
 }

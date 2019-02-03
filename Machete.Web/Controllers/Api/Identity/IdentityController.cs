@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Machete.Api.Identity;
@@ -38,35 +39,44 @@ namespace Machete.Web.Controllers.Api.Identity
         private readonly UserManager<MacheteUser> _userManager;
         private readonly IMapper _mapper;
 
-        private readonly IJwtFactory _jwtFactory;
         private readonly JwtIssuerOptions _jwtOptions;
-        private readonly List<IdentityRole> _roles;
+        private SignInManager<MacheteUser> _signinManager;
+        private RoleManager<IdentityRole> _roleManager;
 
         public IdentityController(
+            IOptions<JwtIssuerOptions> jwtOptions,
             UserManager<MacheteUser> userManager,
+            SignInManager<MacheteUser> signInManager,
             RoleManager<IdentityRole> roleManager,
-            IMapper mapper,
-            IJwtFactory jwtFactory,
-            IOptions<JwtIssuerOptions> jwtOptions
+            IMapper mapper
         )
         {
-            ThrowIfInvalidOptions(jwtOptions.Value);
-            
-            _userManager = userManager;
-            _roles = roleManager.Roles.ToList();
-            _mapper = mapper;
-            _jwtFactory = jwtFactory;
             _jwtOptions = jwtOptions.Value;
+            _userManager = userManager;
+            _signinManager = signInManager;
+            _roleManager = roleManager;
+            _mapper = mapper;
+        }
+        
+        [HttpGet]
+        [Route("connect/authorize")]
+        public async Task<IActionResult> GetAuthorize([FromQuery(Name = "redirect_uri")] string redirectUri)
+        {
+            if (!User.Identity.IsAuthenticated) { // send them to the login page
+                var domain = Routes.GetHostFrom(Request);
+                var redirectToLogin = domain.LoginEndpoint();
+                return await Task.FromResult(new RedirectResult($"{redirectToLogin}?{redirectUri}"));
+            } // otherwise, send them on their way
+            return await Task.FromResult<IActionResult>(new RedirectResult(redirectUri));
         }
 
         // POST id/accounts
-        [HttpPost("accounts")] // TODO determine if we want to handle account creation this way
+        [HttpPost("accounts")] // TODO remove; for testing only
         public async Task<IActionResult> Accounts([FromBody] RegistrationViewModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var userIdentity = _mapper.Map<RegistrationViewModel, MacheteUser>(model);
-
             var result = await _userManager.CreateAsync(userIdentity, model.Password);
 
             if (!result.Succeeded) return new BadRequestObjectResult(Errors.AddErrorsToModelState(result, ModelState));
@@ -74,38 +84,27 @@ namespace Machete.Web.Controllers.Api.Identity
             return new JsonResult("Account created");
         }
 
-        [HttpPost("login")] // "signin" is from IS3, TODO see if we can remove this param
-        public async Task<IActionResult> Login(string signin, [FromBody] CredentialsViewModel creds)
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] CredentialsViewModel model)
         {
             // Validation logic
-            if (!ValidateLogin(creds)) return BadRequest(ModelState);
-            var userToVerify = await _userManager.FindByNameAsync(creds.UserName);
-            if (userToVerify == null)
+            if (!ValidateLogin(model)) return BadRequest(ModelState);
+
+            var result = await _signinManager.PasswordSignInAsync(model.UserName, model.Password, model.Remember, false);
+
+            if (result?.Succeeded != true)
             {
-                ModelState.TryAddModelError("invalid_request", "Could not find user.");
-                return BadRequest(ModelState);
-            }
-            if (!await _userManager.CheckPasswordAsync(userToVerify, creds.Password))
-            {
-                ModelState.TryAddModelError("invalid_request", "Invalid username or password.");
+                ModelState.TryAddModelError("login_failure", "Invalid username or password.");
                 return BadRequest(ModelState);
             }
 
-            // Token issuance
-            foreach (var role in _roles) // TODO to complain to the EF Core crew; this is a hack because Roles was empty
-            {
-                var isInRole = await _userManager.IsInRoleAsync(userToVerify, role.Name);
-                if (isInRole) userToVerify.Roles.Add(role);
-            }
-            _jwtOptions.Issuer = Routes.GetHostFrom(Request).IdentityRoute();
-            _jwtOptions.Nonce = creds.Nonce;
-            var claimsIdentity = await _jwtFactory.GenerateClaimsIdentity(userToVerify, _jwtOptions);
-            var jwt = await _jwtFactory.GenerateEncodedToken(claimsIdentity, _jwtOptions);
-            if (creds.Remember)
-            {
-                // TODO: remember them fondly?
-            }
-            return new OkObjectResult(jwt);
+            // just trying to login
+            var v2AuthEndpoint = Routes.GetHostFrom(Request).V2AuthorizationEndpoint();
+            if (model.RedirectUri == v2AuthEndpoint) return await Task.FromResult(new RedirectResult(model.RedirectUri));
+
+            // trying to hit another page and need to go back there; Angular will handle that
+            var redirectUri = $"{v2AuthEndpoint}?{model.RedirectUri}";
+            return await Task.FromResult(new RedirectResult(redirectUri));
         }
 
         private bool ValidateLogin(CredentialsViewModel creds)
@@ -114,13 +113,12 @@ namespace Machete.Web.Controllers.Api.Identity
                 ModelState.TryAddModelError("invalid_request", "Invalid request.");
             if (string.IsNullOrEmpty(creds.UserName) || string.IsNullOrEmpty(creds.Password))
                 ModelState.TryAddModelError("login_failure", "Invalid username or password.");
-            if (!string.Equals(creds.ClientId, _jwtOptions.Audience))
-                ModelState.TryAddModelError("environment_mismatch", "Could not verify audience.");
-            if (!Guid.TryParse(creds.Nonce, out var unused))
-                ModelState.TryAddModelError("invalid_request", "Could not verify nonce.");
             return ModelState.ErrorCount == 0;
         }
 
+        /// <summary>
+        /// Not used.
+        /// </summary>
         [HttpGet]
         [Route(".well-known/openid-configuration")]
         public async Task<IActionResult> OpenIdConfiguration()
@@ -164,6 +162,9 @@ namespace Machete.Web.Controllers.Api.Identity
             return await Task.FromResult(new JsonResult(viewModel));
         }
 
+        /// <summary>
+        /// not used
+        /// </summary>
         // Surprisingly little documentation exists on how to make one of these
         // https://github.com/IdentityServer/IdentityServer4/blob/63a50d7838af25896fbf836ea4e4f37b5e179cd8/src/ResponseHandling/Default/DiscoveryResponseGenerator.cs
         [HttpGet]
@@ -192,23 +193,6 @@ namespace Machete.Web.Controllers.Api.Identity
                     keys = new List<JwksViewModel> { webKey }
                 })
             );
-        }
-        
-        private static void ThrowIfInvalidOptions(JwtIssuerOptions options)
-        {
-            if (options == null) throw new ArgumentNullException(nameof(options));
-
-            if (options.ValidFor <= 0) {
-                throw new ArgumentException("Must be a non-zero TimeSpan.", nameof(JwtIssuerOptions.ValidFor));
-            }
-
-            if (options.SigningCredentials == null) {
-                throw new ArgumentNullException(nameof(JwtIssuerOptions.SigningCredentials));
-            }
-
-            if (options.JtiGenerator == null) {
-                throw new ArgumentNullException(nameof(JwtIssuerOptions.JtiGenerator));
-            }
         }
     }
 }

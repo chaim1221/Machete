@@ -112,11 +112,7 @@ namespace Machete.Web
                 name: "IdentityApi",
                 template: $"{host.ConnectRoute()}{{action}}",
                 defaults: new { controller = "Identity" }, // To disable routes, remove them from the following line.
-                constraints: new
-                {
-                    action =
-                        "authorize|token|userinfo|discovery|logout|revocation|introspection|accesstokenvalidation|identitytokenvalidation"
-                }
+                constraints: new { action = "authorize" }
             );
             routes.MapRoute(
                 name: "WellKnownToken",

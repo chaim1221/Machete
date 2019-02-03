@@ -48,7 +48,7 @@ namespace Machete.Web.Controllers
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
         readonly LogEventInfo _levent = new LogEventInfo(LogLevel.Debug, "AccountController", "");
         private readonly MacheteContext _context;
-        private const int PasswordExpirationInMonths = 6; // this constant represents number of months where users passwords expire 
+        private const int PasswordExpirationInMonths = 6; // represents number of months where users passwords expire 
 
         public AccountController(
             UserManager<MacheteUser> userManager,
@@ -99,7 +99,7 @@ namespace Machete.Web.Controllers
             ViewBag.ReturnUrl = returnUrl;
 
             if (!User.Identity.IsAuthenticated)
-                return View(new LoginViewModel {Action = "ExternalLogin", ReturnUrl = returnUrl});
+                return View(new LoginViewModel { Action = "ExternalLogin", ReturnUrl = returnUrl });
 
             // Employers could still have a link to the old page, so redirect them
             if (User.IsInRole("Hirer")) {
