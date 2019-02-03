@@ -18,11 +18,10 @@ namespace Machete.Api.Identity.Helpers
             return $"{Request.Scheme}://{Request.Host}{Request.PathBase}/";
         }
 
-        public static string ApiRoute(this string host) => $"{host}api/";
         public static string IdentityRoute(this string host) => $"{host}id/";
         public static string ConnectRoute(this string host) => $"{host.IdentityRoute()}connect/";
         public static string WellKnownRoute(this string host) => $"{host.IdentityRoute()}.well-known/";
-        public static string WellKnownConfigurationEndpoint(this string host) => $"{host.WellKnownRoute()}openid-configuration";
+        public static string LoginEndpoint(this string host) => $"{host.IdentityRoute()}login";
         public static string JsonWebKeySetEndpoint(this string host) => $"{host.WellKnownRoute()}jwks";
         public static string AuthorizationEndpoint(this string host) => $"{host.ConnectRoute()}authorize";
         public static string TokenEndpoint(this string host) => $"{host.ConnectRoute()}token";

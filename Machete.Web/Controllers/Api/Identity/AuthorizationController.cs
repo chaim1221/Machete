@@ -1,5 +1,6 @@
 using System.Text;
 using System.Threading.Tasks;
+using Machete.Api.Identity.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Machete.Web.Controllers.Api.Identity
@@ -31,10 +32,8 @@ namespace Machete.Web.Controllers.Api.Identity
             string nonce
         )
         {
-            // TODO: DRY
-            var pathBase = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
-            var root = $"{pathBase}/id";
-            var login = $"{root}/login";
+            var pathBase = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/";
+            var login = pathBase.LoginEndpoint();
             
             // IS3 cached these and provided a cookie equal to the GUID of the authorization request. We pass them on.            
             var builder = new StringBuilder();
