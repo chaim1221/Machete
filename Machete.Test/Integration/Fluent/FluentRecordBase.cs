@@ -80,7 +80,7 @@ namespace Machete.Test.Integration.Fluent
                 .UseConfiguration(configuration)
                 .UseStartup<Startup>()
                 .ConfigureServices(services => {
-                    new Startup(configuration).ConfigureServicesMock(services);
+                    new Startup(configuration).ConfigureServices(services);
                 })
                 .Build().CreateOrMigrateDatabase();
                 
