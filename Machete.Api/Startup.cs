@@ -3,9 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
-using Machete.Api.Identity;
-using Machete.Api.Identity.Helpers;
-using Machete.Api.Maps;
+//using Machete.Api.Identity;
+//using Machete.Api.Identity.Helpers;
+//using Machete.Api.Maps;
 using Machete.Data;
 using Machete.Data.Infrastructure;
 using Machete.Service;
@@ -30,40 +30,17 @@ namespace Machete.Api
     /// </summary>
     public class Startup
     {
-        private static SecurityKey _signingKey;
-
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-
-            using (RSA rsa = RSA.Create()) {
-                rsa.KeySize = 4096;                
-                _signingKey = new RsaSecurityKey(rsa);
-            }
-        }
-
+        public Startup(IConfiguration configuration) => Configuration = configuration;
+        
         private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // JWT: https://github.com/mmacneil/AngularASPNETCore2WebApiAuth/blob/master/src/Startup.cs
         public void ConfigureServices(IServiceCollection services)
         {
-            services.ConfigureApiServices(Configuration, _signingKey);
-        }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
-            app.ConfigureApiBuilder(env);
-        }
-    }
-    
-    static class StaticConfiguration {
-        public static void ConfigureApiServices(this IServiceCollection services, IConfiguration configuration, SecurityKey signingKey)
-        {
-            var connString = configuration.GetConnectionString("DefaultConnection");
-            var jwtAppSettingOptions = configuration.GetSection(nameof(JwtIssuerOptions));
-            var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.RsaSha256); // mmacneil was HS256
+            var connString = Configuration.GetConnectionString("DefaultConnection");
+            //var jwtAppSettingOptions = configuration.GetSection(nameof(JwtIssuerOptions));
+            //var credentials = new SigningCredentials(_signingKey, SecurityAlgorithms.RsaSha256); // mmacneil was HS256
 
             services.AddDbContext<MacheteContext>(builder =>
             {
@@ -73,25 +50,25 @@ namespace Machete.Api
                         with.MigrationsAssembly("Machete.Data"));
             });
 
-            services.AddSingleton<IJwtFactory, JwtFactory>();
+            //services.AddSingleton<IJwtFactory, JwtFactory>();
 
-            services.Configure<JwtIssuerOptions>(options =>
-            {
-                options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
-                options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
-                options.SigningCredentials = credentials;
-            });
+            //services.Configure<JwtIssuerOptions>(options =>
+            //{
+            //    options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
+            //    options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
+            //    options.SigningCredentials = credentials;
+            //});
 
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
+                //ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
 
                 ValidateAudience = true,
-                ValidAudience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)],
+                //ValidAudience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)],
 
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = signingKey,
+                //IssuerSigningKey = _signingKey,
 
                 RequireExpirationTime = true,
                 ValidateLifetime = true,
@@ -105,7 +82,7 @@ namespace Machete.Api
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(configureOptions =>
             {
-                configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
+                //configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
                 configureOptions.TokenValidationParameters = tokenValidationParameters;
                 configureOptions.SaveToken = true;
             });
@@ -145,9 +122,9 @@ namespace Machete.Api
                 })
             );
 
-            var mapperConfig = new ApiMapperConfiguration().Config;
-            var mapper = mapperConfig.CreateMapper();
-            services.AddSingleton(mapper);
+            //var mapperConfig = new ApiMapperConfiguration().Config;
+            //var mapper = mapperConfig.CreateMapper();
+            //services.AddSingleton(mapper);
 
             services.AddDistributedMemoryCache();
             services.AddSession(options =>
@@ -165,9 +142,17 @@ namespace Machete.Api
 
             services.AddScoped<IConfigService, ConfigService>();
 
-            services.AddScoped<JwtIssuerOptions>();
+            //services.AddScoped<JwtIssuerOptions>();
         }
-        
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        {
+            app.ConfigureApiBuilder(env);
+        }
+    }
+    
+    static class StaticConfiguration {
         public static void ConfigureApiBuilder(this IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
@@ -215,13 +200,13 @@ namespace Machete.Api
                 );
                 routes.MapRoute(
                     name: "LoginApi",
-                    template: $"{host.IdentityRoute()}{{action}}",
+                    template: "",//$"{host.IdentityRoute()}{{action}}",
                     defaults: new {controller = "Identity"},
                     constraints: new {action = "accounts"}
                 );
                 routes.MapRoute(
                     name: "IdentityApi",
-                    template: $"{host.ConnectRoute()}{{action}}",
+                    template: "",//$"{host.ConnectRoute()}{{action}}",
                     defaults: new {controller = "Identity"}, // To disable routes, remove them from the following line.
                     constraints: new
                     {
@@ -231,7 +216,7 @@ namespace Machete.Api
                 );
                 routes.MapRoute(
                     name: "WellKnownToken",
-                    template: $"{host.WellKnownRoute()}{{action}}",
+                    template: "",//$"{host.WellKnownRoute()}{{action}}",
                     defaults: new {controller = "Identity"},
                     constraints: new {action = "openid-configuration|jwks"}
                 );

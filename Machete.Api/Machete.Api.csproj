@@ -29,7 +29,4 @@
     <_ContentIncludedByDefault Remove="wwwroot\logo2x.png" />
     <_ContentIncludedByDefault Remove="wwwroot\profile-bg-dark.jpeg" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Identity\React\favicon.ico" />
-  </ItemGroup>
 </Project>

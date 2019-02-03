@@ -202,7 +202,7 @@ namespace Machete.Test
             transportTransactID = "#6169"
         };
 
-        public static Api.ViewModels.WorkOrder onlineOrder = new Api.ViewModels.WorkOrder
+        public static Machete.Web.ViewModel.Api.WorkOrder onlineOrder = new Machete.Web.ViewModel.Api.WorkOrder
         {
             workSiteAddress1 = "2400 Main Ave E",
             workSiteAddress2 = "Apt 207",
