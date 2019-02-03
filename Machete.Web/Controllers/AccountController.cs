@@ -32,6 +32,7 @@ using Machete.Web.Helpers;
 using Machete.Web.Resources;
 using Machete.Web.ViewModel;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -53,18 +54,19 @@ namespace Machete.Web.Controllers
             UserManager<MacheteUser> userManager,
             SignInManager<MacheteUser> signInManager,
             RoleManager<IdentityRole> roleManager,
-            MacheteContext context)
+            MacheteContext context
+        )
         {
             UserManager = userManager;
             SignInManager = signInManager;
-            _roleManager = roleManager;
+            RoleManager = roleManager;
             _context = context;
         }
 
         // TODO naming _
         private UserManager<MacheteUser> UserManager { get; }
         private SignInManager<MacheteUser> SignInManager { get; }
-        private RoleManager<IdentityRole> _roleManager { get; }
+        private RoleManager<IdentityRole> RoleManager { get; }
 
         // URL: /Account/Index
         [Authorize(Roles = "Manager, Administrator")]
@@ -413,7 +415,7 @@ namespace Machete.Web.Controllers
         public ActionResult UserRoles(string id)
         {
             var userBeingModified = _context.Users.First(u => u.Id == id);
-            List<IdentityRole> allRoles = _roleManager.Roles.ToList();
+            List<IdentityRole> allRoles = RoleManager.Roles.ToList();
             return View(new SelectUserRolesViewModel(userBeingModified, allRoles, UserManager));
         }
 

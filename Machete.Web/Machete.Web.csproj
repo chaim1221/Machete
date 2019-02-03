@@ -29,11 +29,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Machete.Api\Machete.Api.csproj" />
     <ProjectReference Include="..\Machete.Data\Machete.Data.csproj" />
     <ProjectReference Include="..\Machete.Service\Machete.Service.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Identity" />
     <Folder Include="ViewModel" />
   </ItemGroup>
 

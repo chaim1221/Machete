@@ -1529,12 +1529,13 @@ where jobcount is not null or actcount is not null or eslcount is not null
         
         public static void Initialize(MacheteContext context)
         {
+            var connectionString = context.Database.GetDbConnection().ConnectionString;
 	        _cache.ForEach(u => {
                 try
                 {
 	                // TODO rewrite, use .Contains() instead of expecting to throw
-	                if (context.Database.GetDbConnection().GetType().Name == "SqlConnection") // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-		                context.ReportDefinitions.First(a => a.name == u.name);
+	                //if (context.Database.GetDbConnection().GetType().Name == "SqlConnection") // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+		            context.ReportDefinitions.First(a => a.name == u.name);
                 }
                 catch
                 {
@@ -1542,7 +1543,7 @@ where jobcount is not null or actcount is not null or eslcount is not null
                     u.dateupdated = DateTime.Now;
                     u.createdby = "Init T. Script";
                     u.updatedby = "Init T. Script"; // this next part is a little bit of a mess, but it is only run once during initialization.
-                    u.columnsJson = MacheteAdoContext.getUIColumnsJson(u.sqlquery, context.Database.GetDbConnection().ConnectionString);
+                    u.columnsJson = MacheteAdoContext.getUIColumnsJson(u.sqlquery, connectionString);
                     if (u.inputsJson == null)
                     {
                         u.inputsJson = JsonConvert.SerializeObject(new
@@ -1566,7 +1567,7 @@ where jobcount is not null or actcount is not null or eslcount is not null
         {
 	        using (var connection = context.Database.GetDbConnection())
 	        {
-		        connection.Open();
+		        //connection.Open();
 		        using (var command = connection.CreateCommand()) {
                     
 			        command.CommandText = "sp_executesql";

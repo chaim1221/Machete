@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Machete.Service", "Machete.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Machete.Test", "Machete.Test\Machete.Test.csproj", "{69EC5263-745F-40CB-9E53-FC091FE1619C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{A50EF244-42A3-4E92-9EAF-0A24AEBB6BBC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Machete.Api", "Machete.Api\Machete.Api.csproj", "{A50EF244-42A3-4E92-9EAF-0A24AEBB6BBC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -35,6 +35,7 @@ using Machete.Domain;
 using Machete.Service;
 using Machete.Web;
 using Machete.Web.Maps;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -73,11 +74,13 @@ namespace Machete.Test.Integration.Fluent
                 .Build();
             
             string[] args = { "" };
-            var host = Program.CreateWebHostBuilder(args)
+            var host = WebHost
+                .CreateDefaultBuilder(args)
+                .UseStartup<Startup>()
                 .UseConfiguration(configuration)
                 .UseStartup<Startup>()
                 .ConfigureServices(services => {
-                    new Startup(configuration).ConfigureServices(services);
+                    new Startup(configuration).ConfigureServicesMock(services);
                 })
                 .Build().CreateOrMigrateDatabase();
                 
