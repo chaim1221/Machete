@@ -9,6 +9,7 @@ using Machete.Data.Repositories;
 using Machete.Service;
 using Machete.Web.Helpers;
 using Machete.Web.Maps;
+using Machete.Web.Maps.Api;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -17,7 +18,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +28,7 @@ namespace Machete.Web
 {
     public class Startup
     {
-        private SecurityKey _signingKey;
+        private readonly SecurityKey _signingKey;
 
         public Startup(IConfiguration configuration)
         {
@@ -43,7 +43,12 @@ namespace Machete.Web
         // ReSharper disable once MemberCanBePrivate.Global
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime.
+        /// <summary>
+        /// The services (Dependency Injection) method for the ASP.NET Core middleware pipeline.
+        /// https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-2.2
+        ///
+        /// This method gets called by the runtime.
+        /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {   
             var connString = Configuration.GetConnectionString("DefaultConnection");
@@ -101,16 +106,16 @@ namespace Machete.Web
 
             services.AddCors(options => options.AddPolicy("AllowAllOrigins", builder =>
                 {
-                    builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod(); // TODO
+                    builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod(); // TODO review
                 })
             );
 
-            var mapperConfig = new MvcMapperConfiguration().Config;
-            var mapper = mapperConfig.CreateMapper();
-            services.AddSingleton(mapper);
-//            var mapperConfig = new ApiMapperConfiguration().Config;
-//            var mapper = mapperConfig.CreateMapper();               // TODO }
-//            services.AddSingleton(mapper);
+            var mvcMapperConfig = new MvcMapperConfiguration().Config;
+            var mvcMapper = mvcMapperConfig.CreateMapper();
+            services.AddSingleton(mvcMapper);
+            var apiMapperConfig = new ApiMapperConfiguration().Config;
+            var apiMapper = apiMapperConfig.CreateMapper();
+            services.AddSingleton(apiMapper);
 
 
             services.AddMvc( /*config => { config.Filters.Add(new AuthorizeFilter()); }*/)
@@ -187,7 +192,14 @@ namespace Machete.Web
             services.JwtCrapToDelete(Configuration, _signingKey);
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>
+        /// The Configure method for the ASP.NET Core middleware pipeline.
+        /// https://docs.microsoft.com/en-us/aspnet/core/fundamentals/startup?view=aspnetcore-2.2#the-configure-method
+        ///
+        /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="env"></param>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
