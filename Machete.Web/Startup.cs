@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Security.Cryptography;
 using Machete.Data;
 using Machete.Data.Infrastructure;
@@ -16,9 +17,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Machete.Web
@@ -26,7 +29,6 @@ namespace Machete.Web
     public class Startup
     {
         private SecurityKey _signingKey;
-        //private IServiceCollection _services;
 
         public Startup(IConfiguration configuration)
         {
@@ -43,7 +45,7 @@ namespace Machete.Web
 
         // This method gets called by the runtime.
         public void ConfigureServices(IServiceCollection services)
-        {
+        {   
             var connString = Configuration.GetConnectionString("DefaultConnection");
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme) //;
@@ -85,12 +87,13 @@ namespace Machete.Web
                 options.User.RequireUniqueEmail = true;
             });
 
+            // Cookie settings
             services.ConfigureApplicationCookie(options =>
             {
-                // Cookie settings
-                options.Cookie.HttpOnly = true;
-                options.Cookie.Expiration = TimeSpan.FromDays(150);
-                // these paths are the default, declared explicitly
+                //options.IdleTimeout = TimeSpan.FromSeconds(10); // for testing only
+                options.Cookie.HttpOnly = true; // prevent JavaScript access
+                options.Cookie.Expiration = TimeSpan.FromDays(150); // half a year?
+                // these paths are the defaults, declared explicitly
                 options.LoginPath = "/Account/Login";
                 options.AccessDeniedPath = "/Account/AccessDenied";
                 options.SlidingExpiration = true;
@@ -105,6 +108,10 @@ namespace Machete.Web
             var mapperConfig = new MvcMapperConfiguration().Config;
             var mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
+//            var mapperConfig = new ApiMapperConfiguration().Config;
+//            var mapper = mapperConfig.CreateMapper();               // TODO }
+//            services.AddSingleton(mapper);
+
 
             services.AddMvc( /*config => { config.Filters.Add(new AuthorizeFilter()); }*/)
                 // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/localization?view=aspnetcore-2.2#configure-localization
@@ -175,12 +182,100 @@ namespace Machete.Web
                 options.SupportedCultures = supportedCultures;
                 options.SupportedUICultures = supportedCultures;
             });
+            
+//            services.AddDistributedMemoryCache(); // TODO check if needed
+            services.JwtCrapToDelete(Configuration, _signingKey);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.ConfigureMvcBuilder(env);             
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseDatabaseErrorPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+                app.UseHsts();
+            }
+
+            // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/localization?view=aspnetcore-2.2 (Ibid.)
+            var supportedCultures = new[]
+            {
+                // Ibid. #globalization-and-localization-terms
+                // https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+                // https://en.wikipedia.org/wiki/ISO_3166-1
+                new CultureInfo("en-US"),
+                new CultureInfo("es-US"),
+                // we use es-US because we are not fully equipped to support international dates.
+            };
+            app.UseRequestLocalization(new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture("en-US"),
+                // Formatting numbers, dates, etc.
+                SupportedCultures = supportedCultures,
+                // UI strings that we have localized.
+                SupportedUICultures = supportedCultures
+            });
+            // the preceding will attempt to guess the user's culture. For several reasons that's not what we want.
+            // Ibid. #set-the-culture-programmatically
+
+            app.UseCors("AllowAllOrigins"); // TODO review
+
+            app.UseHttpsRedirection();
+
+            // For the original MVC app. Serves CSS, JS, etc. from Content. Because this includes the Angular app,
+            // this should be kept when de-fusing the two projects. This doesn't represent an issue or technical debt
+            // because pretty much this entire method should be ported over for a new project anyway.
+            app.UseStaticFiles("/Content"); // TODO check + remove if redundant with the one below; I think it is
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(Directory.GetCurrentDirectory(), "Content")),
+                RequestPath = "/Content"
+            });
+            
+            // begin React login page
+            var fileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"Content", @"React"));
+            var requestPath = new PathString("/id/login");
+            app.UseDefaultFiles(new DefaultFilesOptions
+            {
+                FileProvider = fileProvider,
+                RequestPath = requestPath,
+                DefaultFileNames = new[] {"index.html"}
+            });
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = fileProvider,
+                RequestPath = requestPath
+            });
+            // end React login page
+            
+            // uncomment if we should happen to add a wwwroot directory; e.g., if we want to refactor `Content`
+            // app.UseDefaultFiles();
+            // app.UseStaticFiles(); 
+
+            app.UseCookiePolicy();
+
+            app.UseAuthentication();
+            
+            // app.UseSession(); // TODO do we need this?
+
+            // note the separation here; keep these separate for future port to api-only project
+            app.UseMvc(routes => {
+                routes.MapLegacyMvcRoutes();
+                routes.MapApiRoutes();
+            });
+
+            app.UseDirectoryBrowser(new DirectoryBrowserOptions
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Content")),
+                RequestPath = "/Content"
+            });
+
+            app.UseMvcWithDefaultRoute();
         }
     }
 }
