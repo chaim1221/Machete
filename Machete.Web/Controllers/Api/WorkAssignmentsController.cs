@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using AutoMapper;
-using Machete.Api.Attributes;
 using Machete.Service;
+using Machete.Web.Helpers.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using DTO = Machete.Service.DTO;

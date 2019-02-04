@@ -4,9 +4,9 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using AutoMapper;
-using Machete.Api.Attributes;
 using Machete.Service;
 using Machete.Service.DTO;
+using Machete.Web.Helpers.Api;
 using Microsoft.AspNetCore.Mvc;
 
 // ReSharper disable UnusedMember.Global

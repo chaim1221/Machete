@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Security.Cryptography;
 using AutoMapper;
 using Machete.Data;
 using Machete.Data.Infrastructure;
@@ -23,22 +22,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Machete.Web
 {
     public class Startup
     {
-        private readonly SecurityKey _signingKey;
-
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            
-            using (RSA rsa = RSA.Create()) {
-                rsa.KeySize = 4096;                
-                _signingKey = new RsaSecurityKey(rsa);
-            }
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
@@ -74,12 +65,12 @@ namespace Machete.Web
             services.Configure<IdentityOptions>(options =>
             {
                 // Password settings; we are relying on validation
-//                options.Password.RequireDigit = true;
+                options.Password.RequireDigit = true;
                 options.Password.RequiredLength = 8;
-//                options.Password.RequireNonAlphanumeric = false;
-//                options.Password.RequireUppercase = true;
-//                options.Password.RequireLowercase = false;
-//                options.Password.RequiredUniqueChars = 6;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = false;
+                options.Password.RequiredUniqueChars = 6;
 
                 // Lockout settings
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
@@ -103,7 +94,10 @@ namespace Machete.Web
             });
 
             services.AddCors(options => options.AddPolicy("AllowAllOrigins", builder => {
-                    builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod(); // TODO review
+                    builder.AllowAnyOrigin()
+                           .AllowAnyHeader()
+                           .AllowAnyMethod()
+                           .AllowCredentials();
                 })
             );
 
@@ -183,9 +177,6 @@ namespace Machete.Web
                 options.SupportedCultures = supportedCultures;
                 options.SupportedUICultures = supportedCultures;
             });
-            
-//          services.AddDistributedMemoryCache(); // TODO check if needed
-            services.JwtCrapToDelete(Configuration, _signingKey);
         }
 
         /// <summary>

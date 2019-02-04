@@ -1,4 +1,4 @@
-﻿namespace Machete.Api.Attributes
+﻿namespace Machete.Web.Helpers.Api
 {
     public struct CAType
     {

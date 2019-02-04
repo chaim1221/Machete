@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using Machete.Api.Attributes;
+using Machete.Web.Helpers.Api;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Machete.Web.Controllers.Api

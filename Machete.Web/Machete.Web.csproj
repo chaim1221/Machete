@@ -92,4 +92,8 @@
     <_ContentIncludedByDefault Remove="Views\ReportsV2\Index.cshtml" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models" />
+  </ItemGroup>
+
 </Project>

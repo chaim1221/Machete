@@ -3,7 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Machete.Api.Attributes
+namespace Machete.Web.Helpers.Api
 {
 
     //https://stackoverflow.com/a/41348219/2496266

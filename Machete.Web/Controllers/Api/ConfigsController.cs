@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using Machete.Api.Attributes;
 using Machete.Domain;
 using Machete.Service;
+using Machete.Web.Helpers.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

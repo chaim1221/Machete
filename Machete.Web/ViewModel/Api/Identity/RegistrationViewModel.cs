@@ -1,4 +1,4 @@
-namespace Machete.Api.Identity.ViewModels {
+namespace Machete.Web.ViewModel.Api.Identity {
     public class RegistrationViewModel
     {
         public string Password { get; set; }

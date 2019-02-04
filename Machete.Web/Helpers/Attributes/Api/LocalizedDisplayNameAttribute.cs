@@ -26,7 +26,7 @@ using System;
 using System.ComponentModel;
 using System.Reflection;
 
-namespace Machete.Api.Attributes
+namespace Machete.Web.Helpers.Api
 {
     public class LocalizedDisplayNameAttribute : DisplayNameAttribute
     {

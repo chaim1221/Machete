@@ -26,7 +26,7 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Machete.Api.Attributes
+namespace Machete.Web.Helpers.Api
 {
     //From http://stackoverflow.com/questions/766610/
     public class ElmahHandleErrorAttribute : ExceptionFilterAttribute

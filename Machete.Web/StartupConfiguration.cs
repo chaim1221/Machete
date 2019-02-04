@@ -1,32 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using Machete.Api.Identity;
-using Machete.Api.Identity.Helpers;
 using Machete.Data;
-using Machete.Data.Infrastructure;
-using Machete.Data.Repositories;
-using Machete.Service;
-using Machete.Web.Helpers;
-using Machete.Web.Maps;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Machete.Web.Helpers.Api;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Builder;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Machete.Web
 {
@@ -60,26 +41,7 @@ namespace Machete.Web
 
             return string.Join("|", controllerNames);
         }
-
-        // JWT: https://github.com/mmacneil/AngularASPNETCore2WebApiAuth/blob/master/src/Startup.cs
-        public static void JwtCrapToDelete(this IServiceCollection services,
-            IConfiguration configuration, SecurityKey signingKey)
-        {
-            var jwtAppSettingOptions = configuration.GetSection(nameof(JwtIssuerOptions));
-            var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.RsaSha256); // mmacneil was HS256
-
-            services.AddSingleton<IJwtFactory, JwtFactory>();
-
-            services.Configure<JwtIssuerOptions>(options =>
-            {
-                options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
-                options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
-                options.SigningCredentials = credentials;
-            });
-
-            services.AddScoped<JwtIssuerOptions>();
-        }
-        
+       
         public static void MapLegacyMvcRoutes(this IRouteBuilder routes)
         {
             routes.MapRoute(

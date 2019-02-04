@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using AutoMapper;
-using Machete.Api.Attributes;
 using Machete.Domain;
 using Machete.Service;
+using Machete.Web.Helpers.Api;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Machete.Web.Controllers.Api

@@ -1,7 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Http;
 
-namespace Machete.Api.Identity.Helpers
+namespace Machete.Web.Helpers.Api
 {
     /// <summary>
     /// A static class containing the route values, capable of determining the hostname from a request.
@@ -13,24 +13,12 @@ namespace Machete.Api.Identity.Helpers
     /// </exception>
     public static class Routes
     {
-        public static string GetHostFrom(HttpRequest Request)
-        {
-            return $"{Request.Scheme}://{Request.Host}{Request.PathBase}/";
-        }
-
+        public static string GetHostFrom(HttpRequest Request) => $"{Request.Scheme}://{Request.Host}{Request.PathBase}/";
         public static string IdentityRoute(this string host) => $"{host}id/";
         public static string ConnectRoute(this string host) => $"{host.IdentityRoute()}connect/";
         public static string V2Route(this string host) => $"{host}V2/";
         public static string WellKnownRoute(this string host) => $"{host.IdentityRoute()}.well-known/";
         public static string LoginEndpoint(this string host) => $"{host.IdentityRoute()}login";
-        public static string JsonWebKeySetEndpoint(this string host) => $"{host.WellKnownRoute()}jwks";
-        public static string AuthorizationEndpoint(this string host) => $"{host.ConnectRoute()}authorize";
-        public static string TokenEndpoint(this string host) => $"{host.ConnectRoute()}token";
-        public static string UserInfoEndpoint(this string host) => $"{host.ConnectRoute()}userinfo";
-        public static string EndSessionEndpoint(this string host) => $"{host.ConnectRoute()}endsession";
-        public static string CheckSessionEndpoint(this string host) => $"{host.ConnectRoute()}checksession";
-        public static string RevocationEndpoint(this string host) => $"{host.ConnectRoute()}revocation";
-        public static string IntrospectionEndpoint(this string host) => $"{host.ConnectRoute()}introspection";
         public static string V2AuthorizationEndpoint(this string host) => $"{host.V2Route()}authorize";
     }
 }

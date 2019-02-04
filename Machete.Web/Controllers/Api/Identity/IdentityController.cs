@@ -1,17 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using Machete.Api.Identity;
-using Machete.Api.Identity.Helpers;
-using Machete.Api.Identity.ViewModels;
 using Machete.Data;
+using Machete.Web.Helpers.Api;
+using Machete.Web.ViewModel.Api.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Machete.Web.Controllers.Api.Identity
 {
@@ -37,21 +30,16 @@ namespace Machete.Web.Controllers.Api.Identity
     public class IdentityController : Controller
     {
         private readonly UserManager<MacheteUser> _userManager;
+        private readonly SignInManager<MacheteUser> _signinManager;
+        private RoleManager<IdentityRole> _roleManager;
         private readonly IMapper _mapper;
 
-        private readonly JwtIssuerOptions _jwtOptions;
-        private SignInManager<MacheteUser> _signinManager;
-        private RoleManager<IdentityRole> _roleManager;
-
-        public IdentityController(
-            IOptions<JwtIssuerOptions> jwtOptions,
-            UserManager<MacheteUser> userManager,
+        public IdentityController(UserManager<MacheteUser> userManager,
             SignInManager<MacheteUser> signInManager,
             RoleManager<IdentityRole> roleManager,
             IMapper mapper
         )
         {
-            _jwtOptions = jwtOptions.Value;
             _userManager = userManager;
             _signinManager = signInManager;
             _roleManager = roleManager;
@@ -65,7 +53,7 @@ namespace Machete.Web.Controllers.Api.Identity
             if (!User.Identity.IsAuthenticated) { // send them to the login page
                 var domain = Routes.GetHostFrom(Request);
                 var redirectToLogin = domain.LoginEndpoint();
-                return await Task.FromResult(new RedirectResult($"{redirectToLogin}?{redirectUri}"));
+                return await Task.FromResult(new RedirectResult($"{redirectToLogin}?redirect_uri={redirectUri}"));
             } // otherwise, send them on their way
             return await Task.FromResult<IActionResult>(new RedirectResult(redirectUri));
         }
@@ -114,85 +102,6 @@ namespace Machete.Web.Controllers.Api.Identity
             if (string.IsNullOrEmpty(creds.UserName) || string.IsNullOrEmpty(creds.Password))
                 ModelState.TryAddModelError("login_failure", "Invalid username or password.");
             return ModelState.ErrorCount == 0;
-        }
-
-        /// <summary>
-        /// Not used.
-        /// </summary>
-        [HttpGet]
-        [Route(".well-known/openid-configuration")]
-        public async Task<IActionResult> OpenIdConfiguration()
-        {
-            var host = Routes.GetHostFrom(Request);
-
-            var viewModel = new WellKnownViewModel();
-            viewModel.issuer = host.IdentityRoute();
-            viewModel.jwks_uri = host.JsonWebKeySetEndpoint();
-            viewModel.authorization_endpoint = host.AuthorizationEndpoint();
-            viewModel.token_endpoint = host.TokenEndpoint();
-            viewModel.userinfo_endpoint = host.UserInfoEndpoint();
-            viewModel.end_session_endpoint = host.EndSessionEndpoint();
-            viewModel.check_session_iframe = host.CheckSessionEndpoint();
-            viewModel.revocation_endpoint = host.RevocationEndpoint();
-            viewModel.introspection_endpoint = host.IntrospectionEndpoint();
-            viewModel.frontchannel_logout_supported = true;
-            viewModel.frontchannel_logout_session_supported = true;
-            viewModel.scopes_supported =
-                new List<string> {"openid", "profile", "email", "roles", "offline_access", "api"};
-            viewModel.claims_supported =
-                new List<string> {
-                    "sub", "name", "family_name", "given_name", "middle_name", "nickname",
-                    "preferred_username", "profile", "picture", "website", "gender", "birthdate",
-                    "zoneinfo", "locale", "updated_at", "email", "email_verified", "role"
-                };
-            viewModel.response_types_supported =
-                new List<string> {
-                    "code", "token", "id_token", "id_token token", "code id_token", "code token",
-                    "code id_token token"
-                };
-            viewModel.response_modes_supported = new List<string> {"form_post", "query", "fragment"};
-            viewModel.grant_types_supported =
-                new List<string> {"authorization_code", "client_credentials", "password", "refresh_token", "implicit"};
-            viewModel.subject_types_supported = new List<string> {"public"};
-            viewModel.id_token_signing_alg_values_supported = new List<string> {"RS256"};
-            viewModel.code_challenge_methods_supported = new List<string> {"plain", "S256"};
-            viewModel.token_endpoint_auth_methods_supported =
-                new List<string> {"client_secret_post", "client_secret_basic"};
-
-            return await Task.FromResult(new JsonResult(viewModel));
-        }
-
-        /// <summary>
-        /// not used
-        /// </summary>
-        // Surprisingly little documentation exists on how to make one of these
-        // https://github.com/IdentityServer/IdentityServer4/blob/63a50d7838af25896fbf836ea4e4f37b5e179cd8/src/ResponseHandling/Default/DiscoveryResponseGenerator.cs
-        [HttpGet]
-        [Route(".well-known/jwks")]
-        public async Task<IActionResult> JsonWebKeySet()
-        {
-            JwksViewModel webKey = new JwksViewModel();
-            var key = _jwtOptions.SigningCredentials.Key;
-
-            if (key is RsaSecurityKey rsaKey) {
-                var parameters = rsaKey.Rsa?.ExportParameters(false) ?? rsaKey.Parameters;
-                var exponent = Base64UrlEncoder.Encode(parameters.Exponent);
-                var modulus = Base64UrlEncoder.Encode(parameters.Modulus);
-
-                webKey = new JwksViewModel {
-                    kty = "RSA",
-                    use = "sig",
-                    kid = rsaKey.KeyId,
-                    e = exponent,
-                    n = modulus,
-//                    alg = algorithm
-                };
-            }
-
-            return await Task.FromResult(new JsonResult(new {
-                    keys = new List<JwksViewModel> { webKey }
-                })
-            );
         }
     }
 }

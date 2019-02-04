@@ -3,9 +3,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using AutoMapper;
-using Machete.Api.Attributes;
 using Machete.Domain;
 using Machete.Service;
+using Machete.Web.Helpers.Api;
 using Microsoft.AspNetCore.Mvc;
 using TransportProvider = Machete.Web.ViewModel.Api.TransportProvider;
 
