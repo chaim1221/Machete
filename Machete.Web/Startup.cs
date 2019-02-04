@@ -93,9 +93,8 @@ namespace Machete.Web
                 options.SlidingExpiration = true;
             });
 
-            services.AddCors(options => options.AddPolicy("AllowAllOrigins", builder => {
-                    builder.AllowAnyOrigin()
-                           .AllowAnyHeader()
+            services.AddCors(options => options.AddPolicy("AllowCredentials", builder => {
+                    builder.AllowAnyHeader()
                            .AllowAnyMethod()
                            .AllowCredentials();
                 })
