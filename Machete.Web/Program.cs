@@ -10,7 +10,9 @@ namespace Machete.Web
         /// <summary>
         /// The program's Main method; entry point for the application.
         /// </summary>
-        public static void Main(string[] args) => CustomWebHostBuilder(args).Build().Run();        
+        public static void Main(string[] args) => CustomWebHostBuilder(args).Build()
+            .CreateOrMigrateDatabase()
+            .Run();        
 
         /// <summary>
         /// A stripped down version of the default WebHost object configuration, this method gives just the absolute
