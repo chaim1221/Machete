@@ -81,8 +81,9 @@ class LegacyLoginForm extends React.Component {
     var queryString = document.location.href.split('?')[1];
     
     if (queryString) {
-      var parts = queryString.split('&');
+      var url = window.location.protocol + '//' + window.location.host + window.location.pathname;
 
+      var parts = queryString.split('&');
       for (var i = 0; i < parts.length; i++) {
         var p = parts[i];
         // Step 2: Split Key/Value pair
@@ -99,17 +100,11 @@ class LegacyLoginForm extends React.Component {
         dictionary[key] = value;
       }
 
-      var url = window.location.protocol + '//' + window.location.host + window.location.pathname;
       var data = JSON.stringify({
         'username': this.state.username,
         'password': this.state.password,
         'remember': this.state.remember,
-        'clientid': dictionary['client_id'],
-        'redirect': dictionary['redirect_uri'],
-        'response': dictionary['response_type'],
-        'scope': dictionary['scope'],
-        'state': dictionary['state'],
-        'nonce': dictionary['nonce']
+        'redirect': dictionary['redirect_uri']
       });
 
       var config = {
