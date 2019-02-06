@@ -3,6 +3,7 @@ using AutoMapper;
 using Machete.Data;
 using Machete.Web.Helpers.Api;
 using Machete.Web.ViewModel.Api.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -102,6 +103,18 @@ namespace Machete.Web.Controllers.Api.Identity
             if (string.IsNullOrEmpty(creds.UserName) || string.IsNullOrEmpty(creds.Password))
                 ModelState.TryAddModelError("login_failure", "Invalid username or password.");
             return ModelState.ErrorCount == 0;
+        }
+        
+        // GET: /id/logoff
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("logoff")]
+        public async Task<IActionResult> LogOff()
+        {
+            await _signinManager.SignOutAsync();
+            return await Task.FromResult<IActionResult>(
+                new OkObjectResult(new { data = Routes.GetHostFrom(Request).V2AuthorizationEndpoint() })
+            );
         }
     }
 }
