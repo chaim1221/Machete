@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using AutoMapper;
 using Machete.Data;
@@ -48,15 +49,15 @@ namespace Machete.Web.Controllers.Api.Identity
         }
         
         [HttpGet]
-        [Route("connect/authorize")]
-        public async Task<IActionResult> GetAuthorize([FromQuery(Name = "redirect_uri")] string redirectUri)
+        [Route("authorize")]
+        public async Task<IActionResult> Authorize([FromQuery(Name = "redirect_uri")] string redirectUri)
         {
-            if (!User.Identity.IsAuthenticated) { // send them to the login page
-                var domain = Routes.GetHostFrom(Request);
-                var redirectToLogin = domain.LoginEndpoint();
-                return await Task.FromResult(new RedirectResult($"{redirectToLogin}?redirect_uri={redirectUri}"));
-            } // otherwise, send them on their way
-            return await Task.FromResult<IActionResult>(new RedirectResult(redirectUri));
+            if (User.Identity.IsAuthenticated) // move along
+                return await Task.FromResult<IActionResult>(
+                    new OkObjectResult(new { data = redirectUri })
+                );            
+            // no dice
+            return await Task.FromResult(new UnauthorizedResult());
         }
 
         // POST id/accounts
@@ -89,11 +90,11 @@ namespace Machete.Web.Controllers.Api.Identity
 
             // just trying to login
             var v2AuthEndpoint = Routes.GetHostFrom(Request).V2AuthorizationEndpoint();
-            if (model.RedirectUri == v2AuthEndpoint) return await Task.FromResult(new RedirectResult(model.RedirectUri));
+            if (model.Redirect == v2AuthEndpoint) return await Task.FromResult(new OkObjectResult(model.Redirect));
 
             // trying to hit another page and need to go back there; Angular will handle that
-            var redirectUri = $"{v2AuthEndpoint}?{model.RedirectUri}";
-            return await Task.FromResult(new RedirectResult(redirectUri));
+            var redirectUri = $"{v2AuthEndpoint}?redirect_url={model.Redirect}";
+            return await Task.FromResult(new OkObjectResult(redirectUri));
         }
 
         private bool ValidateLogin(CredentialsViewModel creds)

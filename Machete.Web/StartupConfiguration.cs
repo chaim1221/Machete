@@ -68,19 +68,7 @@ namespace Machete.Web
                 name: "LoginApi",
                 template: $"{host.IdentityRoute()}{{action}}",
                 defaults: new { controller = "Identity" },
-                constraints: new { action = "accounts" }
-            );
-            routes.MapRoute(
-                name: "IdentityApi",
-                template: $"{host.ConnectRoute()}{{action}}",
-                defaults: new { controller = "Identity" }, // To disable routes, remove them from the following line.
-                constraints: new { action = "authorize" }
-            );
-            routes.MapRoute(
-                name: "WellKnownToken",
-                template: $"{host.WellKnownRoute()}{{action}}",
-                defaults: new { controller = "Identity" },
-                constraints: new { action = "openid-configuration|jwks" }
+                constraints: new { action = "accounts|login|authorize|logoff" }
             );
             routes.MapRoute(
                 name: "NotFound",
