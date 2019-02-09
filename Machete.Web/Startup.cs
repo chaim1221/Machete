@@ -2,15 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Security.Cryptography;
 using AutoMapper;
 using Machete.Data;
 using Machete.Data.Infrastructure;
 using Machete.Data.Repositories;
 using Machete.Service;
 using Machete.Web.Helpers;
+using Machete.Web.Helpers.Api.Identity;
 using Machete.Web.Maps;
 using Machete.Web.Maps.Api;
+using Machete.Web.ViewModel.Api.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -22,14 +26,22 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Machete.Web
 {
     public class Startup
     {
+        private RsaSecurityKey _signingKey;
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            
+            using (RSA rsa = RSA.Create()) {
+                rsa.KeySize = 4096;                
+                _signingKey = new RsaSecurityKey(rsa);
+            }
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
@@ -37,13 +49,18 @@ namespace Machete.Web
 
         /// <summary>
         /// The services (Dependency Injection) method for the ASP.NET Core middleware pipeline.
+        ///
         /// https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-2.2
         ///
+        /// JWT: https://github.com/mmacneil/AngularASPNETCore2WebApiAuth/blob/master/src/Startup.cs
+        /// 
         /// This method gets called by the runtime.
         /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {   
             var connString = Configuration.GetConnectionString("DefaultConnection");
+
+            services.ConfigureJwt(_signingKey, Configuration.GetSection(nameof(JwtIssuerOptions)));
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme) //;
                 .AddCookie(options =>
@@ -60,7 +77,7 @@ namespace Machete.Web
 
             services.AddIdentity<MacheteUser, IdentityRole>()
                 .AddEntityFrameworkStores<MacheteContext>()
-                .AddDefaultTokenProviders();
+                .AddDefaultTokenProviders(); // <~ keep for JWT auth
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -79,7 +96,7 @@ namespace Machete.Web
 
                 // User settings
                 options.User.RequireUniqueEmail = true;
-            });
+            }); // <~ keep for JWT auth
 
             // Cookie settings
             services.ConfigureApplicationCookie(options =>
@@ -91,13 +108,19 @@ namespace Machete.Web
                 options.LoginPath = "/Account/Login";
                 options.AccessDeniedPath = "/Account/AccessDenied";
                 options.SlidingExpiration = true;
-            });
+            }); // <~ keep for JWT auth
 
+            // for JWT auth, this will have to be reconfigured for "AllowAllOrigins" (included here, but commented out)
             services.AddCors(options => options.AddPolicy("AllowCredentials", builder => {
                     builder.AllowAnyHeader()
                            .AllowAnyMethod()
                            .AllowCredentials();
                 })
+//                                             .AddPolicy("AllowAllOrigins", builder => {
+//                    builder.AllowAnyOrigin()
+//                           .AllowAnyHeader()
+//                           .AllowAnyMethod();
+//                })
             );
 
             var mapperConfig = new MapperConfiguration(maps => {
@@ -235,6 +258,8 @@ namespace Machete.Web
                 RequestPath = "/Content"
             });
             
+            // TODO favicon.ico is missing?
+            
             // begin React login page
             var fileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"Content", @"React"));
             var requestPath = new PathString("/id/login");
@@ -242,7 +267,7 @@ namespace Machete.Web
             {
                 FileProvider = fileProvider,
                 RequestPath = requestPath,
-                DefaultFileNames = new[] {"index.html"}
+                DefaultFileNames = new[] { "index.html" }
             });
             app.UseStaticFiles(new StaticFileOptions
             {

@@ -18,6 +18,8 @@ namespace Machete.Web.Helpers.Api
         public static string ConnectRoute(this string host) => $"{host.IdentityRoute()}connect/";
         public static string V2Route(this string host) => $"{host}V2/";
         public static string WellKnownRoute(this string host) => $"{host.IdentityRoute()}.well-known/";
+        public static string WellKnownConfigurationEndpoint(this string host) => $"{host.WellKnownRoute()}openid-configuration";
+        public static string JsonWebKeySetEndpoint(this string host) => $"{host.WellKnownRoute()}jwks";
         public static string LoginEndpoint(this string host) => $"{host.IdentityRoute()}login";
         public static string V2AuthorizationEndpoint(this string host) => $"{host.V2Route()}authorize";
     }

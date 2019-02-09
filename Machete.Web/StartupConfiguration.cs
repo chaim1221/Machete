@@ -1,19 +1,24 @@
+using System;
+using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using Machete.Data;
 using Machete.Web.Helpers.Api;
+using Machete.Web.Helpers.Api.Identity;
+using Machete.Web.ViewModel.Api.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Machete.Web
 {
     /// <summary>
-    /// A class containing builder pattern extension methods for the IServiceCollection and IApplicationBuilder
-    /// classes, which are 
+    /// A class containing WebHost and RouteBuilder extension methods.
     /// </summary>
     public static class StartupConfiguration
     {
@@ -60,7 +65,7 @@ namespace Machete.Web
 
             routes.MapRoute(
                 name: "DefaultApi",
-                template: "api/{controller}/{id?}", // id? == legacy RouteParameter.Optional
+                template: "api/{controller}/{id?}", // id? == was RouteParameter.Optional
                 defaults: new { controller = "Home" },
                 constraints: new { controller = GetControllerNames() }
             );
@@ -71,10 +76,65 @@ namespace Machete.Web
                 constraints: new { action = "accounts|login|authorize|logoff" }
             );
             routes.MapRoute(
+                name: "WellKnownToken",
+                template: $"{host.WellKnownRoute()}{{action}}",
+                defaults: new { controller = "Identity" },
+                constraints: new { action = "openid-configuration|jwks" }
+            );
+            routes.MapRoute(
                 name: "NotFound",
                 template: "{*path}",
                 defaults: new { controller = "Error", action = "NotFound" }
             );
         }
+        
+        public static void ConfigureJwt(this IServiceCollection services, RsaSecurityKey signingKey, IConfigurationSection jwtAppSettingOptions)
+        {
+            var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.RsaSha256);
+            services.AddSingleton<IJwtFactory, JwtFactory>();
+            services.Configure<JwtIssuerOptions>(options =>
+            {
+                options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
+                options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
+                options.SigningCredentials = credentials;
+            });
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
+
+                ValidateAudience = true,
+                ValidAudience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)],
+
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = signingKey,
+
+                RequireExpirationTime = true,
+                ValidateLifetime = true,
+
+                ClockSkew = TimeSpan.Zero
+            };
+            
+            // Do the following if you want to switch to JWT auth. We currently only generate a token for future use.
+            //
+                                                             // // PLEASE DO NOT REMOVE // //            
+//            services.AddAuthentication(options => {
+//                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//            }).AddJwtBearer(configureOptions => {
+//                configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
+//                configureOptions.TokenValidationParameters = tokenValidationParameters;
+//                configureOptions.SaveToken = true;
+//            });
+//            services.AddAuthorization(options =>
+//            {
+//                // TODO put roles here, if using JWT for auth; this will require refactoring attribute methods:
+//                options.AddPolicy("ApiUser", policy =>
+//                    policy.RequireClaim("role", "api_access"));
+//            });
+            
+            services.AddScoped<JwtIssuerOptions>(); // <~ this may need to go later in the pipeline.
+        }
+
     }
 }
