@@ -30,6 +30,7 @@ namespace Machete.Web
                 {
                     config.SetBasePath(Directory.GetCurrentDirectory());
                     config.AddJsonFile("appsettings.json");
+                    config.AddJsonFile($"appsettings.{host.HostingEnvironment.EnvironmentName}.json", optional: true);
 
                     if (host.HostingEnvironment.IsDevelopment())
                         config.AddUserSecrets<Startup>();
