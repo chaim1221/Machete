@@ -14,10 +14,8 @@ COPY ./UI/dist /app/UI
 WORKDIR /app/api
 
 # ENV commands
-ENV ASPNETCORE_ENVIRONMENT Release
-
-# UI maybe? structure?
+# ENV ASPNETCORE_ENVIRONMENT Release
 
 # start app
-# CMD ["dotnet", "run", "/app/Machete.Web.dll"] # <~ requires SDK
+# CMD ["dotnet", "run", "/app/api/Machete.Web.dll"] # <~ requires SDK
 CMD ["dotnet", "/app/api/Machete.Web.dll"]

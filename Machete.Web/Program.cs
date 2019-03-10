@@ -42,6 +42,7 @@ namespace Machete.Web
                     logging.AddDebug();
                     logging.AddEventSourceLogger();
                 })
-                .UseStartup<Startup>();
+                .UseStartup<Startup>()
+                .UseUrls("https://localhost:4213");
     }
 }
