@@ -73,7 +73,7 @@ namespace Machete.Web
             
             services.AddSpaStaticFiles(angularApp =>
             {
-                angularApp.RootPath = "../UI/dist"; // TODO
+                angularApp.RootPath = "dist"; // TODO
             });            
 
             services.ConfigureDependencyInjection();
@@ -113,7 +113,7 @@ namespace Machete.Web
             else
             {
                 app.UseExceptionHandler("/Home/Error");
-                app.UseHsts();
+                //app.UseHsts();
             }
 
             // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/localization?view=aspnetcore-2.2 (Ibid.)
@@ -140,7 +140,7 @@ namespace Machete.Web
             // This refers to the policies set in the services object. An invalid name will force the default policy.
             app.UseCors(StartupConfiguration.AllowCredentials);
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             // For the original MVC app. Serves CSS, JS, etc. from Content. Because this includes the Angular app,
             // this should be kept when de-fusing the two projects. This doesn't represent an issue or technical debt
@@ -191,7 +191,7 @@ namespace Machete.Web
             {
                 angularApp.Options.SourcePath = "../UI";
 
-                if (envIsDevelopment) angularApp.UseProxyToSpaDevelopmentServer("https://localhost:4200");
+                if (envIsDevelopment) angularApp.UseProxyToSpaDevelopmentServer("http://localhost:4200");
             });
 
             app.UseDirectoryBrowser(new DirectoryBrowserOptions

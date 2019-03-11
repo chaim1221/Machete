@@ -1,4 +1,6 @@
 using System.IO;
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -24,17 +26,28 @@ namespace Machete.Web
         /// </summary>
         public static IWebHostBuilder CustomWebHostBuilder(string[] args) =>
             new WebHostBuilder()
-                .UseKestrel()
               //.UseContentRoute() //uncomment for static content route
                 .ConfigureAppConfiguration((host, config) =>
                 {
                     config.SetBasePath(Directory.GetCurrentDirectory());
                     config.AddJsonFile("appsettings.json");
-                    config.AddJsonFile($"appsettings.{host.HostingEnvironment.EnvironmentName}.json", optional: true);
 
                     if (host.HostingEnvironment.IsDevelopment())
                         config.AddUserSecrets<Startup>();
                 })
+                .UseKestrel(
+//                (context, kestrelOptions) =>
+//                {
+//                    var certSettings = context.Configuration.GetSection("CertificateSettings");
+//                    var certificate = new X509Certificate2(certSettings.GetValue<string>("filename"), certSettings.GetValue<string>("password"));
+//                    
+//                    kestrelOptions.AddServerHeader = false;
+//                    kestrelOptions.Listen(IPAddress.Loopback, 4213, listenerOptions =>
+//                    {
+//                        listenerOptions.UseHttps(certificate);
+//                    });
+//                }
+                )
                 .ConfigureLogging((app, logging) =>
                 {
                     logging.AddConfiguration(app.Configuration.GetSection("Logging"));
@@ -43,6 +56,6 @@ namespace Machete.Web
                     logging.AddEventSourceLogger();
                 })
                 .UseStartup<Startup>()
-                .UseUrls("https://localhost:4213");
+                .UseUrls("http://*:4213");
     }
 }
