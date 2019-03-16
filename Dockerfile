@@ -43,6 +43,5 @@ COPY ./nginx/conf.d/ /etc/nginx/conf.d/
 WORKDIR /app/api
 
 # start app
-# CMD ["dotnet", "run", "/app/api/Machete.Web.dll"] # <~ requires SDK
-CMD ["dotnet", "/app/api/Machete.Web.dll"]
-# CMD "/bin/bash"
+# CMD ["dotnet", "/app/api/Machete.Web.dll"]
+CMD "/bin/bash"
