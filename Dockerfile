@@ -1,6 +1,11 @@
 
 FROM nginx:1.15.9
 
+LABEL maintainer="chaimeliyah@gmail.com"
+
+# TODO: undo base container's EXPOSE 80
+EXPOSE 443
+
 # ENV commands
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -39,6 +44,9 @@ COPY ./Machete.Web/Identity /app/api/Identity
 COPY ./UI/dist /app/api/dist
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 COPY ./nginx/conf.d/ /etc/nginx/conf.d/
+
+# TODO this shouldn't be in the Dockerfile
+COPY ./UI/ssl /app/certs
 
 WORKDIR /app/api
 
