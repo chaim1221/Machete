@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -121,11 +122,13 @@ namespace Machete.Web.Controllers.Api.Identity
         [Route("signin-facebook")]
         public async Task<IActionResult> FacebookLogin([FromQuery] ExternalLoginViewModel viewModel)
         {
+            var host = Routes.GetHostFrom(Request);
+
             if (viewModel.State == _configuration["Authentication:State"])
             {
                 var httpClient = new HttpClient();
                 var appId = _configuration["Authentication:Facebook:AppId"];
-                var redirectUri = "https://localhost:4213/id/signin-facebook"; // TODO
+                var redirectUri = $"{host}id/signin-facebook"; // TODO
                 var appSecret = _configuration["Authentication:Facebook:AppSecret"];
 
                 var tokenResponse = await httpClient.GetAsync(
@@ -134,12 +137,12 @@ namespace Machete.Web.Controllers.Api.Identity
                     $"redirect_uri={redirectUri}&" +
                     $"client_secret={appSecret}&" +
                     $"code={viewModel.Code}");
-                
-                await SigninByEmailAsync(tokenResponse, httpClient);
+
+                await SigninByEmailAsync(tokenResponse, httpClient, "facebook");
             }
             // They're either logged in now, or they aren't.
             return await Task.FromResult<IActionResult>(
-                new RedirectResult("https://localhost:4200/V2/authorize") // todo
+                new RedirectResult($"{host}V2/authorize") // todo
             );
         }
 
@@ -148,11 +151,13 @@ namespace Machete.Web.Controllers.Api.Identity
         [Route("signin-google")]
         public async Task<IActionResult> GoogleLogin([FromQuery] ExternalLoginViewModel viewModel)
         {
+            var host = Routes.GetHostFrom(Request);
+
             if (viewModel.State == _configuration["Authentication:State"])
             {
                 var httpClient = new HttpClient();
                 var appId = _configuration["Authentication:Google:ClientId"];
-                var redirectUri = "https://localhost:4213/id/signin-google"; // TODO
+                var redirectUri = $"{host}id/signin-google"; // TODO
                 var appSecret = _configuration["Authentication:Google:ClientSecret"];
 
 // TODO refactor; I apologize for the copy-paste code but we are out of time for auth
@@ -170,16 +175,16 @@ namespace Machete.Web.Controllers.Api.Identity
                 // TODO we *should* get this URL from https://accounts.google.com/.well-known/openid-configuration
                 var tokenResponse = await httpClient.PostAsync("https://oauth2.googleapis.com/token", content);
                 
-                await SigninByEmailAsync(tokenResponse, httpClient);
+                await SigninByEmailAsync(tokenResponse, httpClient, "google");
             }
             // They're either logged in now, or they aren't.
             return await Task.FromResult<IActionResult>(
-                new RedirectResult("https://localhost:4200/V2/authorize") // todo
+                new RedirectResult($"{host}V2/authorize")
             );
         }
 
       //private
-        private async Task SigninByEmailAsync(HttpResponseMessage tokenResponse, HttpClient httpClient)
+        private async Task SigninByEmailAsync(HttpResponseMessage tokenResponse, HttpClient httpClient, string provider)
         {
             var tokenResponseContent = tokenResponse.Content.ReadAsStringAsync();
             if (tokenResponse.IsSuccessStatusCode)
@@ -189,8 +194,23 @@ namespace Machete.Web.Controllers.Api.Identity
                 httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", tokenObject.access_token);
 
-                // TODO we *should* get this URL from https://accounts.google.com/.well-known/openid-configuration
-                var profileResponse = await httpClient.GetAsync("https://openidconnect.googleapis.com/v1/userinfo");
+                string profileResponseUrl;
+                switch (provider)
+                {
+                    case "facebook":
+                        profileResponseUrl = $"https://graph.facebook.com/me?" +
+                                             $"fields=name,email&" +
+                                             $"access_token={tokenObject.access_token}";
+                        break;
+                    case "google":
+                        // TODO we *should* get this URL from https://accounts.google.com/.well-known/openid-configuration
+                        profileResponseUrl = "https://openidconnect.googleapis.com/v1/userinfo";
+                        break;
+                    default:
+                        throw new Exception("Unable to parse provider.");
+                }
+                
+                var profileResponse = await httpClient.GetAsync(profileResponseUrl);
                 var profileResponseContent = profileResponse.Content.ReadAsStringAsync();
                 var profile = JsonConvert.DeserializeObject<ExternalLoginProfile>(profileResponseContent.Result);
                 var user = await _userManager.FindByEmailAsync(profile.email);
