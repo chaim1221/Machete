@@ -8,7 +8,6 @@ using System.Net.Http.Headers;
 using System.Security.Authentication;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using AutoMapper;
 using Machete.Data;
 using Machete.Web.Helpers.Api;
 using Machete.Web.Helpers.Api.Identity;
@@ -52,7 +51,6 @@ namespace Machete.Web.Controllers.Api.Identity
     {
         private readonly UserManager<MacheteUser> _userManager;
         private readonly SignInManager<MacheteUser> _signinManager;
-        private RoleManager<IdentityRole> _roleManager;
 
         private readonly IJwtFactory _jwtFactory;
         private readonly JwtIssuerOptions _jwtOptions;
@@ -62,7 +60,6 @@ namespace Machete.Web.Controllers.Api.Identity
         public IdentityController(UserManager<MacheteUser> userManager,
             SignInManager<MacheteUser> signInManager,
             RoleManager<IdentityRole> roleManager,
-            IMapper mapper,
             IJwtFactory jwtFactory,
             IOptions<JwtIssuerOptions> jwtOptions,
             IConfiguration configuration
@@ -72,7 +69,6 @@ namespace Machete.Web.Controllers.Api.Identity
 
             _userManager = userManager;
             _signinManager = signInManager;
-            _roleManager = roleManager;
 
             _roles = roleManager.Roles.ToList();
             _jwtFactory = jwtFactory;
@@ -118,6 +114,7 @@ namespace Machete.Web.Controllers.Api.Identity
         }
         
         // https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow/
+        // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/index?view=aspnetcore-2.2#environment-variables-configuration-provider
         [HttpGet]
         [Route("signin-facebook")]
         public async Task<IActionResult> FacebookLogin([FromQuery] ExternalLoginViewModel viewModel)
@@ -138,7 +135,7 @@ namespace Machete.Web.Controllers.Api.Identity
                     $"client_secret={appSecret}&" +
                     $"code={viewModel.Code}");
 
-                await SigninByEmailAsync(tokenResponse, httpClient, "facebook");
+                await SigninByEmailAsync(tokenResponse, httpClient, "facebook", redirectUri);
             }
             // They're either logged in now, or they aren't.
             return await Task.FromResult<IActionResult>(
@@ -147,6 +144,7 @@ namespace Machete.Web.Controllers.Api.Identity
         }
 
         // https://developers.google.com/identity/protocols/OAuth2WebServer
+        // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/index?view=aspnetcore-2.2#environment-variables-configuration-provider
         [HttpGet]
         [Route("signin-google")]
         public async Task<IActionResult> GoogleLogin([FromQuery] ExternalLoginViewModel viewModel)
@@ -175,7 +173,7 @@ namespace Machete.Web.Controllers.Api.Identity
                 // TODO we *should* get this URL from https://accounts.google.com/.well-known/openid-configuration
                 var tokenResponse = await httpClient.PostAsync("https://oauth2.googleapis.com/token", content);
                 
-                await SigninByEmailAsync(tokenResponse, httpClient, "google");
+                await SigninByEmailAsync(tokenResponse, httpClient, "google", redirectUri);
             }
             // They're either logged in now, or they aren't.
             return await Task.FromResult<IActionResult>(
@@ -184,7 +182,7 @@ namespace Machete.Web.Controllers.Api.Identity
         }
 
       //private
-        private async Task SigninByEmailAsync(HttpResponseMessage tokenResponse, HttpClient httpClient, string provider)
+        private async Task SigninByEmailAsync(HttpResponseMessage tokenResponse, HttpClient httpClient, string provider, string redirectUri)
         {
             var tokenResponseContent = tokenResponse.Content.ReadAsStringAsync();
             if (tokenResponse.IsSuccessStatusCode)
@@ -233,10 +231,9 @@ namespace Machete.Web.Controllers.Api.Identity
                 await VerifyClaimsExistFor(user.UserName);
                 await _signinManager.SignInAsync(user, true);
             }
-            else
-            {
-                throw new AuthenticationException(tokenResponseContent.Result);
-            }
+            else throw new AuthenticationException(
+              $"Results: {tokenResponseContent.Result}\n\nRedirectUri: {redirectUri}"
+            );
         }
 
         //https://www.c-sharpcorner.com/article/claim-based-and-policy-based-authorization-with-asp-net-core-2-1/
@@ -270,7 +267,9 @@ namespace Machete.Web.Controllers.Api.Identity
         [Route("logoff")]
         public async Task<IActionResult> LogOff()
         {
+            // TODO: there's still a bug here with external providers
             await _signinManager.SignOutAsync();
+            HttpContext.Session.Clear();
             return await Task.FromResult<IActionResult>(
                 new OkObjectResult(new { data = Routes.GetHostFrom(Request).V2AuthorizationEndpoint() })
             );

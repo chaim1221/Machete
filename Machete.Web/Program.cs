@@ -26,7 +26,7 @@ namespace Machete.Web
         /// </summary>
         public static IWebHostBuilder CustomWebHostBuilder(string[] args) =>
             new WebHostBuilder()
-              //.UseContentRoute() //uncomment for static content route
+             // .UseContentRoute() //uncomment for static content route
                 .ConfigureAppConfiguration((host, config) =>
                 {
                     config.SetBasePath(Directory.GetCurrentDirectory());
@@ -34,6 +34,8 @@ namespace Machete.Web
 
                     if (host.HostingEnvironment.IsDevelopment())
                         config.AddUserSecrets<Startup>();
+                    else
+                        config.AddEnvironmentVariables(prefix: "MACHETE_");
                 })
                 .UseKestrel(
 //                (context, kestrelOptions) =>

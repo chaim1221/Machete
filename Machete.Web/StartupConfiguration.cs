@@ -97,7 +97,7 @@ namespace Machete.Web
                 options.AddPolicy(StartupConfiguration.AllowCredentials, builder =>
                 {
                     // for JWT auth, this will have to be reconfigured for "AllowAllOrigins"
-                    builder.WithOrigins("http://localhost:4213", "http://localhost:4200")
+                    builder.WithOrigins("http://localhost:4213", "http://localhost:4200", "https://localhost") // TODO
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials();

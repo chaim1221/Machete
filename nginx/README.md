@@ -15,3 +15,8 @@ that it includes with this line:
 Named after the `/etc/nginx/conf.d/` directory in the Machete nginx container, this directory
 contains example setup files, each of which contain a single server directive. Each directive
 represents a worker center. The actual configuration used in production is kept separate.
+
+`machete.sh`
+This shell file does two simple things; it starts `nginx`, and also runs the `dotnet
+Machete.Web.dll` command. It exists because there can only be one `CMD` Dockerfile directive
+for a given Docker container.

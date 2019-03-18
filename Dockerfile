@@ -42,6 +42,7 @@ COPY ./Machete.Web/published/ /app/api
 COPY ./Machete.Web/Content /app/api/Content
 COPY ./Machete.Web/Identity /app/api/Identity
 COPY ./UI/dist /app/api/dist
+COPY ./nginx/machete.sh /app/api
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 COPY ./nginx/conf.d/ /etc/nginx/conf.d/
 
