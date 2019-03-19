@@ -12,6 +12,8 @@ using Machete.Data;
 using Machete.Web.Helpers.Api;
 using Machete.Web.Helpers.Api.Identity;
 using Machete.Web.ViewModel.Api.Identity;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -232,7 +234,7 @@ namespace Machete.Web.Controllers.Api.Identity
                 await _signinManager.SignInAsync(user, true);
             }
             else throw new AuthenticationException(
-              $"Results: {tokenResponseContent.Result}\n\nRedirectUri: {redirectUri}"
+              $"Results: {tokenResponseContent.Result}\nRedirectUri: {redirectUri}\nRequest Scheme: {Environment.GetEnvironmentVariable("MACHETE_USE_HTTPS_SCHEME")}"
             );
         }
 
@@ -269,7 +271,9 @@ namespace Machete.Web.Controllers.Api.Identity
         {
             // TODO: there's still a bug here with external providers
             await _signinManager.SignOutAsync();
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             HttpContext.Session.Clear();
+            
             return await Task.FromResult<IActionResult>(
                 new OkObjectResult(new { data = Routes.GetHostFrom(Request).V2AuthorizationEndpoint() })
             );

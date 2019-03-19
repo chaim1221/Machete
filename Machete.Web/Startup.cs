@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -9,6 +10,7 @@ using Machete.Web.Maps.Api;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -78,6 +80,12 @@ namespace Machete.Web
 
             services.ConfigureDependencyInjection();
 
+            // Headers configuration:
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
+
             // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/localization?view=aspnetcore-2.2#use-a-custom-provider
             // They imply that this is only for "custom" providers but the RequestLocalizationOptions in Configure aren't populated
             // unless you use this.
@@ -104,6 +112,15 @@ namespace Machete.Web
         /// </summary>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            // The pipeline is sequential; since all other elements rely on the headers, this must remain at the top
+            app.UseForwardedHeaders();
+            // https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-2.2#scenarios-and-use-cases
+            app.Use((context, next) =>
+            {
+                context.Request.Scheme = Environment.GetEnvironmentVariable("MACHETE_USE_HTTPS_SCHEME") ?? "http";
+                return next();
+            });
+
             var envIsDevelopment = env.IsDevelopment();
             if (envIsDevelopment)
             {

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e #-x
 
 export MSBUILDDISABLENODEREUSE=1
 

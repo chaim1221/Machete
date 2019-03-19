@@ -8,6 +8,7 @@ EXPOSE 443
 
 # ENV commands
 ENV DEBIAN_FRONTEND=noninteractive
+ENV MACHETE_USE_HTTPS_SCHEME=https
 
 # install dotnet core 
 RUN apt-get update && \
