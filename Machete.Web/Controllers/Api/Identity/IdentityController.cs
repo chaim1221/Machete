@@ -127,7 +127,7 @@ namespace Machete.Web.Controllers.Api.Identity
             {
                 var httpClient = new HttpClient();
                 var appId = _configuration["Authentication:Facebook:AppId"];
-                var redirectUri = $"{host}id/signin-facebook"; // TODO
+                var redirectUri = Routes.FacebookSignin(host);
                 var appSecret = _configuration["Authentication:Facebook:AppSecret"];
 
                 var tokenResponse = await httpClient.GetAsync(
@@ -140,9 +140,7 @@ namespace Machete.Web.Controllers.Api.Identity
                 await SigninByEmailAsync(tokenResponse, httpClient, "facebook", redirectUri);
             }
             // They're either logged in now, or they aren't.
-            return await Task.FromResult<IActionResult>(
-                new RedirectResult($"{host}V2/authorize") // todo
-            );
+            return await Task.FromResult<IActionResult>(new RedirectResult(host.V2AuthorizationEndpoint()));
         }
 
         // https://developers.google.com/identity/protocols/OAuth2WebServer
@@ -178,9 +176,7 @@ namespace Machete.Web.Controllers.Api.Identity
                 await SigninByEmailAsync(tokenResponse, httpClient, "google", redirectUri);
             }
             // They're either logged in now, or they aren't.
-            return await Task.FromResult<IActionResult>(
-                new RedirectResult($"{host}V2/authorize")
-            );
+            return await Task.FromResult<IActionResult>(new RedirectResult(host.V2AuthorizationEndpoint()));
         }
 
       //private
@@ -269,7 +265,7 @@ namespace Machete.Web.Controllers.Api.Identity
         [Route("logoff")]
         public async Task<IActionResult> LogOff()
         {
-            // TODO: there's still a bug here with external providers
+            // TODO: This still isn't working with the proxy. Figure out how to manually expire the cookies maybe?
             await _signinManager.SignOutAsync();
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             HttpContext.Session.Clear();
