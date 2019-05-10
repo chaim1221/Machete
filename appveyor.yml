@@ -46,12 +46,15 @@ environment:
 #services:
 #  - mssql2014
 
+stack:
+  - node 9
+
 install:
   - git submodule init
   - git submodule update
-  - curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-  - sudo apt-get install -y nodejs
-  - npm install -g @angular/cli
+#  - curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+#  - sudo apt-get install -y nodejs
+#  - npm install -g @angular/cli
   - docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=passw0rD!' --network machete-bridge -p 1433:1433 --name sqlserver -d mcr.microsoft.com/mssql/server
 
 #assembly_info: (change assembly values, e.g., visibility)
