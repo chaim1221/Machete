@@ -2,8 +2,7 @@
 
 version: '1.0.{build}'
 
-branches: 
-  
+#branches:   
 # # (all by default)
 #  only:
 #  except:
