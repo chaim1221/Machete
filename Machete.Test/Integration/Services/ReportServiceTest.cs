@@ -62,8 +62,6 @@ namespace Machete.Test.Integration.Services
             Assert.AreEqual(before.Select(q => q.count).FirstOrDefault(), after.Select(q => q.count).FirstOrDefault() - 1);
         }
 
-        // TODO this has a bug when run against a new db; compares <<null>> and <<0>>
-        [Ignore]
         [TestMethod, TestCategory(TC.IT), TestCategory(TC.Service), TestCategory(TC.Reports)]
         public void CountAssignments()
         {
@@ -71,6 +69,7 @@ namespace Machete.Test.Integration.Services
             DateTime beginDate = DateTime.Today;
             DateTime endDate = DateTime.Today;
             var desc = "DESCRIPTION " + frb.RandomString(20);
+            frb.AddWorkAssignment(desc: desc);
             var before = frb.ToServ<IReportService>().CountAssignments(beginDate, endDate).ToList();
             frb.AddWorkAssignment(desc: desc); //only seems to add one no matter how many times I do this
             //Act

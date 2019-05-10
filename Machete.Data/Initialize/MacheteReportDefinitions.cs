@@ -1580,9 +1580,11 @@ where jobcount is not null or actcount is not null or eslcount is not null
 					}
 
 					context.ReportDefinitions.Add(u);
-					context.SaveChanges();
 				}
 			});
+			context.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.ReportDefinitions ON");
+    		context.SaveChanges();
+            context.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.ReportDefinitions OFF");
 
 			AddDBReadOnlyUser(context);
 		}
