@@ -12,10 +12,7 @@ namespace Machete.Data.Initialize
 {
 	public static class MacheteReportDefinitions
 	{
-
-		public static List<ReportDefinition> cache => _cache;
-
-		private static List<ReportDefinition> _cache = new List<ReportDefinition>
+		public static List<ReportDefinition> Cache { get; } = new List<ReportDefinition>
 		{
 			#region REPORT DEFINITIONS
 
@@ -1552,39 +1549,37 @@ where jobcount is not null or actcount is not null or eslcount is not null
 		{
 			var connectionString = context.Database.GetDbConnection().ConnectionString;
 
-			if (_cache == null)
+			if (Cache == null)
 				throw new MacheteException(
 					"Value cannot be null: _cache; check connection string for field `Persist Security Info=true;`");
 
-			_cache.ForEach(u =>
+			Cache.ForEach(u =>
 			{
-				var definition = context.ReportDefinitions.FirstOrDefault(record => record.name == u.name);
-				if (definition == null)
+				if (context.ReportDefinitions.Any(record => record.name == u.name)) return;
+				
+				u.datecreated = DateTime.Now;
+				u.dateupdated = DateTime.Now;
+				u.createdby = "Init T. Script";
+				u.updatedby =
+					"Init T. Script"; // this next part is a little bit of a mess, but it is only run once during initialization.
+				u.columnsJson = MacheteAdoContext.getUIColumnsJson(u.sqlquery, connectionString);
+				if (u.inputsJson == null)
 				{
-					u.datecreated = DateTime.Now;
-					u.dateupdated = DateTime.Now;
-					u.createdby = "Init T. Script";
-					u.updatedby =
-						"Init T. Script"; // this next part is a little bit of a mess, but it is only run once during initialization.
-					u.columnsJson = MacheteAdoContext.getUIColumnsJson(u.sqlquery, connectionString);
-					if (u.inputsJson == null)
+					u.inputsJson = JsonConvert.SerializeObject(new
 					{
-						u.inputsJson = JsonConvert.SerializeObject(new
-						{
-							beginDate = true,
-							beginDateDefault = DateTime.Parse("1/1/2016"),
-							endDate = true,
-							endDateDefault = DateTime.Parse("1/1/2017"),
-							memberNumber = false
-						});
-					}
-
-					context.ReportDefinitions.Add(u);
+						beginDate = true,
+						beginDateDefault = DateTime.Parse("1/1/2016"),
+						endDate = true,
+						endDateDefault = DateTime.Parse("1/1/2017"),
+						memberNumber = false
+					});
 				}
+
+				// If we add the original Cache entry, it winds up with an ID.
+				context.ReportDefinitions.Add((ReportDefinition) u.Clone());
 			});
-			context.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.ReportDefinitions ON");
+			context.Database.OpenConnection();
     		context.SaveChanges();
-            context.Database.ExecuteSqlCommand("SET IDENTITY_INSERT dbo.ReportDefinitions OFF");
 
 			AddDBReadOnlyUser(context);
 		}
