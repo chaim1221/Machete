@@ -1,4 +1,5 @@
 # https://www.appveyor.com/docs/appveyor-yml/
+# https://www.appveyor.com/docs/getting-started-with-appveyor-for-linux/
 
 version: '1.0.{build}'
 
