@@ -1,0 +1,113 @@
+# https://www.appveyor.com/docs/appveyor-yml/
+
+version: '1.0.{build}'
+
+#branches: 
+# # (all by default)
+#  only:
+#  except:
+
+#skip_tags: false
+#skip_non_tags: false
+#skip_commits:
+#only_commits
+#skip_branch_with_pr: false
+
+max_jobs: 1
+
+image:
+  - Ubuntu1804
+#  - Visual Studio 2017
+
+init:
+  - docker pull mcr.microsoft.com/mssql/server
+  - docker network create --driver bridge machete-bridge
+  - docker network inspect machete-bridge
+
+#clone_folder: /home/appveyor/projects/machete-web
+#shallow_clone: false
+#clone_depth: (int)
+
+# (/etc/hosts)
+hosts:
+  sqlserver: 127.0.0.1
+
+# https://ci.appveyor.com/account/savagelearning/tools/encrypt
+environment:
+  MSBUILDDISABLENODEREUSE: 1
+#  var2:
+#    secure: encrypted_value
+
+#matrix: [...]
+#cache:
+
+#services:
+#  - mssql2014
+
+install:
+  - git submodule init
+  - git submodule update
+  - docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=passw0rD!' --network machete-bridge -p 1433:1433 --name sqlserver -d mcr.microsoft.com/mssql/server
+
+#assembly_info: (change assembly values, e.g., visibility)
+
+#nuget: (custom feed)
+
+platform: Any CPU
+
+configuration:
+  - Release
+
+# MSBuild settings; NOT a build step
+#build: 
+
+# dotnet build includes restore
+before_build:
+  - cmd: dotnet --version
+  - cmd: dotnet clean
+  - cmd: cd UI
+  - cmd: npm run build-local-dev
+  - cmd: npm run start-local-dev &
+  - cmd: cd ..
+  - cmd: dotnet build
+
+# (THIS is the build step)
+build_script:
+  - cmd: dotnet test Machete.Test
+
+#after_build:
+
+#before_package:
+
+# This may make it unnecessary to split up Machete.Test; TODO try it out
+#test:
+#  assemblies:
+#    only:
+#      - asm1.dll
+#      - asm2.dll
+#  categories:
+#    only:
+#      - UI
+#      - E2E
+
+#before_test:
+#test_script:
+#after_test:
+
+#artifacts:
+#deploy:
+#before_deploy:
+#after_deploy:
+#deploy_script:
+#on_success
+#on_failure
+#on_finish
+#notifications:
+#  - provider: Slack
+#    incoming_webhook: http://incoming-webhook-url
+# ...or using auth token
+# - provider: Slack
+#   auth_token:
+#     secure: kBl9BlxvRMr9liHmnBs14A== (e.g.)
+#   channel: status-updates
+#   template: "{message}, {commitId}, ..."
