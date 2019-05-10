@@ -1,0 +1,82 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+
+    <RootNamespace>Machete.Test</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions.AspNetCore.Mvc" Version="2.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.1.6" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.EventSource" Version="2.1.1" />
+    <PackageReference Include="Microsoft.IdentityModel.Logging" Version="5.2.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="Moq" Version="4.10.1" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.3.2" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.3.2" />
+    <PackageReference Include="Selenium.Support" Version="3.141.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Machete.Test\Machete.Test.csproj" />
+    <ProjectReference Include="..\Machete.Web\Machete.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.IdentityModel.Tokens, Version=5.2.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <HintPath>..\..\..\.nuget\packages\microsoft.identitymodel.tokens\5.2.1\lib\netstandard1.4\Microsoft.IdentityModel.Tokens.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Logging, Version=5.2.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <HintPath>..\..\..\.nuget\packages\microsoft.identitymodel.logging\5.2.1\lib\netstandard1.4\Microsoft.IdentityModel.Logging.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <_UnmanagedRegistrationCache Remove="obj\Machete.Selenium.csproj.UnmanagedRegistration.cache" />
+    <_UnmanagedRegistrationCache Remove="obj\Machete.Selenium.csproj.UnmanagedRegistration.cache" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ResolveComReferenceCache Remove="obj\Debug\netcoreapp2.1\Machete.Selenium.csproj.ResolveComReference.cache" />
+    <_ResolveComReferenceCache Remove="obj\Debug\netcoreapp2.1\Machete.Selenium.csproj.ResolveComReference.cache" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <IntermediateAssembly Remove="obj\Debug\netcoreapp2.1\Machete.Selenium.dll" />
+    <IntermediateAssembly Remove="obj\Debug\netcoreapp2.1\Machete.Selenium.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_DebugSymbolsIntermediatePath Remove="obj\Debug\netcoreapp2.1\Machete.Selenium.pdb" />
+    <_DebugSymbolsIntermediatePath Remove="obj\Debug\netcoreapp2.1\Machete.Selenium.pdb" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_DeploymentManifestEntryPoint Remove="obj\Debug\netcoreapp2.1\Machete.Selenium.dll" />
+    <_DeploymentManifestEntryPoint Remove="obj\Debug\netcoreapp2.1\Machete.Selenium.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ApplicationManifest Remove="obj\Debug\netcoreapp2.1\Native.Machete.Selenium.manifest" />
+    <ApplicationManifest Remove="obj\Debug\netcoreapp2.1\Native.Machete.Selenium.manifest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DeployManifest Remove="obj\Debug\netcoreapp2.1\Machete.Selenium.application" />
+    <DeployManifest Remove="obj\Debug\netcoreapp2.1\Machete.Selenium.application" />
+  </ItemGroup>
+
+</Project>

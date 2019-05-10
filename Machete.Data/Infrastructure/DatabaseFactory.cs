@@ -52,7 +52,7 @@ namespace Machete.Data.Infrastructure
         {
             var caller = Assembly.GetCallingAssembly();
 
-            if (!caller.FullName.StartsWith("Machete.Test"))
+            if (!caller.FullName.StartsWith("Machete.Selenium"))
             {
                 throw new UnauthorizedAccessException("This constructor can no longer retrieve a context for any class but the test class.");
             }
