@@ -64,17 +64,17 @@ configuration:
 
 # dotnet build includes restore
 before_build:
-  - cmd: dotnet --version
-  - cmd: dotnet clean
-  - cmd: cd UI
-  - cmd: npm run build-local-dev
-  - cmd: npm run start-local-dev &
-  - cmd: cd ..
-  - cmd: dotnet build
+  - sh: dotnet --version
+  - sh: dotnet clean
+  - sh: cd UI
+  - sh: npm run build-local-dev
+  - sh: npm run start-local-dev &
+  - sh: cd ..
+  - sh: dotnet build
 
 # (THIS is the build step)
 build_script:
-  - cmd: dotnet test Machete.Test
+  - sh: dotnet test Machete.Test
 
 #after_build:
 
