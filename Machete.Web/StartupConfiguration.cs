@@ -40,7 +40,7 @@ namespace Machete.Web
             using (var scope = webhost.Services.CreateScope())
             {
                 var context = scope.ServiceProvider.GetService<MacheteContext>();
-                context.Database.Migrate();
+//                context.Database.Migrate();
                 MacheteConfiguration.Seed(context, webhost.Services);
             }
 

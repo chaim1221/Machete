@@ -54,14 +54,14 @@ namespace Machete.Web
             services.AddEntityFrameworkNpgsql()
                     .AddDbContext<MacheteContext>(builder =>
                     {
-                        builder.UseNpgsql(connString, with => with.MigrationsAssembly("Machete.Data"));
+                        builder.UseLazyLoadingProxies()
+                               .UseNpgsql(connString, with => with.MigrationsAssembly("Machete.Data"));
                     })
                     .BuildServiceProvider();
 //                    .AddDbContext<MacheteContext>(builder =>
 //                    {
 //                        builder.UseLazyLoadingProxies()
 //                               .UseSqlServer(connString, with => with.MigrationsAssembly("Machete.Data"));
-//                               .UseNpgsql();
 //                    });
 
             services.ConfigureAuthentication();
