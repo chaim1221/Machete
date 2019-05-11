@@ -83,10 +83,10 @@ namespace Machete.Web.Controllers
         }
 
         [Authorize(Roles = "Administrator, Manager")]
-        public ActionResult PrintView(DateTime date, string typeOfReport)
+        public ActionResult PrintView(DateTime dateTime, string typeOfReport)
         {
             ReportPrintView view = new ReportPrintView();
-            view.date = date;
+            view.date = dateTime;
             view.typeOfReport = typeOfReport;
             return View(view);
         }

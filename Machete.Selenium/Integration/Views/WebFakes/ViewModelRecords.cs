@@ -22,14 +22,9 @@
 // 
 #endregion
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Machete.Web.ViewModel;
-using Machete.Data;
-using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
-using System.Globalization;
 using Machete.Data.Initialize;
 
 namespace Machete.Test 
