@@ -67,8 +67,7 @@ namespace Machete.Test.Selenium.View
             baseURL = "http://localhost:4213/";
             ui = new sharedUI(driver, baseURL, map);
 
-            // fake
-            DbContextOptions<MacheteContext> options = new DbContextOptions<MacheteContext>();
+            var options = new DbContextOptions<MacheteContext>();
             DB = new MacheteContext(options);
             wsiSet = DB.Set<WorkerSignin>();
             wSet = DB.Set<Worker>();

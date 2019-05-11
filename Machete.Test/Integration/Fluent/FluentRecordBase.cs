@@ -82,12 +82,14 @@ namespace Machete.Test.Integration.Fluent
                     logging.AddDebug();
                     logging.AddEventSourceLogger();
                 })
-                .UseStartup<Startup>().Build().CreateOrMigrateDatabase();//.Run()
+                .UseStartup<Startup>()
+                .Build()
+                .CreateOrMigrateDatabase();//.Run()
                 
-            var serviceScope = webHost.Services.CreateScope();
+            //var serviceScope = webHost.Services.CreateScope();
+            //container = serviceScope.ServiceProvider;
+            container = webHost.Services;
             
-            container = serviceScope.ServiceProvider;
-
             ToServ<ILookupService>().populateStaticIds();
         }
 

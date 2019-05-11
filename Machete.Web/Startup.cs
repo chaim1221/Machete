@@ -51,11 +51,18 @@ namespace Machete.Web
             // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/localization?view=aspnetcore-2.2#configure-localization
             services.AddLocalization(options => options.ResourcesPath = StartupConfiguration.ResourcesFolder);
 
-            services.AddDbContext<MacheteContext>(builder =>
-            {
-                builder.UseLazyLoadingProxies()
-                       .UseSqlServer(connString, with => with.MigrationsAssembly("Machete.Data"));
-            });
+            services.AddEntityFrameworkNpgsql()
+                    .AddDbContext<MacheteContext>(builder =>
+                    {
+                        builder.UseNpgsql(connString, with => with.MigrationsAssembly("Machete.Data"));
+                    })
+                    .BuildServiceProvider();
+//                    .AddDbContext<MacheteContext>(builder =>
+//                    {
+//                        builder.UseLazyLoadingProxies()
+//                               .UseSqlServer(connString, with => with.MigrationsAssembly("Machete.Data"));
+//                               .UseNpgsql();
+//                    });
 
             services.ConfigureAuthentication();
 
@@ -71,7 +78,7 @@ namespace Machete.Web
             services.AddMvc() // (config => { config.Filters.Add(new AuthorizeFilter()); }) // <~ for JWT auth
                 .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
                 .AddDataAnnotationsLocalization()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             
             services.AddSpaStaticFiles(angularApp =>
             {

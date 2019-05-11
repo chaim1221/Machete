@@ -56,13 +56,13 @@ namespace Machete.Data
     public class MacheteContext : IdentityDbContext<MacheteUser>
     {
         public MacheteContext(DbContextOptions<MacheteContext> options) : base(options) { }
-        
+
         // Machete here defines the data context to use by EF Core convention.
         // Entity Framework will not retrieve or modify types not expressed here.
         public DbSet<Person> Persons { get; set; }
         public DbSet<Worker> Workers { get; set; }
         public DbSet<WorkAssignment> WorkAssignments { get; set; }
-        public virtual DbSet<Lookup> Lookups { get; set; }
+        public DbSet<Lookup> Lookups { get; set; }
         public DbSet<WorkerSignin> WorkerSignins { get; set; }
         public DbSet<Image> Images { get; set; }
         public DbSet<Employer> Employers { get; set; }
