@@ -52,17 +52,17 @@ namespace Machete.Data.Infrastructure
         {
             var caller = Assembly.GetCallingAssembly();
 
-            if (!caller.FullName.StartsWith("Machete.Selenium"))
+            if (!caller.FullName.StartsWith("Machete.Test"))
             {
                 throw new UnauthorizedAccessException("This constructor can no longer retrieve a context for any class but the test class.");
             }
             
             typeof(SqlConnection).GetField("ObjectID", BindFlags);
-            
+
             var builder = new DbContextOptionsBuilder<MacheteContext>()
-                    .UseLazyLoadingProxies();
-//                    .UseNp
-                    //.UseSqlServer(connString, with => with.MigrationsAssembly("Machete.Data"));
+                .UseLazyLoadingProxies()
+                .UseNpgsql(connString, with => with.MigrationsAssembly("Machete.Data"));
+                //.UseSqlServer(connString, with => with.MigrationsAssembly("Machete.Data"));
             options = builder.Options;
         }
 
