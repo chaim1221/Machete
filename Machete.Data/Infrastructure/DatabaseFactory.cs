@@ -60,9 +60,9 @@ namespace Machete.Data.Infrastructure
             typeof(SqlConnection).GetField("ObjectID", BindFlags);
             
             var builder = new DbContextOptionsBuilder<MacheteContext>()
-                    .UseLazyLoadingProxies()
-                    .UseSqlServer(connString, with =>
-                    with.MigrationsAssembly("Machete.Data"));
+                    .UseLazyLoadingProxies();
+//                    .UseNp
+                    //.UseSqlServer(connString, with => with.MigrationsAssembly("Machete.Data"));
             options = builder.Options;
         }
 
