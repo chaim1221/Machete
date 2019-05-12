@@ -37,8 +37,8 @@ hosts:
 # https://ci.appveyor.com/account/savagelearning/tools/encrypt
 environment:
   MSBUILDDISABLENODEREUSE: 1
-#  var2:
-#    secure: encrypted_value
+  DOCKER_PASSWORD:
+    secure: q4kZwveA7LCpRBLmWNpf5Q==
 
 #matrix: [...]
 #cache:
@@ -85,7 +85,16 @@ before_build:
 build_script:
   - sh: dotnet test Machete.Test
 
-#after_build:
+after_build:
+  - sh: cd Machete.Web
+  - sh: dotnet publish -o published
+  - sh: cd ..
+  - sh: if [ $APPVEYOR_REPO_BRANCH == 'master' ]; then docker build -t ndlonmachete/debian:$APPVEYOR_BUILD_VERSION .; fi
+  - sh: if [ $APPVEYOR_REPO_BRANCH != 'master' ]; then docker build -t ndlonmachete/debian:$APPVEYOR_BUILD_VERSION-beta .; fi
+  - sh: docker images
+  - sh: docker login -u chaim1221 -p "$DOCKER_PASSWORD"
+  - sh: if [ $APPVEYOR_REPO_BRANCH == 'master' ]; then docker push ndlonmachete/debian:$APPVEYOR_BUILD_VERSION; fi
+  - sh: if [ $APPVEYOR_REPO_BRANCH != 'master' ]; then docker push ndlonmachete/debian:$APPVEYOR_BUILD_VERSION-beta; fi
 
 #before_package:
 
