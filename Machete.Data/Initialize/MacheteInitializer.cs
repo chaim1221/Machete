@@ -41,7 +41,7 @@ namespace Machete.Data.Initialize
             // assume Configs table has been populated by script
             if (!db.Configs.Any()) MacheteConfigs.Initialize(db);
             if (!db.TransportRules.Any()) MacheteRules.Initialize(db);
-            if (db.ReportDefinitions.Count() != MacheteReportDefinitions.Cache.Count) MacheteReportDefinitions.Initialize(db);
+            if (db.ReportDefinitions.Count() != MacheteReportDefinitions._cache.Count) MacheteReportDefinitions.Initialize(db);
         }
     }   
 }
