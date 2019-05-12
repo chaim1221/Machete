@@ -12,7 +12,7 @@ namespace Machete.Data.Initialize
 {
 	public static class MacheteReportDefinitions
 	{
-		public static List<ReportDefinition> Cache { get; } = new List<ReportDefinition>
+		public static List<ReportDefinition> _cache { get; } = new List<ReportDefinition>
 		{
 			#region REPORT DEFINITIONS
 
@@ -1549,11 +1549,11 @@ where jobcount is not null or actcount is not null or eslcount is not null
 		{
 			var connectionString = context.Database.GetDbConnection().ConnectionString;
 
-			if (Cache == null)
+			if (_cache == null)
 				throw new MacheteException(
 					"Value cannot be null: _cache; check connection string for field `Persist Security Info=true;`");
 
-			Cache.ForEach(u =>
+			_cache.ForEach(u =>
 			{
 				if (context.ReportDefinitions.Any(record => record.name == u.name)) return;
 				
