@@ -10,6 +10,7 @@ using Machete.Web.Controllers.Api;
 using Machete.Web.Helpers;
 using Machete.Web.Helpers.Api;
 using Machete.Web.Helpers.Api.Identity;
+using Machete.Web.Tenancy;
 using Machete.Web.ViewModel.Api.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -111,6 +112,8 @@ namespace Machete.Web
         /// </summary>
         public static void ConfigureDependencyInjection(this IServiceCollection services)
         {
+            services.AddSingleton<ITenantIdentificationService, TenantIdentificationService>();
+        
             services.AddScoped<IDatabaseFactory, DatabaseFactory>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
