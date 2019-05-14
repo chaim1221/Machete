@@ -112,8 +112,9 @@ namespace Machete.Web
         /// </summary>
         public static void ConfigureDependencyInjection(this IServiceCollection services)
         {
-            services.AddSingleton<ITenantIdentificationService, TenantIdentificationService>();
-        
+            services.AddScoped<ITenantIdentificationService, TenantIdentificationService>();
+            services.AddScoped<ITenantService, TenantService>();
+            
             services.AddScoped<IDatabaseFactory, DatabaseFactory>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

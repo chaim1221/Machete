@@ -11,7 +11,8 @@ namespace Machete.Test.UnitTests.Data.Tenancy
         [TestMethod]
         public void TenantMappingDefinition()
         {
-            var @default = "noaccess";
+            var allowDefault = true;
+            var @default = "DefaultConnection";
             var tenants = new Dictionary<string, string>
             {
                 { "key", "value" }
@@ -19,12 +20,15 @@ namespace Machete.Test.UnitTests.Data.Tenancy
 
             var mapping = new TenantMapping
             {
+                AllowDefault = allowDefault,
                 Default = @default,
                 Tenants = tenants
             };
 
             mapping.Should().NotBeNull();
             mapping.Should().BeOfType(typeof(TenantMapping));
+            mapping.AllowDefault.Should().BeTrue();
+            mapping.Default.Should().Be("DefaultConnection");
         }
     }
 }

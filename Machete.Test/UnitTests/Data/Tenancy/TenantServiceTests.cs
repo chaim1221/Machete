@@ -1,6 +1,9 @@
+using System.Configuration;
+using System.IO;
 using FluentAssertions;
 using Machete.Data.Tenancy;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -12,13 +15,15 @@ namespace Machete.Test.UnitTests.Data.Tenancy
         public ITenantService _tenantService;
         private Mock<IHttpContextAccessor> _httpContextAccessor;
         private Mock<ITenantIdentificationService> _tenantIdentificationService;
-        private string _expectedTenant = "fakeTenant";
-        private string _tenant;
+        private IConfiguration _configuration;
+        private string _expectedTenant = "default";
+        private Tenant _tenant;
 
         [TestMethod]
         public void GetCurrentTenant_ReturnsExpectedTenant()
         {
             GivenATenantService()
+                .WithAConfiguration()
                 .WithAnHttpContext()
                 .WithATenantIdentificationService();
 
@@ -28,9 +33,19 @@ namespace Machete.Test.UnitTests.Data.Tenancy
             ThenTenantMatchesExpected();
         }
 
+        private TenantServiceTests WithAConfiguration()
+        {
+            _configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("config.json", optional: true, reloadOnChange: true)
+                .Build();
+                
+            return this;
+        }
+
         private TenantServiceTests ThenTenantMatchesExpected()
         {
-            _tenant.Should().Match(_expectedTenant);
+            _tenant.Name.Should().Match(_expectedTenant);
             return this;
         }
 
@@ -42,7 +57,7 @@ namespace Machete.Test.UnitTests.Data.Tenancy
 
         private TenantServiceTests WhenTenantServiceIsInstantiated()
         {
-            _tenantService = new TenantService(_httpContextAccessor.Object, _tenantIdentificationService.Object);
+            _tenantService = new TenantService(_httpContextAccessor.Object, _tenantIdentificationService.Object, _configuration);
             return this;
         }
 

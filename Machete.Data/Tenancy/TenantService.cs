@@ -1,26 +1,30 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace Machete.Data.Tenancy
 {
     public interface ITenantService
     {
-        string GetCurrentTenant();
+        Tenant GetCurrentTenant();
     }
 
     public class TenantService : ITenantService
     {
         private readonly HttpContext _httpContext;
         private readonly ITenantIdentificationService _service;
-    
-        public TenantService(IHttpContextAccessor accessor, ITenantIdentificationService service)
+        private IConfiguration _configuration;
+
+        public TenantService(IHttpContextAccessor accessor, ITenantIdentificationService service, IConfiguration configuration)
         {
             _httpContext = accessor.HttpContext;
             _service = service;
+            _configuration = configuration;
         }
     
-        public string GetCurrentTenant()
+        public Tenant GetCurrentTenant()
         {
-            return _service.GetCurrentTenant(_httpContext);
+            var tenantName = _service.GetCurrentTenant(_httpContext);
+            return _configuration.GetTenant(tenantName);
         }
     }
 }
