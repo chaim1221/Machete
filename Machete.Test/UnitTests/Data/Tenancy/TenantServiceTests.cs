@@ -1,12 +1,10 @@
-using System;
 using FluentAssertions;
-using Machete.Web.Tenancy;
+using Machete.Data.Tenancy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Moq.Language.Flow;
 
-namespace Machete.Test.UnitTests.Web.Tenancy
+namespace Machete.Test.UnitTests.Data.Tenancy
 {
     [TestClass]
     public class TenantServiceTests

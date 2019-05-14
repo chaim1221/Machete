@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using FluentAssertions;
-using Machete.Web.Tenancy;
+using Machete.Data.Tenancy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Machete.Test.UnitTests.Web.Tenancy
+namespace Machete.Test.UnitTests.Data.Tenancy
 {
     [TestClass]
     public class TenantMappingTests

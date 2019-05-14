@@ -1,14 +1,11 @@
-using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using FluentAssertions;
-using Machete.Web.Tenancy;
+using Machete.Data.Tenancy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
-namespace Machete.Test.UnitTests.Web.Tenancy
+namespace Machete.Test.UnitTests.Data.Tenancy
 {
     [TestClass]
     public class TenantIdentificationServiceTests
