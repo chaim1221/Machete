@@ -23,7 +23,7 @@ namespace Machete.Data.Tenancy
 
         public string GetCurrentTenant(HttpContext context)
         {
-            var host = context?.Request.Host.Value;
+            var host = context?.Request.Host.Host;
             
             var tenantName = _tenants.Tenants.FirstOrDefault(tenant => tenant.Key.Equals(host)).Value ?? _tenants.Default;
             
