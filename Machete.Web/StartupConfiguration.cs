@@ -41,15 +41,17 @@ namespace Machete.Web
         {
             using (var scope = webhost.Services.CreateScope())
             {
-                var factory = scope.ServiceProvider.GetService<IDatabaseFactory>();
                 var service = scope.ServiceProvider.GetService<ITenantService>();
                 var tenants = service.GetAllTenants();
 
                 foreach (var tenant in tenants)
                 {
+                    var factory = scope.ServiceProvider.GetService<IDatabaseFactory>();
+                    var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
+                    var userManager = scope.ServiceProvider.GetService<UserManager<MacheteUser>>();
                     var macheteContext = factory.Get(tenant);
                     macheteContext.Database.Migrate();
-                    MacheteConfiguration.Seed(macheteContext, webhost.Services);
+                    MacheteConfiguration.Seed(macheteContext, roleManager, userManager);
                 }
             }
 

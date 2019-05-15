@@ -60,11 +60,10 @@ namespace Machete.Data.Infrastructure
         }
 
         public MacheteContext Get()
-        {            
+        {
             if (macheteContext == null) 
-            {
                 macheteContext = new MacheteContext(options, _tenantService);
-            }
+
             log_connection_count("DatabaseFactory.Get");
             return macheteContext;
         }

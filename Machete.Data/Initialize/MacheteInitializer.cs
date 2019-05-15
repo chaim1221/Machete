@@ -22,8 +22,9 @@
 // 
 #endregion
 
-using System;
 using System.Linq;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Machete.Data.Initialize
 {
@@ -33,14 +34,14 @@ namespace Machete.Data.Initialize
     /// </summary>
     public static class MacheteConfiguration
     {
-        public static void Seed(MacheteContext db, IServiceProvider services)
+        public static void Seed(MacheteContext db, RoleManager<IdentityRole> roleManager, UserManager<MacheteUser> userManager)
         {
             if (!db.Lookups.Any())
               MacheteLookups.Initialize(db);
             if (!db.TransportProviders.Any() || !db.TransportProvidersAvailability.Any())
               MacheteTransports.Initialize(db);
             if (!db.Users.Any())
-              MacheteUsers.Initialize(services);
+              MacheteUsers.Initialize(roleManager, userManager).Wait();
             if (!db.Configs.Any())
               MacheteConfigs.Initialize(db);
             if (!db.TransportRules.Any())
