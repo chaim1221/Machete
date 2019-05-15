@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Machete.Data;
@@ -40,9 +41,16 @@ namespace Machete.Web
         {
             using (var scope = webhost.Services.CreateScope())
             {
-                var context = scope.ServiceProvider.GetService<MacheteContext>();
-                context.Database.Migrate();
-                MacheteConfiguration.Seed(context, webhost.Services);
+                var factory = scope.ServiceProvider.GetService<IDatabaseFactory>();
+                var service = scope.ServiceProvider.GetService<ITenantService>();
+                var tenants = service.GetAllTenants();
+
+                foreach (var tenant in tenants)
+                {
+                    var macheteContext = factory.Get(tenant);
+                    macheteContext.Database.Migrate();
+                    MacheteConfiguration.Seed(macheteContext, webhost.Services);
+                }
             }
 
             return webhost;
@@ -53,7 +61,7 @@ namespace Machete.Web
         /// and configures authentication for Machete. We currently use ASP.NET Identity with cookie authentication.</para>
         /// <para>JWT: https://github.com/mmacneil/AngularASPNETCore2WebApiAuth/blob/master/src/Startup.cs</para>
         /// </summary>
-        public static void ConfigureAuthentication(this IServiceCollection services)
+        public static void ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddIdentity<MacheteUser, IdentityRole>()
                 .AddEntityFrameworkStores<MacheteContext>()
@@ -93,12 +101,24 @@ namespace Machete.Web
                 options.SlidingExpiration = true;
             }); // <~ keep for JWT auth
 
+            var mappings = configuration.GetSection("Tenants").Get<TenantMapping>();
+            var tenants = mappings.Tenants.Keys.ToList();
+            tenants.Add("localhost");
+            var origins = new List<string>();
+
+            foreach (var tenant in tenants)
+            {
+                origins.Add("http://" + tenant + ":4213");
+                origins.Add("http://" + tenant + ":4200");
+                origins.Add("http://" + tenant);
+            }
+            
             services.AddCors(options =>
             {
                 options.AddPolicy(StartupConfiguration.AllowCredentials, builder =>
                 {
-                    // for JWT auth, this will have to be reconfigured for "AllowAllOrigins"
-                    builder.WithOrigins("http://localhost:4213", "http://localhost:4200", "https://localhost") // TODO
+                    // JWT auth: reconfigure for "AllowAnyOrigin" (cannot be combined with AllowCredentials)
+                    builder.WithOrigins(origins.ToArray())
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials();

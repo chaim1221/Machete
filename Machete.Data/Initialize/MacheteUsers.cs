@@ -11,7 +11,6 @@ namespace Machete.Data.Initialize
         {
             using (var scope = serviceProvider.CreateScope())
             {
-                var context = scope.ServiceProvider.GetService<MacheteContext>();
                 var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
                 var userManager = scope.ServiceProvider.GetService<UserManager<MacheteUser>>();
 
@@ -48,8 +47,6 @@ namespace Machete.Data.Initialize
                 var regularUser = await userManager.FindByEmailAsync("user@there.org");
 
                 await userManager.AddToRolesAsync(adminUser, adminRoles);
-
-                await context.SaveChangesAsync();
             }
         }
     }

@@ -62,6 +62,11 @@ namespace Machete.Data
         {
             _tenant = tenantService.GetCurrentTenant();
         }
+
+        public MacheteContext(DbContextOptions<MacheteContext> options, Tenant tenant) : base(options)
+        {
+            _tenant = tenant;
+        }
         
         // Machete here defines the data context to use by EF Core convention.
         // Entity Framework will not retrieve or modify types not expressed here.

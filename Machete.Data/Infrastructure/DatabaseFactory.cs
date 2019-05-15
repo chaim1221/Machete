@@ -36,6 +36,7 @@ namespace Machete.Data.Infrastructure
     public interface IDatabaseFactory : IDisposable
     {
         MacheteContext Get();
+        MacheteContext Get(Tenant tenant);
     }
     //
     //
@@ -50,24 +51,6 @@ namespace Machete.Data.Infrastructure
                                              | BindingFlags.Public
                                              | BindingFlags.NonPublic
                                              | BindingFlags.Static;
-
-        public DatabaseFactory(string connString, ITenantService tenantService)
-        {
-            _tenantService = tenantService;
-            var caller = Assembly.GetCallingAssembly();
-
-            if (!caller.FullName.StartsWith("Machete.Test"))
-            {
-                throw new UnauthorizedAccessException("This constructor can no longer retrieve a context for any class but the test class.");
-            }
-            
-            typeof(SqlConnection).GetField("ObjectID", BindFlags);
-            
-            var builder = new DbContextOptionsBuilder<MacheteContext>()
-                    .UseLazyLoadingProxies()
-                    .UseSqlServer(connString, with => with.MigrationsAssembly("Machete.Data"));
-            options = builder.Options;
-        }
 
         public DatabaseFactory(DbContextOptions<MacheteContext> options, ITenantService tenantService)
         {
@@ -84,6 +67,11 @@ namespace Machete.Data.Infrastructure
             }
             log_connection_count("DatabaseFactory.Get");
             return macheteContext;
+        }
+
+        public MacheteContext Get(Tenant tenant)
+        {
+            return new MacheteContext(options, tenant);
         }
 
         private void log_connection_count(string prefix)
