@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Machete.Domain;
 using Machete.Service;
 using Machete.Test.Integration.Fluent;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -42,7 +43,7 @@ namespace Machete.Test.Integration.Services
         [TestInitialize]
         public void TestInitialize()
         {
-            frb = new FluentRecordBase();
+            frb = FluentRecordBaseFactory.Get();
             _dOptions = new viewOptions
             {
                 CI = new CultureInfo("en-US", false),
@@ -75,7 +76,6 @@ namespace Machete.Test.Integration.Services
         [TestMethod, TestCategory(TC.IT), TestCategory(TC.Service), TestCategory(TC.WSIs)]
         public void GetIndexView_check_search_dwccardnum()
         {
-            //
             // Arrange
             frb.AddWorker(skill1:63).AddWorkerSignin();
             var w = frb.ToWorker();
@@ -97,7 +97,6 @@ namespace Machete.Test.Integration.Services
         [TestMethod, TestCategory(TC.IT), TestCategory(TC.Service), TestCategory(TC.WSIs)]
         public void GetIndexView_workerRequested()
         {
-            //
             // Arrange
             frb.AddWorker(skill1: 63);
             frb.AddWorkerSignin();

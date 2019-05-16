@@ -133,7 +133,7 @@ namespace Machete.Web
         /// https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-2.2
         /// </summary>
         public static void ConfigureDependencyInjection(this IServiceCollection services)
-        {
+        {        
             services.AddScoped<ITenantIdentificationService, TenantIdentificationService>();
             services.AddScoped<ITenantService, TenantService>();
             

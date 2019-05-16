@@ -41,8 +41,8 @@ namespace Machete.Test.Integration.Data
         [TestInitialize]
         public void Initialize()
         {
-            frb = new FluentRecordBase();
-            //frb._dbContext = frb.container.GetRequiredService<MacheteContext>();
+            frb = FluentRecordBaseFactory.Get();
+            //frb._dbContext` = frb.container.GetRequiredService<MacheteContext>();
         }
         /// <summary>
         /// Used with SQL Profiler to see what SQL is produced

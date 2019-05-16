@@ -23,6 +23,7 @@
 #endregion
 
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -40,14 +41,14 @@ namespace Machete.Data.Initialize
               MacheteLookups.Initialize(db);
             if (!db.TransportProviders.Any() || !db.TransportProvidersAvailability.Any())
               MacheteTransports.Initialize(db);
-            if (!db.Users.Any())
-              MacheteUsers.Initialize(roleManager, userManager).Wait();
             if (!db.Configs.Any())
               MacheteConfigs.Initialize(db);
             if (!db.TransportRules.Any())
               MacheteRules.Initialize(db);
             if (db.ReportDefinitions.Count() != MacheteReportDefinitions._cache.Count)
               MacheteReportDefinitions.Initialize(db);
+            if (!db.Users.Any())
+              Task.Run(async () => MacheteUsers.Initialize(roleManager, userManager));
         }
     }   
 }

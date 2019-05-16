@@ -37,7 +37,7 @@ namespace Machete.Test.Integration.Services
         [TestInitialize]
         public void TestInitialize()
         {
-            frb = new FluentRecordBase();
+            frb = FluentRecordBaseFactory.Get();
         }
 
         [TestCleanup]

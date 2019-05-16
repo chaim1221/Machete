@@ -38,7 +38,7 @@ namespace Machete.Test.Selenium.View
         [TestInitialize]
         public void SetupTest()
         {
-            frb = new FluentRecordBase();
+            frb = FluentRecordBaseFactory.Get();
 
             driver = new ChromeDriver(ConfigurationManager.AppSettings["CHROMEDRIVERPATH"]);
             baseURL = "http://localhost:4213/";
