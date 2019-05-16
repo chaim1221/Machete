@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Machete.Data;
 using Machete.Data.Infrastructure;
 using Machete.Data.Initialize;
@@ -39,23 +40,41 @@ namespace Machete.Web
         /// </summary>
         public static IWebHost CreateOrMigrateDatabase(this IWebHost webhost)
         {
-            using (var scope = webhost.Services.CreateScope())
+            using (var serviceScope = webhost.Services.CreateScope())
             {
-                var service = scope.ServiceProvider.GetService<ITenantService>();
-                var tenants = service.GetAllTenants();
+                var tenantService = serviceScope.ServiceProvider.GetService<ITenantService>();
+                var tenants = tenantService.GetAllTenants();
 
                 foreach (var tenant in tenants)
                 {
-                    var factory = scope.ServiceProvider.GetService<IDatabaseFactory>();
-                    var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
-                    var userManager = scope.ServiceProvider.GetService<UserManager<MacheteUser>>();
+                    var factory = serviceScope.ServiceProvider.GetService<IDatabaseFactory>();
                     var macheteContext = factory.Get(tenant);
                     macheteContext.Database.Migrate();
-                    MacheteConfiguration.Seed(macheteContext, roleManager, userManager);
+                    MacheteConfiguration.Seed(macheteContext);
                 }
             }
 
             return webhost;
+        }
+
+        public static async Task SeedUsersAsync(this IWebHost webhost)
+        {
+            using (var serviceScope = webhost.Services.CreateScope())
+            {
+                var tenantService = serviceScope.ServiceProvider.GetService<ITenantService>();
+                var tenants = tenantService.GetAllTenants();
+
+                foreach (var tenant in tenants)
+                {
+                    var factory = serviceScope.ServiceProvider.GetService<IDatabaseFactory>();
+                    var macheteContext = factory.Get(tenant);
+                    
+                    var roleManager = serviceScope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
+                    var userManager = serviceScope.ServiceProvider.GetService<UserManager<MacheteUser>>();
+                    
+                    await MacheteConfiguration.SeedAsync(macheteContext, roleManager, userManager);
+                }
+            }
         }
 
         /// <summary>

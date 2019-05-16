@@ -35,20 +35,25 @@ namespace Machete.Data.Initialize
     /// </summary>
     public static class MacheteConfiguration
     {
-        public static void Seed(MacheteContext db, RoleManager<IdentityRole> roleManager, UserManager<MacheteUser> userManager)
+        public static void Seed(MacheteContext db)
         {
             if (!db.Lookups.Any())
-              MacheteLookups.Initialize(db);
+                MacheteLookups.Initialize(db);
             if (!db.TransportProviders.Any() || !db.TransportProvidersAvailability.Any())
-              MacheteTransports.Initialize(db);
+                MacheteTransports.Initialize(db);
             if (!db.Configs.Any())
-              MacheteConfigs.Initialize(db);
+                MacheteConfigs.Initialize(db);
             if (!db.TransportRules.Any())
-              MacheteRules.Initialize(db);
+                MacheteRules.Initialize(db);
             if (db.ReportDefinitions.Count() != MacheteReportDefinitions._cache.Count)
-              MacheteReportDefinitions.Initialize(db);
-            if (!db.Users.Any())
-              Task.Run(async () => MacheteUsers.Initialize(roleManager, userManager));
+                MacheteReportDefinitions.Initialize(db);
         }
-    }   
+
+        public static async Task SeedAsync(MacheteContext db,
+            RoleManager<IdentityRole> roleManager, UserManager<MacheteUser> userManager)
+        {
+            if (!db.Users.Any())
+                await MacheteUsers.Initialize(roleManager, userManager);
+        }
+    }
 }
