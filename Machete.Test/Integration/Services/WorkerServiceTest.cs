@@ -64,7 +64,7 @@ namespace Machete.Test.Integration.Services
             //Arrange
             //
             //Act
-            var worker = frb.ToWorker();
+            var worker = frb.AddWorker();
             //Assert
             Assert.IsNotNull(worker.ID, "Worker.ID is Null");
             Assert.IsTrue(worker.ID == worker.Person.ID, "Worker.ID doesn't match Person.ID");
@@ -77,8 +77,8 @@ namespace Machete.Test.Integration.Services
         {
             //
             //Arrange
-            var person = frb.ToPerson();
-            var worker = frb.ToWorker();
+            var worker = frb.AddWorker();
+            var person = worker.Person;
             person.firstname2 = "WorkerService_Integration_CreateWorker";
             worker.height = "tall";
             //_w.Person = _p;

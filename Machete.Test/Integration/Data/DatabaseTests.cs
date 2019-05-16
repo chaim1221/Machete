@@ -51,8 +51,8 @@ namespace Machete.Test.Integration.Data
         public void Integration_Queryable_test()
         {
             // Arrange - load test records
-            var worker = frb.AddWorkerSignin().ToWorker();
-            var signin = frb.ToWorkerSignin();
+            var worker = frb.AddWorker();
+            var signin = frb.AddWorkerSignin(worker).ToWorkerSignin();
             // Act
             var q = frb.ToFactory().WorkerSignins.AsQueryable();
             q = q.Where(r => r.dwccardnum == signin.dwccardnum

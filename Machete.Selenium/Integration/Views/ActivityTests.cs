@@ -159,7 +159,7 @@ namespace Machete.Test.Selenium.View
             var _act = (Web.ViewModel.Activity)ViewModelRecords.activity.Clone();
             frb.ToServ<ILookupService>().populateStaticIds();
             var _asi = (Web.ViewModel.ActivitySignin)ViewModelRecords.activitysignin.Clone();
-            var worker = frb.AddWorker(status: Worker.iActive).ToWorker();
+            var worker = frb.AddWorker(status: Worker.iActive);
             // Act
             ui.gotoMachete();
             ui.activityCreate(_act);
@@ -199,7 +199,7 @@ namespace Machete.Test.Selenium.View
         {
             //Arrange
             var _act = (Web.ViewModel.Activity)ViewModelRecords.activity.Clone();
-            var _sanctionedW = frb.AddWorker(status: Domain.Worker.iSanctioned, memberexpirationdate: DateTime.Now.AddDays(-1)).ToWorker();
+            var _sanctionedW = frb.AddWorker(status: Domain.Worker.iSanctioned, memberexpirationdate: DateTime.Now.AddDays(-1));
             ui.gotoMachete();
             ui.activityCreate(_act);
             var idPrefix = "asi" + _act.ID + "-"; 

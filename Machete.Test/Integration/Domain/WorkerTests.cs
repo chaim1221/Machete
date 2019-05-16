@@ -64,8 +64,8 @@ namespace Machete.Test.Integration.Domain
         {
             //Arrange
             frb.AddWorker();
-            var person = frb.ToPerson();
-            var worker = frb.ToWorker();
+            var person = frb.AddPerson();
+            var worker = frb.AddWorker();
             //Assert
             Assert.IsNotNull(person.Worker);
             Assert.IsNotNull(worker.Person);

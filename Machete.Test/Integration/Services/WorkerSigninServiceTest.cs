@@ -61,8 +61,9 @@ namespace Machete.Test.Integration.Services
         public void LotterySignin()
         {
             // Arrange
-            frb.AddWorker().AddWorkerSignin();
-            var w = frb.ToWorker();
+            var w = frb.AddWorker();
+            frb.AddWorkerSignin(w);
+            
             var wsi = frb.ToWorkerSignin();
             // Act
             var result = frb.ToServ<IWorkerSigninService>().GetSignin(w.dwccardnum, wsi.dateforsignin);
@@ -77,8 +78,8 @@ namespace Machete.Test.Integration.Services
         public void GetIndexView_check_search_dwccardnum()
         {
             // Arrange
-            frb.AddWorker(skill1:63).AddWorkerSignin();
-            var w = frb.ToWorker();
+            var w = frb.AddWorker(skill1:63);
+            frb.AddWorkerSignin(w);
             var wsi = frb.ToWorkerSignin();
             //
             //Act
@@ -101,7 +102,7 @@ namespace Machete.Test.Integration.Services
             frb.AddWorker(skill1: 63);
             frb.AddWorkerSignin();
             frb.AddWorkerRequest();
-            var w = frb.ToWorker();
+            var w = frb.AddWorker();
             //
             //Act
             _dOptions.dwccardnum = w.dwccardnum;
