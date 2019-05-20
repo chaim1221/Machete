@@ -57,7 +57,6 @@ namespace Machete.Test.Selenium.View
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
         {
-            WebServer.StartIis();
             // getting Project path for dummy image
             string solutionDirectory = sharedUI.SolutionDirectory();
             //testdir = solutionDirectory + "\\Machete.test\\";
@@ -65,7 +64,7 @@ namespace Machete.Test.Selenium.View
             var mapperConfig = new MapperConfiguration(config => { config.ConfigureMvc(); });
             map = mapperConfig.CreateMapper();
             
-            driver = new ChromeDriver(ConfigurationManager.AppSettings["CHROMEDRIVERPATH"]);
+            driver = new ChromeDriver("/usr/local/bin");
             baseURL = "http://localhost:4213/";
             ui = new sharedUI(driver, baseURL, map);
 
@@ -110,11 +109,6 @@ namespace Machete.Test.Selenium.View
             }
             Assert.AreEqual("", verificationErrors.ToString());
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        [ClassCleanup]
-        public static void ClassCleanup() { WebServer.StopIis(); }
         /// <summary>
         /// 
         /// </summary>

@@ -26,7 +26,6 @@ namespace Machete.Test.Selenium.View
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
         {
-            WebServer.StartIis();
             var webMapperConfig = new MapperConfiguration(config => { config.ConfigureMvc(); });
             map = webMapperConfig.CreateMapper();
         }
@@ -35,7 +34,7 @@ namespace Machete.Test.Selenium.View
         public void SetupTest()
         {
             frb = FluentRecordBaseFactory.Get();
-            driver = new ChromeDriver(ConfigurationManager.AppSettings["CHROMEDRIVERPATH"]);
+            driver = new ChromeDriver("/usr/local/bin");
             baseURL = "http://localhost:4213/";
             ui = new sharedUI(driver, baseURL, map);
             verificationErrors = new StringBuilder();
@@ -60,8 +59,6 @@ namespace Machete.Test.Selenium.View
             }
 
         }
-        [ClassCleanup]
-        public static void ClassCleanup() { WebServer.StopIis(); }
         /// <summary>
         /// 
         /// 
