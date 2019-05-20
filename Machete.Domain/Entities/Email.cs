@@ -115,6 +115,8 @@ namespace Machete.Domain
                 return this.AssociatedWorkOrders.OrderByDescending(wo => wo.paperOrderNum).FirstOrDefault();
             }
         }
+
+        public virtual IEnumerable<JoinWorkOrderEmail> JoinWorkOrderEmails { get; set; }
     }
 
     public class JoinWorkOrderEmail : Record

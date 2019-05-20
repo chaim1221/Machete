@@ -124,15 +124,21 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("dateEnd");
+                    b.Property<DateTime>("dateEnd")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateStart");
+                    b.Property<DateTime>("dateStart")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
-                    b.Property<int>("firstID");
+                    b.Property<int>("firstID")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(0);
 
                     b.Property<string>("nameEN")
                         .HasMaxLength(50);
@@ -146,7 +152,9 @@ namespace Machete.Data.Migrations
                     b.Property<string>("notes")
                         .HasMaxLength(4000);
 
-                    b.Property<bool>("recurring");
+                    b.Property<bool>("recurring")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(false);
 
                     b.Property<string>("teacher")
                         .IsRequired();
@@ -164,7 +172,8 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Updatedby")
                         .HasMaxLength(30);
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.Activities");
 
                     b.ToTable("Activities");
                 });
@@ -181,11 +190,14 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateforsignin");
+                    b.Property<DateTime>("dateforsignin")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<int>("dwccardnum");
 
@@ -200,11 +212,14 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Updatedby")
                         .HasMaxLength(30);
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.ActivitySignins");
 
-                    b.HasIndex("activityID");
+                    b.HasIndex("activityID")
+                        .HasName("IX_activityID");
 
-                    b.HasIndex("personID");
+                    b.HasIndex("personID")
+                        .HasName("IX_personID");
 
                     b.ToTable("ActivitySignins");
                 });
@@ -221,9 +236,11 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<string>("description");
 
@@ -241,7 +258,8 @@ namespace Machete.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(5000);
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.Configs");
 
                     b.ToTable("Configs");
                 });
@@ -254,6 +272,7 @@ namespace Machete.Data.Migrations
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
+                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<string>("attachment");
@@ -262,16 +281,18 @@ namespace Machete.Data.Migrations
 
                     b.Property<string>("body")
                         .IsRequired()
-                        .HasColumnType("nvarchar(4000)")
+                        .HasColumnType("nvarchar(max)")
                         .HasMaxLength(4000);
 
                     b.Property<string>("createdby")
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<string>("emailFrom")
                         .HasMaxLength(50);
@@ -280,7 +301,8 @@ namespace Machete.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(50);
 
-                    b.Property<DateTime?>("lastAttempt");
+                    b.Property<DateTime?>("lastAttempt")
+                        .HasColumnType("datetime");
 
                     b.Property<int>("statusID");
 
@@ -294,7 +316,8 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Updatedby")
                         .HasMaxLength(30);
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.Emails");
 
                     b.ToTable("Emails");
                 });
@@ -331,9 +354,11 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<string>("driverslicense")
                         .HasMaxLength(30);
@@ -386,7 +411,8 @@ namespace Machete.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(10);
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.Employers");
 
                     b.ToTable("Employers");
                 });
@@ -403,13 +429,17 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("dateFrom");
+                    b.Property<DateTime>("dateFrom")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime?>("dateTo");
+                    b.Property<DateTime?>("dateTo")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<string>("eventTypeEN")
                         .HasMaxLength(50);
@@ -427,7 +457,8 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Updatedby")
                         .HasMaxLength(30);
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.Events");
 
                     b.HasIndex("PersonID");
 
@@ -454,9 +485,11 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<string>("filename")
                         .HasMaxLength(255);
@@ -471,7 +504,8 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Updatedby")
                         .HasMaxLength(30);
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.Images");
 
                     b.ToTable("Images");
                 });
@@ -490,22 +524,25 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<string>("updatedby")
                         .HasColumnName("Updatedby")
                         .HasMaxLength(30);
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.JoinEventImages");
 
                     b.HasIndex("EventID");
 
                     b.HasIndex("ImageID")
                         .IsUnique();
 
-                    b.ToTable("JoinEventImage");
+                    b.ToTable("JoinEventImages");
                 });
 
             modelBuilder.Entity("Machete.Domain.JoinWorkOrderEmail", b =>
@@ -520,19 +557,20 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<string>("updatedby")
                         .HasColumnName("Updatedby")
                         .HasMaxLength(30);
 
-                    b.HasKey("EmailID", "WorkOrderID");
+                    b.HasKey("EmailID", "WorkOrderID")
+                        .HasName("PK_dbo.EmailWorkOrders");
 
-                    b.HasIndex("WorkOrderID");
-
-                    b.ToTable("JoinWorkOrderEmail");
+                    b.ToTable("EmailWorkOrders");
                 });
 
             modelBuilder.Entity("Machete.Domain.Lookup", b =>
@@ -633,9 +671,11 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<string>("email")
                         .HasMaxLength(50);
@@ -680,7 +720,8 @@ namespace Machete.Data.Migrations
                     b.Property<string>("zipcode")
                         .HasMaxLength(10);
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.Persons");
 
                     b.ToTable("Persons");
                 });
@@ -701,9 +742,11 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<string>("description");
 
@@ -721,7 +764,8 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Updatedby")
                         .HasMaxLength(30);
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.ReportDefinitions");
 
                     b.ToTable("ReportDefinitions");
                 });
@@ -736,9 +780,11 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<int>("day");
 
@@ -752,7 +798,8 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Updatedby")
                         .HasMaxLength(30);
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.ScheduleRules");
 
                     b.ToTable("ScheduleRules");
                 });
@@ -769,9 +816,11 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<int>("maxWorker");
 
@@ -783,7 +832,8 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Updatedby")
                         .HasMaxLength(30);
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.TransportCostRules");
 
                     b.HasIndex("transportRuleID");
 
@@ -802,9 +852,11 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<bool>("defaultAttribute");
 
@@ -823,7 +875,8 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Updatedby")
                         .HasMaxLength(30);
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.TransportProviders");
 
                     b.ToTable("TransportProviders");
                 });
@@ -840,9 +893,11 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<int>("day");
 
@@ -858,7 +913,8 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Updatedby")
                         .HasMaxLength(30);
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.TransportProviderAvailabilities");
 
                     b.HasIndex("transportProviderID");
 
@@ -875,9 +931,11 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<string>("key")
                         .HasMaxLength(50);
@@ -895,7 +953,8 @@ namespace Machete.Data.Migrations
                     b.Property<string>("zoneLabel")
                         .HasMaxLength(50);
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.TransportRules");
 
                     b.ToTable("TransportRules");
                 });
@@ -916,9 +975,11 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<int>("days");
 
@@ -978,7 +1039,8 @@ namespace Machete.Data.Migrations
 
                     b.Property<int?>("workerSigninID");
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.WorkAssignments");
 
                     b.HasIndex("workOrderID");
 
@@ -1014,9 +1076,11 @@ namespace Machete.Data.Migrations
 
                     b.Property<DateTime>("dateTimeofWork");
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<string>("description")
                         .HasMaxLength(4000);
@@ -1110,7 +1174,8 @@ namespace Machete.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(10);
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.WorkOrders");
 
                     b.HasIndex("EmployerID");
 
@@ -1141,13 +1206,15 @@ namespace Machete.Data.Migrations
 
                     b.Property<DateTime>("dateOfMembership");
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
                     b.Property<DateTime?>("dateinUSA");
 
                     b.Property<DateTime?>("dateinseattle");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<string>("disabilitydesc")
                         .HasMaxLength(50);
@@ -1281,7 +1348,8 @@ namespace Machete.Data.Migrations
 
                     b.Property<float?>("workerRating");
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.Workers");
 
                     b.ToTable("Workers");
                 });
@@ -1325,23 +1393,28 @@ namespace Machete.Data.Migrations
 
                     b.Property<int?>("WorkAssignmentID");
 
-                    b.Property<int?>("WorkerID");
+                    b.Property<int?>("WorkerID")
+                        .IsRequired();
 
                     b.Property<string>("createdby")
                         .HasColumnName("Createdby")
                         .HasMaxLength(30);
 
-                    b.Property<DateTime>("datecreated");
+                    b.Property<DateTime>("datecreated")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateforsignin");
+                    b.Property<DateTime>("dateforsignin")
+                        .HasColumnType("datetime");
 
-                    b.Property<DateTime>("dateupdated");
+                    b.Property<DateTime>("dateupdated")
+                        .HasColumnType("datetime");
 
                     b.Property<int>("dwccardnum");
 
                     b.Property<int?>("lottery_sequence");
 
-                    b.Property<DateTime?>("lottery_timestamp");
+                    b.Property<DateTime?>("lottery_timestamp")
+                        .HasColumnType("datetime");
 
                     b.Property<int?>("memberStatusID")
                         .HasColumnName("memberStatus");
@@ -1352,7 +1425,8 @@ namespace Machete.Data.Migrations
                         .HasColumnName("Updatedby")
                         .HasMaxLength(30);
 
-                    b.HasKey("ID");
+                    b.HasKey("ID")
+                        .HasName("PK_dbo.WorkerSignins");
 
                     b.HasIndex("WorkerID");
 
@@ -1474,11 +1548,14 @@ namespace Machete.Data.Migrations
                     b.HasOne("Machete.Domain.Activity", "Activity")
                         .WithMany("Signins")
                         .HasForeignKey("activityID")
+                        .HasConstraintName("FK_dbo.ActivitySignins_dbo.Activities.activityID")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Machete.Domain.Person", "person")
                         .WithMany()
-                        .HasForeignKey("personID");
+                        .HasForeignKey("activityID")
+                        .HasConstraintName("FK_dbo.ActivitySignins_dbo.Persons_personID")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Machete.Domain.Event", b =>
@@ -1486,6 +1563,7 @@ namespace Machete.Data.Migrations
                     b.HasOne("Machete.Domain.Person", "Person")
                         .WithMany("Events")
                         .HasForeignKey("PersonID")
+                        .HasConstraintName("FK_dbo.Events_dbo.Persons_PersonID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -1494,24 +1572,27 @@ namespace Machete.Data.Migrations
                     b.HasOne("Machete.Domain.Event", "Event")
                         .WithMany("JoinEventImages")
                         .HasForeignKey("EventID")
+                        .HasConstraintName("FK_dbo.JoinEventImages_dbo.Events_EventID")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Machete.Domain.Image", "Image")
                         .WithOne()
                         .HasForeignKey("Machete.Domain.JoinEventImage", "ImageID")
+                        .HasConstraintName("FK_dbo.JoinEventImages_dbo.Images_ImageID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Machete.Domain.JoinWorkOrderEmail", b =>
                 {
                     b.HasOne("Machete.Domain.Email", "Email")
-                        .WithMany()
+                        .WithMany("JoinWorkOrderEmails")
                         .HasForeignKey("EmailID")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Machete.Domain.WorkOrder", "WorkOrder")
-                        .WithMany()
-                        .HasForeignKey("WorkOrderID")
+                        .WithMany("JoinWorkOrderEmails")
+                        .HasForeignKey("EmailID")
+                        .HasConstraintName("FK_dbo.EmailWorkOrders_dbo.Emails_Email_ID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -1520,6 +1601,7 @@ namespace Machete.Data.Migrations
                     b.HasOne("Machete.Domain.TransportRule", "transportRule")
                         .WithMany("costRules")
                         .HasForeignKey("transportRuleID")
+                        .HasConstraintName("FK_dbo.TransportCostRules_dbo.TransportRules_transportRuleID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -1528,6 +1610,7 @@ namespace Machete.Data.Migrations
                     b.HasOne("Machete.Domain.TransportProvider", "Provider")
                         .WithMany("AvailabilityRules")
                         .HasForeignKey("transportProviderID")
+                        .HasConstraintName("FK_dbo.TransportProviderAvailabilities_dbo.TransportProviders_transportProviderID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -1552,6 +1635,7 @@ namespace Machete.Data.Migrations
                     b.HasOne("Machete.Domain.Employer", "Employer")
                         .WithMany("WorkOrders")
                         .HasForeignKey("EmployerID")
+                        .HasConstraintName("FK_dbo.WorkOrders_dbo.Employers_EmployerID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -1560,6 +1644,7 @@ namespace Machete.Data.Migrations
                     b.HasOne("Machete.Domain.Person", "Person")
                         .WithOne("Worker")
                         .HasForeignKey("Machete.Domain.Worker", "ID")
+                        .HasConstraintName("FK_dbo.Workers_dbo.Persons_ID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -1580,7 +1665,8 @@ namespace Machete.Data.Migrations
                 {
                     b.HasOne("Machete.Domain.Worker", "worker")
                         .WithMany("workersignins")
-                        .HasForeignKey("WorkerID");
+                        .HasForeignKey("WorkerID")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

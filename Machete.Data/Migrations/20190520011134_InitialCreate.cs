@@ -14,8 +14,8 @@ namespace Machete.Data.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     name = table.Column<int>(nullable: false),
@@ -24,16 +24,16 @@ namespace Machete.Data.Migrations
                     type = table.Column<int>(nullable: false),
                     typeEN = table.Column<string>(maxLength: 50, nullable: true),
                     typeES = table.Column<string>(maxLength: 50, nullable: true),
-                    dateStart = table.Column<DateTime>(nullable: false),
-                    dateEnd = table.Column<DateTime>(nullable: false),
-                    recurring = table.Column<bool>(nullable: false),
-                    firstID = table.Column<int>(nullable: false),
+                    dateStart = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateEnd = table.Column<DateTime>(type: "datetime", nullable: false),
+                    recurring = table.Column<bool>(nullable: false, defaultValue: false),
+                    firstID = table.Column<int>(nullable: false, defaultValue: 0),
                     teacher = table.Column<string>(nullable: false),
                     notes = table.Column<string>(maxLength: 4000, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Activities", x => x.ID);
+                    table.PrimaryKey("PK_dbo.Activities", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -103,8 +103,8 @@ namespace Machete.Data.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     key = table.Column<string>(maxLength: 50, nullable: false),
@@ -115,7 +115,7 @@ namespace Machete.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Configs", x => x.ID);
+                    table.PrimaryKey("PK_dbo.Configs", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -124,24 +124,24 @@ namespace Machete.Data.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     emailFrom = table.Column<string>(maxLength: 50, nullable: true),
                     emailTo = table.Column<string>(maxLength: 50, nullable: false),
                     subject = table.Column<string>(maxLength: 100, nullable: false),
-                    body = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: false),
+                    body = table.Column<string>(type: "nvarchar(max)", maxLength: 4000, nullable: false),
                     transmitAttempts = table.Column<int>(nullable: false),
                     statusID = table.Column<int>(nullable: false),
-                    lastAttempt = table.Column<DateTime>(nullable: true),
+                    lastAttempt = table.Column<DateTime>(type: "datetime", nullable: true),
                     attachment = table.Column<string>(nullable: true),
                     attachmentContentType = table.Column<string>(nullable: true),
-                    RowVersion = table.Column<byte[]>(rowVersion: true, nullable: true)
+                    RowVersion = table.Column<byte[]>(rowVersion: true, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Emails", x => x.ID);
+                    table.PrimaryKey("PK_dbo.Emails", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -150,8 +150,8 @@ namespace Machete.Data.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     active = table.Column<bool>(nullable: false),
@@ -181,7 +181,7 @@ namespace Machete.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Employers", x => x.ID);
+                    table.PrimaryKey("PK_dbo.Employers", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -190,8 +190,8 @@ namespace Machete.Data.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     ImageData = table.Column<byte[]>(nullable: true),
@@ -204,7 +204,7 @@ namespace Machete.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Images", x => x.ID);
+                    table.PrimaryKey("PK_dbo.Images", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -248,8 +248,8 @@ namespace Machete.Data.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     active = table.Column<bool>(nullable: false),
@@ -273,7 +273,7 @@ namespace Machete.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Persons", x => x.ID);
+                    table.PrimaryKey("PK_dbo.Persons", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -282,8 +282,8 @@ namespace Machete.Data.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     name = table.Column<string>(nullable: true),
@@ -298,7 +298,7 @@ namespace Machete.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReportDefinitions", x => x.ID);
+                    table.PrimaryKey("PK_dbo.ReportDefinitions", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -307,8 +307,8 @@ namespace Machete.Data.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     day = table.Column<int>(nullable: false),
@@ -318,7 +318,7 @@ namespace Machete.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ScheduleRules", x => x.ID);
+                    table.PrimaryKey("PK_dbo.ScheduleRules", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -327,8 +327,8 @@ namespace Machete.Data.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     key = table.Column<string>(maxLength: 50, nullable: true),
@@ -340,7 +340,7 @@ namespace Machete.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TransportProviders", x => x.ID);
+                    table.PrimaryKey("PK_dbo.TransportProviders", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -349,8 +349,8 @@ namespace Machete.Data.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     key = table.Column<string>(maxLength: 50, nullable: true),
@@ -360,7 +360,7 @@ namespace Machete.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TransportRules", x => x.ID);
+                    table.PrimaryKey("PK_dbo.TransportRules", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -475,8 +475,8 @@ namespace Machete.Data.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     EmployerID = table.Column<int>(nullable: false),
@@ -521,9 +521,9 @@ namespace Machete.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_WorkOrders", x => x.ID);
+                    table.PrimaryKey("PK_dbo.WorkOrders", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_WorkOrders_Employers_EmployerID",
+                        name: "FK_dbo.WorkOrders_dbo.Employers_EmployerID",
                         column: x => x.EmployerID,
                         principalTable: "Employers",
                         principalColumn: "ID",
@@ -536,32 +536,32 @@ namespace Machete.Data.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     dwccardnum = table.Column<int>(nullable: false),
                     memberStatus = table.Column<int>(nullable: true),
-                    dateforsignin = table.Column<DateTime>(nullable: false),
+                    dateforsignin = table.Column<DateTime>(type: "datetime", nullable: false),
                     timeZoneOffset = table.Column<double>(nullable: false),
                     activityID = table.Column<int>(nullable: false),
                     personID = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ActivitySignins", x => x.ID);
+                    table.PrimaryKey("PK_dbo.ActivitySignins", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_ActivitySignins_Activities_activityID",
+                        name: "FK_dbo.ActivitySignins_dbo.Activities.activityID",
                         column: x => x.activityID,
                         principalTable: "Activities",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ActivitySignins_Persons_personID",
-                        column: x => x.personID,
+                        name: "FK_dbo.ActivitySignins_dbo.Persons_personID",
+                        column: x => x.activityID,
                         principalTable: "Persons",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -570,23 +570,23 @@ namespace Machete.Data.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     PersonID = table.Column<int>(nullable: false),
                     eventType = table.Column<int>(nullable: false),
                     eventTypeEN = table.Column<string>(maxLength: 50, nullable: true),
                     eventTypeES = table.Column<string>(maxLength: 50, nullable: true),
-                    dateFrom = table.Column<DateTime>(nullable: false),
-                    dateTo = table.Column<DateTime>(nullable: true),
+                    dateFrom = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateTo = table.Column<DateTime>(type: "datetime", nullable: true),
                     notes = table.Column<string>(maxLength: 4000, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Events", x => x.ID);
+                    table.PrimaryKey("PK_dbo.Events", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Events_Persons_PersonID",
+                        name: "FK_dbo.Events_dbo.Persons_PersonID",
                         column: x => x.PersonID,
                         principalTable: "Persons",
                         principalColumn: "ID",
@@ -598,8 +598,8 @@ namespace Machete.Data.Migrations
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     fullNameAndID = table.Column<string>(maxLength: 100, nullable: true),
@@ -671,9 +671,9 @@ namespace Machete.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Workers", x => x.ID);
+                    table.PrimaryKey("PK_dbo.Workers", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Workers_Persons_ID",
+                        name: "FK_dbo.Workers_dbo.Persons_ID",
                         column: x => x.ID,
                         principalTable: "Persons",
                         principalColumn: "ID",
@@ -686,8 +686,8 @@ namespace Machete.Data.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     transportProviderID = table.Column<int>(nullable: false),
@@ -698,9 +698,9 @@ namespace Machete.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TransportProvidersAvailability", x => x.ID);
+                    table.PrimaryKey("PK_dbo.TransportProviderAvailabilities", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_TransportProvidersAvailability_TransportProviders_transportProviderID",
+                        name: "FK_dbo.TransportProviderAvailabilities_dbo.TransportProviders_transportProviderID",
                         column: x => x.transportProviderID,
                         principalTable: "TransportProviders",
                         principalColumn: "ID",
@@ -713,8 +713,8 @@ namespace Machete.Data.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     transportRuleID = table.Column<int>(nullable: false),
@@ -724,9 +724,9 @@ namespace Machete.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TransportCostRules", x => x.ID);
+                    table.PrimaryKey("PK_dbo.TransportCostRules", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_TransportCostRules_TransportRules_transportRuleID",
+                        name: "FK_dbo.TransportCostRules_dbo.TransportRules_transportRuleID",
                         column: x => x.transportRuleID,
                         principalTable: "TransportRules",
                         principalColumn: "ID",
@@ -734,42 +734,42 @@ namespace Machete.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "JoinWorkOrderEmail",
+                name: "EmailWorkOrders",
                 columns: table => new
                 {
                     WorkOrderID = table.Column<int>(nullable: false),
                     EmailID = table.Column<int>(nullable: false),
                     ID = table.Column<int>(nullable: false),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_JoinWorkOrderEmail", x => new { x.EmailID, x.WorkOrderID });
+                    table.PrimaryKey("PK_dbo.EmailWorkOrders", x => new { x.EmailID, x.WorkOrderID });
                     table.ForeignKey(
-                        name: "FK_JoinWorkOrderEmail_Emails_EmailID",
+                        name: "FK_EmailWorkOrders_Emails_EmailID",
                         column: x => x.EmailID,
                         principalTable: "Emails",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_JoinWorkOrderEmail_WorkOrders_WorkOrderID",
-                        column: x => x.WorkOrderID,
+                        name: "FK_dbo.EmailWorkOrders_dbo.Emails_Email_ID",
+                        column: x => x.EmailID,
                         principalTable: "WorkOrders",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "JoinEventImage",
+                name: "JoinEventImages",
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     EventID = table.Column<int>(nullable: false),
@@ -777,15 +777,15 @@ namespace Machete.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_JoinEventImage", x => x.ID);
+                    table.PrimaryKey("PK_dbo.JoinEventImages", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_JoinEventImage_Events_EventID",
+                        name: "FK_dbo.JoinEventImages_dbo.Events_EventID",
                         column: x => x.EventID,
                         principalTable: "Events",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_JoinEventImage_Images_ImageID",
+                        name: "FK_dbo.JoinEventImages_dbo.Images_ImageID",
                         column: x => x.ImageID,
                         principalTable: "Images",
                         principalColumn: "ID",
@@ -828,28 +828,28 @@ namespace Machete.Data.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     dwccardnum = table.Column<int>(nullable: false),
                     memberStatus = table.Column<int>(nullable: true),
-                    dateforsignin = table.Column<DateTime>(nullable: false),
+                    dateforsignin = table.Column<DateTime>(type: "datetime", nullable: false),
                     timeZoneOffset = table.Column<double>(nullable: false),
                     WorkAssignmentID = table.Column<int>(nullable: true),
-                    lottery_timestamp = table.Column<DateTime>(nullable: true),
+                    lottery_timestamp = table.Column<DateTime>(type: "datetime", nullable: true),
                     lottery_sequence = table.Column<int>(nullable: true),
-                    WorkerID = table.Column<int>(nullable: true)
+                    WorkerID = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_WorkerSignins", x => x.ID);
+                    table.PrimaryKey("PK_dbo.WorkerSignins", x => x.ID);
                     table.ForeignKey(
                         name: "FK_WorkerSignins_Workers_WorkerID",
                         column: x => x.WorkerID,
                         principalTable: "Workers",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -858,8 +858,8 @@ namespace Machete.Data.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    datecreated = table.Column<DateTime>(nullable: false),
-                    dateupdated = table.Column<DateTime>(nullable: false),
+                    datecreated = table.Column<DateTime>(type: "datetime", nullable: false),
+                    dateupdated = table.Column<DateTime>(type: "datetime", nullable: false),
                     Createdby = table.Column<string>(maxLength: 30, nullable: true),
                     Updatedby = table.Column<string>(maxLength: 30, nullable: true),
                     workerAssignedID = table.Column<int>(nullable: true),
@@ -894,7 +894,7 @@ namespace Machete.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_WorkAssignments", x => x.ID);
+                    table.PrimaryKey("PK_dbo.WorkAssignments", x => x.ID);
                     table.ForeignKey(
                         name: "FK_WorkAssignments_WorkOrders_workOrderID",
                         column: x => x.workOrderID,
@@ -916,12 +916,12 @@ namespace Machete.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ActivitySignins_activityID",
+                name: "IX_activityID",
                 table: "ActivitySignins",
                 column: "activityID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ActivitySignins_personID",
+                name: "IX_personID",
                 table: "ActivitySignins",
                 column: "personID");
 
@@ -970,20 +970,15 @@ namespace Machete.Data.Migrations
                 column: "PersonID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_JoinEventImage_EventID",
-                table: "JoinEventImage",
+                name: "IX_JoinEventImages_EventID",
+                table: "JoinEventImages",
                 column: "EventID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_JoinEventImage_ImageID",
-                table: "JoinEventImage",
+                name: "IX_JoinEventImages_ImageID",
+                table: "JoinEventImages",
                 column: "ImageID",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_JoinWorkOrderEmail_WorkOrderID",
-                table: "JoinWorkOrderEmail",
-                column: "WorkOrderID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TransportCostRules_transportRuleID",
@@ -1055,10 +1050,10 @@ namespace Machete.Data.Migrations
                 name: "Configs");
 
             migrationBuilder.DropTable(
-                name: "JoinEventImage");
+                name: "EmailWorkOrders");
 
             migrationBuilder.DropTable(
-                name: "JoinWorkOrderEmail");
+                name: "JoinEventImages");
 
             migrationBuilder.DropTable(
                 name: "Lookups");
@@ -1091,13 +1086,13 @@ namespace Machete.Data.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
+                name: "Emails");
+
+            migrationBuilder.DropTable(
                 name: "Events");
 
             migrationBuilder.DropTable(
                 name: "Images");
-
-            migrationBuilder.DropTable(
-                name: "Emails");
 
             migrationBuilder.DropTable(
                 name: "TransportRules");

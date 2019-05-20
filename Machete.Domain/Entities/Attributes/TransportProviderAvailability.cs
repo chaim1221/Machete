@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Machete.Domain
 {
+//    [Table("TransportProviderAvailabilities")]
     public class TransportProviderAvailability : Record
     {
         public virtual TransportProvider Provider { get; set; }

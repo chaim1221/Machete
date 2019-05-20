@@ -148,6 +148,8 @@ namespace Machete.Domain
         public string ppPayerID { get; set; }
         [StringLength(20)]
         public string ppState { get; set; }
+
+        public virtual ICollection<JoinWorkOrderEmail> JoinWorkOrderEmails { get; set; }
     }
 
     public class WorkOrderSummary
