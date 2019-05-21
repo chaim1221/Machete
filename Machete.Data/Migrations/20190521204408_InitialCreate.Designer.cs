@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Machete.Data.Migrations
 {
     [DbContext(typeof(MacheteContext))]
-    [Migration("20190520011134_InitialCreate")]
+    [Migration("20190521204408_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -920,7 +920,7 @@ namespace Machete.Data.Migrations
 
                     b.HasIndex("transportProviderID");
 
-                    b.ToTable("TransportProvidersAvailability");
+                    b.ToTable("TransportProviderAvailabilities");
                 });
 
             modelBuilder.Entity("Machete.Domain.TransportRule", b =>

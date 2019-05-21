@@ -427,7 +427,7 @@ namespace Machete.Data
     {
         public void Configure(EntityTypeBuilder<TransportProviderAvailability> builder)
         {
-            //builder.ToTable("TransportProviderAvailabilities");
+            builder.ToTable("TransportProviderAvailabilities");
             
             builder.HasKey(k => k.ID).HasName("PK_dbo.TransportProviderAvailabilities");
             

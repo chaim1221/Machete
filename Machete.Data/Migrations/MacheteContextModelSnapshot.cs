@@ -918,7 +918,7 @@ namespace Machete.Data.Migrations
 
                     b.HasIndex("transportProviderID");
 
-                    b.ToTable("TransportProvidersAvailability");
+                    b.ToTable("TransportProviderAvailabilities");
                 });
 
             modelBuilder.Entity("Machete.Domain.TransportRule", b =>

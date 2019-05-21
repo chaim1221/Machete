@@ -681,7 +681,7 @@ namespace Machete.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TransportProvidersAvailability",
+                name: "TransportProviderAvailabilities",
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
@@ -986,8 +986,8 @@ namespace Machete.Data.Migrations
                 column: "transportRuleID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TransportProvidersAvailability_transportProviderID",
-                table: "TransportProvidersAvailability",
+                name: "IX_TransportProviderAvailabilities_transportProviderID",
+                table: "TransportProviderAvailabilities",
                 column: "transportProviderID");
 
             migrationBuilder.CreateIndex(
@@ -1068,7 +1068,7 @@ namespace Machete.Data.Migrations
                 name: "TransportCostRules");
 
             migrationBuilder.DropTable(
-                name: "TransportProvidersAvailability");
+                name: "TransportProviderAvailabilities");
 
             migrationBuilder.DropTable(
                 name: "WorkAssignments");
