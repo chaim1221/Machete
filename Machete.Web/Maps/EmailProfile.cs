@@ -20,8 +20,7 @@ namespace Machete.Web.Maps
                 .ForMember(e => e.updatedby, opt => opt.Ignore())
                 .ForMember(e => e.createdby, opt => opt.Ignore())
                 .ForMember(e => e.datecreated, opt => opt.Ignore())
-                .ForMember(e => e.dateupdated, opt => opt.Ignore())
-                .ForMember(e => e.JoinWorkOrderEmails, opt => opt.Ignore());
+                .ForMember(e => e.dateupdated, opt => opt.Ignore());
             CreateMap<Domain.Email, Email>()
                 .ForMember(e => e.idString, opt => opt.Ignore());
             CreateMap<Domain.Email, Service.DTO.EmailList>();
