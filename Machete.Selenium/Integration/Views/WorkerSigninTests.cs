@@ -46,12 +46,8 @@ namespace Machete.Test.Selenium.View
         private StringBuilder verificationErrors;
         private static string baseURL;
         private static sharedUI ui;
-        //private static string testdir;
-        private static string testimagefile;
         private static MacheteContext DB;
-        private static DbSet<Worker> wSet;
         private static DbSet<WorkerSignin> wsiSet;
-        private static DbSet<Person> pSet;
         static IMapper map;
 
         [ClassInitialize]
@@ -60,7 +56,6 @@ namespace Machete.Test.Selenium.View
             // getting Project path for dummy image
             string solutionDirectory = sharedUI.SolutionDirectory();
             //testdir = solutionDirectory + "\\Machete.test\\";
-            testimagefile = solutionDirectory + "\\jimmy_machete.jpg";
             var mapperConfig = new MapperConfiguration(config => { config.ConfigureMvc(); });
             map = mapperConfig.CreateMapper();
             
@@ -72,8 +67,8 @@ namespace Machete.Test.Selenium.View
             DbContextOptions<MacheteContext> options = new DbContextOptions<MacheteContext>();
             DB = new MacheteContext(options, new Mock<ITenantService>().Object);
             wsiSet = DB.Set<WorkerSignin>();
-            wSet = DB.Set<Worker>();
-            pSet = DB.Set<Person>();
+            DB.Set<Worker>();
+            DB.Set<Person>();
         }
         /// <summary>
         /// 
