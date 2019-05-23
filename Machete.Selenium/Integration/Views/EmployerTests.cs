@@ -194,6 +194,5 @@ namespace Machete.Test.Selenium.View
             ui.WaitForElement(By.Id("workOrderListTab_" + _emp1.ID));
             Assert.IsTrue(ui.WaitForElementValue(By.XPath("//table[@id='workOrderTable_" + recID.ToString() + "']/tbody/tr/td[5]"), _wo.contactName));
         }
-
     }
 }

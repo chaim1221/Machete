@@ -267,9 +267,9 @@ namespace Machete.Test.Selenium.View
             string prefix = "event" + _ev.ID + "-";
             WaitForElement(By.Id(prefix + "eventType"));
             Assert.AreEqual(_ev.eventTypeID.ToString(), GetOptionValue(By.Id(prefix + "eventType")));
-            //Assert.AreEqual(_ev.dateFrom.ToShortDateString(), WaitForElement(By.Id(prefix + "dateFrom")).GetAttribute("value"));
-            //if (_ev.dateTo != null)
-            //    Assert.AreEqual(((DateTime)_ev.dateTo).ToShortDateString(), WaitForElement(By.Id(prefix + "dateTo")).GetAttribute("value"));
+            Assert.AreEqual(_ev.dateFrom.ToString("M/d/yy"), WaitForElement(By.Id(prefix + "dateFrom")).GetAttribute("value"));
+            if (_ev.dateTo != null)
+                Assert.AreEqual(((DateTime)_ev.dateTo).ToString("M/d/yy"), WaitForElement(By.Id(prefix + "dateTo")).GetAttribute("value"));
             Assert.AreEqual(_ev.notes, WaitForElement(By.Id(prefix + "notes")).GetAttribute("value"));
             return true;
         }
