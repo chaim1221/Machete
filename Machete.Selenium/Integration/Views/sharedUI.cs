@@ -844,8 +844,10 @@ namespace Machete.Test.Selenium.View
                     elem = IsElementPresent(by);
                     if (elem != null && elem.Displayed) return elem;
                 }
-                catch (Exception)
-                {  }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Waiting for element {by}; Exception:\r\n{ex}\r\nInnerException:\r\n{ex.InnerException}");
+                }
                 Thread.Sleep(_sleepFor);
             }
             throw new NotFoundException();
