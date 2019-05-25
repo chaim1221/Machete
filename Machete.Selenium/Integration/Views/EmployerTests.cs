@@ -44,7 +44,6 @@ namespace Machete.Test.Selenium.View
         [TestCleanup]
         public void TeardownTest()
         {
-            //
             // Loggoff
             Assert.AreEqual("", verificationErrors.ToString());
             ui.WaitForElement(By.LinkText("Logoff"));
@@ -57,10 +56,9 @@ namespace Machete.Test.Selenium.View
             {
                 // Ignore errors if unable to close the browser
             }
-
         }
+
         /// <summary>
-        /// 
         /// 
         /// </summary>
         [TestMethod, TestCategory(TC.SE), TestCategory(TC.View), TestCategory(TC.Employers)]

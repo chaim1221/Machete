@@ -20,8 +20,8 @@ namespace Machete.Test.Selenium.View
     {
         public IWebDriver _d;
         string _url;
-        public int maxwait = 10; // seconds
-        int _sleepFor = 2000; //milliseconds
+        public int maxwait = 5; // seconds
+        int _sleepFor = 1000; //milliseconds
         IMapper map;
 
         public sharedUI(IWebDriver driver, string url, IMapper map)
@@ -500,7 +500,7 @@ namespace Machete.Test.Selenium.View
             Assert.AreEqual(_wo.transportProviderID, GetOptionIndex(By.Id(prefix + "transportMethodID")));
             //WaitForElement(By.Id(prefix + "transportTransactType"));
             //Assert.AreEqual(_wo.transportTransactType, GetOptionIndex(By.Id(prefix + "transportTransactType")));
-            WaitForElement(By.Id("workerRequests2_WO-" + _wo.ID.ToString()));
+            WaitForElement(By.Id("workerRequests2_WO-" + _wo.ID));
             if (_wo.workerRequests != null)
                 foreach (var request in _wo.workerRequests)
                 {

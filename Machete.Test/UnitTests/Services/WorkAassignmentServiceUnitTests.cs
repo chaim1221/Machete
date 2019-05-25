@@ -40,20 +40,21 @@ namespace Machete.Test.UnitTests.Services
     [TestClass]
     public class WorkAssignmentTests
     {
-        Mock<IWorkAssignmentRepository> waRepo;
-        Mock<IUnitOfWork> uow;
-        Mock<ILookupRepository> lRepo;
-        Mock<IWorkerRepository> wRepo;
-        Mock<IWorkerSigninRepository> wsiRepo;
-        WorkAssignmentService waServ;
-        Mock<IWorkerRequestRepository> wrRepo;
-        Mock<IMapper> _map;
+        private Mock<IWorkAssignmentRepository> waRepo;
+        private Mock<IUnitOfWork> uow;
+        private Mock<ILookupRepository> lRepo;
+        private Mock<IWorkerRepository> wRepo;
+        private Mock<IWorkerSigninRepository> wsiRepo;
+        private WorkAssignmentService waServ;
+        private Mock<IWorkerRequestRepository> wrRepo;
+        private Mock<IMapper> _map;
+        private Mock<IWorkOrderRepository> woRepo;
+        private TestContext testContextInstance;
 
         public WorkAssignmentTests()
         {
         }
 
-        private TestContext testContextInstance;
 
         /// <summary>
         ///Gets or sets the test context which provides
@@ -81,7 +82,8 @@ namespace Machete.Test.UnitTests.Services
             wsiRepo = new Mock<IWorkerSigninRepository>();
             wrRepo = new Mock<IWorkerRequestRepository>();
             _map = new Mock<IMapper>();
-            waServ = new WorkAssignmentService(waRepo.Object, wRepo.Object, lRepo.Object, wsiRepo.Object, uow.Object, _map.Object);
+            woRepo = new Mock<IWorkOrderRepository>();
+            waServ = new WorkAssignmentService(waRepo.Object, wRepo.Object, woRepo.Object, lRepo.Object, wsiRepo.Object, uow.Object, _map.Object);
             
         }
         [TestMethod, TestCategory(TC.UT), TestCategory(TC.Service), TestCategory(TC.WAs)]

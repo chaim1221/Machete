@@ -28,7 +28,7 @@ namespace Machete.Test.Selenium.View
         public static void ClassInitialize(TestContext testContext) {
             string solutionDirectory = sharedUI.SolutionDirectory();
             //testdir = solutionDirectory + "\\Machete.test\\";
-            testimagefile = solutionDirectory + "\\jimmy_machete.jpg";
+            testimagefile = solutionDirectory + "/jimmy_machete.jpg";
             var mapperConfig = new MapperConfiguration(config => { config.ConfigureMvc(); });
             map = mapperConfig.CreateMapper();
         }
