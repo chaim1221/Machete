@@ -124,6 +124,9 @@ namespace Machete.Test.UnitTests.Services
             _wa.datecreated = DateTime.MinValue;
             _wa.dateupdated = DateTime.MinValue;
             _wa.workOrder = (WorkOrder)Records.order.Clone();
+
+            woRepo.Setup(x => x.GetById(It.IsAny<int>())).Returns(_wa.workOrder);
+            
             _wa.workOrder.paperOrderNum = _wa.workOrder.ID;
             waRepo.Setup(r => r.Add(_wa)).Returns(_wa);
             lRepo.Setup(r => r.GetById(It.IsAny<int>())).Returns(_l);
@@ -170,6 +173,9 @@ namespace Machete.Test.UnitTests.Services
             _wa.datecreated = DateTime.MinValue;
             _wa.dateupdated = DateTime.MinValue;
             _wa.workOrder = (WorkOrder)Records.order.Clone();
+
+            woRepo.Setup(x => x.GetById(It.IsAny<int>())).Returns(_wa.workOrder);
+            
             _wa.workOrder.paperOrderNum = _wa.workOrder.ID;
             _wa.pseudoID = 1;
             //
