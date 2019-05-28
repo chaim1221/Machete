@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Machete.Data;
+using Machete.Data.Identity;
 using Machete.Service;
 using Machete.Web.Helpers;
 using Machete.Web.Resources;
@@ -36,6 +37,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Converters;
 using NLog;
 using DbFunctions = Machete.Service.DbFunctions;
 
@@ -45,8 +47,12 @@ namespace Machete.Web.Controllers
     [ElmahHandleError]
     public class AccountController : MacheteController
     {
+        private UserManager<MacheteUser> UserManager { get; }
+        private SignInManager<MacheteUser> SignInManager { get; }
+        private RoleManager<IdentityRole> RoleManager { get; }
+        
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        readonly LogEventInfo _levent = new LogEventInfo(LogLevel.Debug, "AccountController", "");
+        private readonly LogEventInfo _levent = new LogEventInfo(LogLevel.Debug, "AccountController", "");
         private readonly MacheteContext _context;
         private const int PasswordExpirationInMonths = 6; // represents number of months where users passwords expire 
 
@@ -63,38 +69,33 @@ namespace Machete.Web.Controllers
             _context = context;
         }
 
-        private UserManager<MacheteUser> UserManager { get; }
-        private SignInManager<MacheteUser> SignInManager { get; }
-        private RoleManager<IdentityRole> RoleManager { get; }
-
         // URL: /Account/Index
         [Authorize(Roles = "Manager, Administrator")]
         public ActionResult Index()
         {
+            IQueryable<UserSettingsViewModel> model; // ndlon addresses are invariably administrators
             // Hirer accounts use email addresses as username, so the list filters out usernames that are
             // email addresses because this View only exists to modify internal Machete user accounts
             var users = _context.Users;
             if (users == null)
                 throw new ArgumentNullException();
-            var model = users
-                .Select(u => new UserSettingsViewModel {
-                    ProviderUserKey = u.Id,
-                    UserName = u.UserName,
-                    Email = u.Email,
-                    IsApproved = u.IsApproved ? "Yes" : "No",
-                    IsLockedOut = u.IsLockedOut ? "Yes" : "No",
-                    IsOnline = DbFunctions.DiffHours(u.LastLoginDate, DateTime.Now) < 1 ? "Yes" : "No",
-                    CreationDate = u.CreateDate,
-                    LastLoginDate = u.LastLoginDate,
-                    IsHirer = u.Roles.Contains(_context.Roles.FirstOrDefault(role => role.Name == "Hirer"))
-                })
+            
+            if (User.Identity.Name == "jadmin" || User.Identity.Name.Contains("ndlon"))
+            {
+                model = users.Select(u => u.ToUserSettingsViewModel(_context));
+                
+                return View(model);
+            }
+
+            model = users
+                .Select(u => u.ToUserSettingsViewModel(_context))
                 .Where(u => !u.IsHirer) // replaces hack .Contains("@"); for email addresses, which hides legit users
                 .Where(u => !u.UserName.Equals("jadmin"))
-                .Where(u => !u.UserName.Contains("ndlon")); // ndlon addresses are invariably administrators
+                .Where(u => !u.UserName.Contains("ndlon"));
 
             return View(model);
         }
-
+        
         // GET: /Account/Login
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)

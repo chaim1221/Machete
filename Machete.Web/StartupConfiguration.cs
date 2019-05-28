@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Machete.Data;
+using Machete.Data.Identity;
 using Machete.Data.Infrastructure;
 using Machete.Data.Initialize;
 using Machete.Data.Repositories;
@@ -85,7 +86,7 @@ namespace Machete.Web
         public static void ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddIdentity<MacheteUser, IdentityRole>()
-                .AddEntityFrameworkStores<MacheteContext>()
+                //.AddEntityFrameworkStores<MacheteContext>()
                 .AddDefaultTokenProviders(); // <~ keep for JWT auth
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -152,7 +153,10 @@ namespace Machete.Web
         /// https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-2.2
         /// </summary>
         public static void ConfigureDependencyInjection(this IServiceCollection services)
-        {        
+        {
+            services.AddTransient<IUserStore<MacheteUser>, MacheteUserStore>();
+            services.AddTransient<IRoleStore<IdentityRole>, MacheteRoleStore>();
+            
             services.AddScoped<ITenantIdentificationService, TenantIdentificationService>();
             services.AddScoped<ITenantService, TenantService>();
             

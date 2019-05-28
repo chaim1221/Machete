@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Machete.Data;
+using Machete.Data.Identity;
 using Machete.Web.Helpers;
 using Machete.Web.Resources;
 using Microsoft.AspNetCore.Identity;

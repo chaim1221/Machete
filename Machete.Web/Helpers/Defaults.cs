@@ -29,6 +29,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Machete.Data;
+using Machete.Data.Identity;
 using Machete.Domain;
 using Machete.Service;
 using Microsoft.AspNetCore.Identity;

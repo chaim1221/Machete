@@ -1,13 +1,11 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Security.Claims;
-using System.Threading.Tasks;
+using System.Linq;
 using Machete.Domain;
+using Microsoft.AspNetCore.Identity;
 
-namespace Machete.Data
+namespace Machete.Data.Identity
 {
     public class MacheteUser : IdentityUser
     {
@@ -75,6 +73,11 @@ namespace Machete.Data
         public int FailedPasswordAnswerAttemptCount { get; set; }
         public DateTime FailedPasswordAnswerAttemptWindowStart { get; set; }
         public string Comment { get; set; }
+
+        public bool IsInRole(string roleName)
+        {
+            return this.Roles.Any(role => role.Name == roleName);
+        }
     }
 
     public class JoinMacheteUserIdentityUserLoginInfo

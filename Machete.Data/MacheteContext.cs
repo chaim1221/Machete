@@ -31,6 +31,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Machete.Data.Dynamic;
+using Machete.Data.Identity;
 using Machete.Data.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Activity = Machete.Domain.Activity;

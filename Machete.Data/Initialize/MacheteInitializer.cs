@@ -24,6 +24,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Machete.Data.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -53,7 +54,7 @@ namespace Machete.Data.Initialize
             RoleManager<IdentityRole> roleManager, UserManager<MacheteUser> userManager)
         {
             if (!db.Users.Any())
-                await MacheteUsers.Initialize(roleManager, userManager);
+                await SeedMacheteUsers.Initialize(roleManager, userManager);
         }
     }
 }

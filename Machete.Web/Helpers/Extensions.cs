@@ -25,6 +25,10 @@
 using System;
 using System.Linq;
 using System.Threading;
+using Machete.Data;
+using Machete.Data.Identity;
+using Machete.Service;
+using Machete.Web.ViewModel;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -36,12 +40,12 @@ namespace Machete.Web.Helpers
         {
             return source == DateTime.MinValue ? "" : source.ToString("MM/dd/yyyy");
         }
-        
+
         public static string ToShortTextBoxDateString(this DateTime? source)
         {
             return source == null ? "" : source.Value.ToString("MM/dd/yyyy");
         }
-        
+
         //http://stackoverflow.com/questions/4649795/hiding-column-in-table-based-on-role-in-mvc
         public static bool IsInRole(this IHtmlHelper instance, params string[] roles)
         {
@@ -55,11 +59,28 @@ namespace Machete.Web.Helpers
             var errors = modelState.Values.SelectMany(entry => entry.Errors).ToString();
             throw new InvalidOperationException(errors);
         }
-        
+
         public static string getCI()
         {
             var upperInvariant = Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName.ToUpperInvariant();
             return upperInvariant;
+        }
+
+
+        public static UserSettingsViewModel ToUserSettingsViewModel(this MacheteUser u, MacheteContext context)
+        {
+            return new UserSettingsViewModel
+            {
+                ProviderUserKey = u.Id,
+                UserName = u.UserName,
+                Email = u.Email,
+                IsApproved = u.IsApproved ? "Yes" : "No",
+                IsLockedOut = u.IsLockedOut ? "Yes" : "No",
+                IsOnline = DbFunctions.DiffHours(u.LastLoginDate, DateTime.Now) < 1 ? "Yes" : "No",
+                CreationDate = u.CreateDate,
+                LastLoginDate = u.LastLoginDate,
+                IsHirer = u.Roles.Contains(context.Roles.FirstOrDefault(role => role.Name == "Hirer"))
+            };
         }
     }
 }
