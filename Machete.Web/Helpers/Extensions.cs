@@ -25,10 +25,11 @@
 using System;
 using System.Linq;
 using System.Threading;
-using Machete.Data;
+using System.Threading.Tasks;
 using Machete.Data.Identity;
 using Machete.Service;
 using Machete.Web.ViewModel;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -66,21 +67,24 @@ namespace Machete.Web.Helpers
             return upperInvariant;
         }
 
-
-        public static UserSettingsViewModel ToUserSettingsViewModel(this MacheteUser u, MacheteContext context)
+        public static UserSettingsViewModel ToUserSettingsViewModel(this MacheteUser user, bool isHirer)
         {
-            return new UserSettingsViewModel
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            
+            var userSettingsViewModel = new UserSettingsViewModel
             {
-                ProviderUserKey = u.Id,
-                UserName = u.UserName,
-                Email = u.Email,
-                IsApproved = u.IsApproved ? "Yes" : "No",
-                IsLockedOut = u.IsLockedOut ? "Yes" : "No",
-                IsOnline = DbFunctions.DiffHours(u.LastLoginDate, DateTime.Now) < 1 ? "Yes" : "No",
-                CreationDate = u.CreateDate,
-                LastLoginDate = u.LastLoginDate,
-                IsHirer = u.Roles.Contains(context.Roles.FirstOrDefault(role => role.Name == "Hirer"))
+                ProviderUserKey = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                IsApproved = user.IsApproved ? "Yes" : "No",
+                IsLockedOut = user.IsLockedOut ? "Yes" : "No",
+                IsOnline = DbFunctions.DiffHours(user.LastLoginDate, DateTime.Now) < 1 ? "Yes" : "No",
+                CreationDate = user.CreateDate,
+                LastLoginDate = user.LastLoginDate,
+                IsHirer = isHirer
             };
+            
+            return userSettingsViewModel;
         }
     }
 }

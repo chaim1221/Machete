@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Machete.Data.Infrastructure;
@@ -15,23 +16,35 @@ namespace Machete.Data.Identity
     /// </summary>
     public class MacheteUserStore : IUserStore<MacheteUser>, 
                                   //IUserClaimStore<MacheteUser>, // nec. for JWT
-                                  IUserLoginStore<MacheteUser>,
-                                  IUserRoleStore<MacheteUser>,
-                                  IUserPasswordStore<MacheteUser>,
+                                    IUserLoginStore<MacheteUser>,
+                                    IUserRoleStore<MacheteUser>,
+                                    IUserPasswordStore<MacheteUser>,
                                   //IUserTwoFactorStore<MacheteUser>,
-                                  IUserEmailStore<MacheteUser>//,
+                                    IUserEmailStore<MacheteUser>//,
                                   //IUserLockoutStore<MacheteUser>,
                                   //IQueryableUserStore<MacheteUser>
     {
         private MacheteContext _dataContext;
         private DbSet<MacheteUser> _users; // IDbSet (Framework)
-    
+        private DbSet<MacheteRole> _roles;
+        private DbSet<MacheteUserRole> _userRoles;
+
         public MacheteUserStore(IDatabaseFactory factory)
         {
             _dataContext = factory.Get(); // should have its own _tenantService
             _users = _dataContext.Users;
+            _roles = _dataContext.Roles;
+            _userRoles = _dataContext.UserRoles;
         }
-    
+
+        public MacheteUserStore(MacheteContext assignedContext, bool isSeedInstance)
+        {
+            _dataContext = assignedContext;
+            _users = _dataContext.Users;
+            _roles = _dataContext.Roles;
+            _userRoles = _dataContext.UserRoles;
+        }
+
         public Task<string> GetUserIdAsync(MacheteUser user,
                                            CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -153,7 +166,7 @@ namespace Machete.Data.Identity
 
             _users.Update(user);
 
-            _dataContext.SaveChanges();
+            //_dataContext.SaveChanges();
             
             return Task.FromResult<object>(null);
         }
@@ -218,20 +231,23 @@ namespace Machete.Data.Identity
             return Task.FromResult(macheteUser);
         }
 
-        public Task AddToRoleAsync(MacheteUser user, string roleName, CancellationToken cancellationToken)
+        public async Task AddToRoleAsync(MacheteUser user, string normalizedRoleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (user == null) throw new ArgumentNullException(nameof(user));
 
-            var identityRole = _dataContext.Roles.FirstOrDefault(role => role.Name == roleName);
+            var identityRole = await FindRoleAsync(normalizedRoleName, cancellationToken);
             
-            if (identityRole == null) throw new Exception($"Role not found: {roleName}.");
+            if (identityRole == null) throw new Exception($"Role not found: {normalizedRoleName}.");
             
-            user.Roles.Add(identityRole);
+            _userRoles.Add(CreateUserRole(user, identityRole));
 
-            _users.Update(user);
-            
-            return Task.CompletedTask;
+            _dataContext.SaveChanges();
+        }
+
+        private Task<MacheteRole> FindRoleAsync(string normalizedRoleName, CancellationToken cancellationToken)
+        {
+            return _roles.SingleOrDefaultAsync(r => r.NormalizedName == normalizedRoleName, cancellationToken);
         }
 
         public Task RemoveFromRoleAsync(MacheteUser user, string roleName, CancellationToken cancellationToken)
@@ -241,7 +257,10 @@ namespace Machete.Data.Identity
 
             var identityRole = _dataContext.Roles.FirstOrDefault(role => role.Name == roleName);
 
-            user.Roles.Remove(identityRole);
+            var identityUserRole =
+                _dataContext.UserRoles.FirstOrDefault(userRole => userRole.RoleId == identityRole.Id && userRole.UserId == user.Id);
+
+            _userRoles.Remove(identityUserRole);
 
             _users.Update(user);
             
@@ -253,23 +272,32 @@ namespace Machete.Data.Identity
             cancellationToken.ThrowIfCancellationRequested();
             if (user == null) throw new ArgumentNullException(nameof(user));
             
-            return Task.FromResult<IList<string>>(user.Roles.Select(x => x.Name).ToList());
+            return Task.FromResult<IList<string>>(user.UserRoles.Select(x => x.Role.Name).ToList());
         }
 
         public Task<bool> IsInRoleAsync(MacheteUser user, string roleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (user == null) throw new ArgumentNullException(nameof(user));
-            
-            return Task.FromResult(user.IsInRole(roleName));
+
+            var identityRole = _roles.FirstOrDefault(role => role.NormalizedName == roleName.ToUpper());
+
+            var userRole = _userRoles.FirstOrDefault(join => join.RoleId == identityRole.Id && join.UserId == user.Id);
+
+            return Task.FromResult(userRole != null);
         }
 
-        public Task<IList<MacheteUser>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
+        public async Task<IList<MacheteUser>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
         {
-            var identityRole = _dataContext.Roles.FirstOrDefault(role => role.Name == roleName);
-            var macheteUsers = _users.Where(user => user.Roles.Contains(identityRole)).ToList(); // lazy loading error?
+            IList<MacheteUser> macheteUsers = new List<MacheteUser>();
 
-            return Task.FromResult<IList<MacheteUser>>(macheteUsers);
+            foreach (var user in _users)
+            {
+                var condition = await IsInRoleAsync(user, roleName, cancellationToken);
+                if (condition) macheteUsers.Add(user);
+            }
+
+            return macheteUsers;
         }
 
         public Task SetEmailAsync(MacheteUser user, string email, CancellationToken cancellationToken)
@@ -343,6 +371,26 @@ namespace Machete.Data.Identity
 
             var unused = _users.Update(user);
             
+            return Task.CompletedTask;
+        }
+        
+        private MacheteUserRole CreateUserRole(MacheteUser user, MacheteRole role) =>
+            new MacheteUserRole
+            {
+                UserId = user.Id,
+                RoleId = role.Id
+            };
+
+        public Task SetSecurityStampAsync(MacheteUser user, CancellationToken cancellationToken)
+        {
+            byte[] bytes = new byte[20];
+            var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(bytes);
+            var stamp = Base32.ToBase32(bytes);
+            user.SecurityStamp = stamp;
+
+            var unused = _users.Update(user);
+
             return Task.CompletedTask;
         }
         

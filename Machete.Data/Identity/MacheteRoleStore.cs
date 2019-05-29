@@ -8,31 +8,36 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Machete.Data.Identity
 {
-    public class MacheteRoleStore : IRoleStore<IdentityRole>
+    public class MacheteRoleStore : IRoleStore<MacheteRole>
     {
         private MacheteContext _dataContext;
-        private DbSet<IdentityRole> _roles;
+        private DbSet<MacheteRole> _roles;
 
         public MacheteRoleStore(IDatabaseFactory factory)
         {
             _dataContext = factory.Get();
             _roles = _dataContext.Roles;
         }
-    
-        public Task<IdentityResult> CreateAsync(IdentityRole role, CancellationToken cancellationToken)
+
+        public MacheteRoleStore(MacheteContext assignedContext, bool isSeedInstance)
+        {
+            _dataContext = assignedContext;
+            _roles = _dataContext.Roles;
+        }
+
+        public Task<IdentityResult> CreateAsync(MacheteRole role, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (role == null) throw new ArgumentNullException(nameof(role)); // new up your own; follows pattern?
 
-            //role.NormalizedName = role.Name.ToUpper();
-            var result = _roles.Add(role);
+            var unused = _roles.Add(role);
 
             _dataContext.SaveChanges();
 
             return Task.FromResult(IdentityResult.Success);
         }
 
-        public Task<IdentityResult> UpdateAsync(IdentityRole role, CancellationToken cancellationToken)
+        public Task<IdentityResult> UpdateAsync(MacheteRole role, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (role == null) throw new ArgumentNullException(nameof(role));
@@ -44,7 +49,7 @@ namespace Machete.Data.Identity
             return Task.FromResult(IdentityResult.Success);
         }
 
-        public Task<IdentityResult> DeleteAsync(IdentityRole role, CancellationToken cancellationToken)
+        public Task<IdentityResult> DeleteAsync(MacheteRole role, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (role == null) throw new ArgumentNullException(nameof(role));
@@ -56,7 +61,7 @@ namespace Machete.Data.Identity
             return Task.FromResult(IdentityResult.Success);
         }
 
-        public Task<string> GetRoleIdAsync(IdentityRole role, CancellationToken cancellationToken)
+        public Task<string> GetRoleIdAsync(MacheteRole role, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (role == null) throw new ArgumentNullException(nameof(role));
@@ -64,7 +69,7 @@ namespace Machete.Data.Identity
             return Task.FromResult(role.Id.ToString());
         }
 
-        public Task<string> GetRoleNameAsync(IdentityRole role, CancellationToken cancellationToken)
+        public Task<string> GetRoleNameAsync(MacheteRole role, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (role == null) throw new ArgumentNullException(nameof(role));
@@ -72,7 +77,7 @@ namespace Machete.Data.Identity
             return Task.FromResult(role.Name);
         }
 
-        public Task SetRoleNameAsync(IdentityRole role, string roleName, CancellationToken cancellationToken)
+        public Task SetRoleNameAsync(MacheteRole role, string roleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (role == null) throw new ArgumentNullException(nameof(role));
@@ -87,7 +92,7 @@ namespace Machete.Data.Identity
             return Task.CompletedTask;
         }
 
-        public Task<string> GetNormalizedRoleNameAsync(IdentityRole role, CancellationToken cancellationToken)
+        public Task<string> GetNormalizedRoleNameAsync(MacheteRole role, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (role == null) throw new ArgumentNullException(nameof(role));
@@ -95,12 +100,12 @@ namespace Machete.Data.Identity
             return Task.FromResult(role.NormalizedName);
         }
 
-        public Task SetNormalizedRoleNameAsync(IdentityRole role, string normalizedName, CancellationToken cancellationToken)
+        public Task SetNormalizedRoleNameAsync(MacheteRole role, string roleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (role == null) throw new ArgumentNullException(nameof(role));
             
-            role.NormalizedName = normalizedName.ToUpper();
+            role.NormalizedName = roleName.ToUpper();
 
             _roles.Update(role);
 
@@ -109,7 +114,7 @@ namespace Machete.Data.Identity
             return Task.CompletedTask;
         }
 
-        public Task<IdentityRole> FindByIdAsync(string roleId, CancellationToken cancellationToken)
+        public Task<MacheteRole> FindByIdAsync(string roleId, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (String.IsNullOrEmpty(roleId)) throw new ArgumentNullException(nameof(roleId));
@@ -121,7 +126,7 @@ namespace Machete.Data.Identity
             return Task.FromResult(identityRole);
         }
 
-        public Task<IdentityRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
+        public Task<MacheteRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (String.IsNullOrEmpty(normalizedRoleName)) throw new ArgumentNullException(nameof(normalizedRoleName));
@@ -132,7 +137,7 @@ namespace Machete.Data.Identity
             
             return Task.FromResult(identityRole);
         }
-        
+                
         public void Dispose() { }
     }
 }

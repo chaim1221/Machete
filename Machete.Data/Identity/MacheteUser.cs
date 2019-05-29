@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Threading.Tasks;
 using Machete.Domain;
 using Microsoft.AspNetCore.Identity;
 
@@ -21,28 +22,11 @@ namespace Machete.Data.Identity
             LastLockoutDate = DateTime.Parse("1/1/1754");
             FailedPasswordAnswerAttemptWindowStart = DateTime.Parse("1/1/1754");
             FailedPasswordAttemptWindowStart = DateTime.Parse("1/1/1754");
-            
-            this.Roles = new JoinCollectionFacade<IdentityRole, JoinMacheteUserIdentityRole>(
-                IdentityUserRoles,
-                iur => iur.IdentityRole,
-                role => new JoinMacheteUserIdentityRole { MacheteUser = this, IdentityRole = role }
-            );
-            
-            this.Logins = new JoinCollectionFacade<UserLoginInfo, JoinMacheteUserIdentityUserLoginInfo>(
-                IdentityUserLogins,
-                iul => iul.UserLoginInfo,
-                login => new JoinMacheteUserIdentityUserLoginInfo { MacheteUser = this, UserLoginInfo = login }
-            );
         }
 
-        private ICollection<JoinMacheteUserIdentityRole> IdentityUserRoles { get; }
-                 = new List<JoinMacheteUserIdentityRole>();
-        [NotMapped] public ICollection<IdentityRole> Roles { get; }
+        public virtual ICollection<IdentityUserLogin<string>> Logins { get; set; }
 
-        private ICollection<JoinMacheteUserIdentityUserLoginInfo> IdentityUserLogins { get; }
-                 = new List<JoinMacheteUserIdentityUserLoginInfo>();
-        [NotMapped] public ICollection<UserLoginInfo> Logins { get; }
-
+        public virtual ICollection<MacheteUserRole> UserRoles { get; set; }
 
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -74,21 +58,9 @@ namespace Machete.Data.Identity
         public DateTime FailedPasswordAnswerAttemptWindowStart { get; set; }
         public string Comment { get; set; }
 
-        public bool IsInRole(string roleName)
+        public async Task<bool> IsInRole(string roleName, UserManager<MacheteUser> userManager)
         {
-            return this.Roles.Any(role => role.Name == roleName);
+            return await userManager.IsInRoleAsync(this, roleName);
         }
-    }
-
-    public class JoinMacheteUserIdentityUserLoginInfo
-    {
-        public MacheteUser MacheteUser { get; set; }
-        public UserLoginInfo UserLoginInfo { get; set; }
-    }
-
-    public class JoinMacheteUserIdentityRole : IdentityUserRole<Guid>
-    {
-        public MacheteUser MacheteUser { get; set; }
-        public IdentityRole IdentityRole { get; set; }
     }
 }

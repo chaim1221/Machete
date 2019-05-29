@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -39,7 +40,7 @@ namespace Machete.Web
         /// <para>Part of the WebHost extension method pipeline. Calls the Entity Framework Core Migrate() method for the WebHost.</para>
         /// <para>Demonstrates the use of the `using` statement with a context provided by the .NET Core DI container.</para>
         /// </summary>
-        public static IWebHost CreateOrMigrateDatabase(this IWebHost webhost)
+        public static async Task<IWebHost> CreateOrMigrateDatabase(this IWebHost webhost)
         {
             using (var serviceScope = webhost.Services.CreateScope())
             {
@@ -50,32 +51,13 @@ namespace Machete.Web
                 {
                     var factory = serviceScope.ServiceProvider.GetService<IDatabaseFactory>();
                     var macheteContext = factory.Get(tenant);
-                    macheteContext.Database.Migrate();
+                    await macheteContext.Database.MigrateAsync();
                     MacheteConfiguration.Seed(macheteContext);
+                    await MacheteConfiguration.SeedAsync(macheteContext);
                 }
             }
 
             return webhost;
-        }
-
-        public static async Task SeedUsersAsync(this IWebHost webhost)
-        {
-            using (var serviceScope = webhost.Services.CreateScope())
-            {
-                var tenantService = serviceScope.ServiceProvider.GetService<ITenantService>();
-                var tenants = tenantService.GetAllTenants();
-
-                foreach (var tenant in tenants)
-                {
-                    var factory = serviceScope.ServiceProvider.GetService<IDatabaseFactory>();
-                    var macheteContext = factory.Get(tenant);
-                    
-                    var roleManager = serviceScope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
-                    var userManager = serviceScope.ServiceProvider.GetService<UserManager<MacheteUser>>();
-                    
-                    await MacheteConfiguration.SeedAsync(macheteContext, roleManager, userManager);
-                }
-            }
         }
 
         /// <summary>
@@ -85,8 +67,8 @@ namespace Machete.Web
         /// </summary>
         public static void ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddIdentity<MacheteUser, IdentityRole>()
-                //.AddEntityFrameworkStores<MacheteContext>()
+            services.AddIdentity<MacheteUser, MacheteRole>()
+                .AddEntityFrameworkStores<MacheteContext>()
                 .AddDefaultTokenProviders(); // <~ keep for JWT auth
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -155,7 +137,7 @@ namespace Machete.Web
         public static void ConfigureDependencyInjection(this IServiceCollection services)
         {
             services.AddTransient<IUserStore<MacheteUser>, MacheteUserStore>();
-            services.AddTransient<IRoleStore<IdentityRole>, MacheteRoleStore>();
+            services.AddTransient<IRoleStore<MacheteRole>, MacheteRoleStore>();
             
             services.AddScoped<ITenantIdentificationService, TenantIdentificationService>();
             services.AddScoped<ITenantService, TenantService>();
@@ -333,11 +315,6 @@ namespace Machete.Web
         /// A static configuration object representing the computed string value "AllowCredentials".
         /// </summary>
         public static string AllowCredentials => "AllowCredentials";
-        
-        /// <summary>
-        /// A static configuration object representing the computed string value "DefaultConnection".
-        /// </summary>
-        public static string DefaultConnection => "DefaultConnection";
 
         /// <summary>
         /// A static configuration object representing the computed string value "Resources".

@@ -189,7 +189,7 @@ namespace Machete.Web.ViewModel
         
         // Enable initialization with an instance of ApplicationUser:
         public SelectUserRolesViewModel(MacheteUser userBeingModified,
-            IEnumerable<IdentityRole> allRoles,
+            IEnumerable<MacheteRole> allRoles,
             UserManager<MacheteUser> userManager)
         {
             Roles = new List<SelectRoleEditorViewModel>();
@@ -232,7 +232,7 @@ namespace Machete.Web.ViewModel
     {
         public SelectRoleEditorViewModel() { }
         
-        public SelectRoleEditorViewModel(IdentityRole role)
+        public SelectRoleEditorViewModel(MacheteRole role)
         {
             RoleName = role.Name;
             RoleId = role.Id;

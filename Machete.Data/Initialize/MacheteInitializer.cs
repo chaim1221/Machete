@@ -25,6 +25,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Machete.Data.Identity;
+using Machete.Data.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -50,11 +51,10 @@ namespace Machete.Data.Initialize
                 MacheteReportDefinitions.Initialize(db);
         }
 
-        public static async Task SeedAsync(MacheteContext db,
-            RoleManager<IdentityRole> roleManager, UserManager<MacheteUser> userManager)
+        public static async Task SeedAsync(MacheteContext db)
         {
             if (!db.Users.Any())
-                await SeedMacheteUsers.Initialize(roleManager, userManager);
+                await MacheteSeedUsers.Initialize(db);
         }
     }
 }
