@@ -58,20 +58,22 @@ namespace Machete.Data.Infrastructure
 
         public MacheteContext Get()
         {
-            return Get(_tenantService.GetCurrentTenant());
+            if (macheteContext == null) 
+                macheteContext = new MacheteContext(options, _tenantService);
+
+            log_connection_count("DatabaseFactory.Get");
+            return macheteContext;
         }
 
         public MacheteContext Get(Tenant tenant)
         {
-            macheteContext = new MacheteContext(options, tenant);
-            log_connection_count("DatabaseFactory.Get {tenant}");
-            return macheteContext;
+            return new MacheteContext(options, tenant);
         }
 
         private void log_connection_count(string prefix)
         {
             var sb = new StringBuilder();
-            var dbConnection = macheteContext.Database.GetDbConnection();
+            var dbConnection = (macheteContext).Database.GetDbConnection();
             var objectID = dbConnection.GetType().GetField("Object ID", BindFlags);
             sb.AppendFormat("-----------{0} # [{1}], Conn: {2}",
                 prefix,
