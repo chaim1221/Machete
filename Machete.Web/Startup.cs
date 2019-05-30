@@ -211,7 +211,7 @@ namespace Machete.Web
             {
                 angularApp.Options.SourcePath = "../UI";
 
-                if (envIsDevelopment) angularApp.UseProxyToSpaDevelopmentServer("http://localhost:4200");
+                //if (envIsDevelopment) angularApp.UseProxyToSpaDevelopmentServer("http://localhost:4200");
             });
 
             app.UseDirectoryBrowser(new DirectoryBrowserOptions

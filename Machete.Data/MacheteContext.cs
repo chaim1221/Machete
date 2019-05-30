@@ -56,7 +56,7 @@ namespace Machete.Data
 {
     // http://stackoverflow.com/questions/22105583/why-is-asp-net-identity-identitydbcontext-a-black-box
     public class MacheteContext : IdentityDbContext<MacheteUser, MacheteRole, string,
-                                      IdentityUserClaim<string>, MacheteUserRole, IdentityUserLogin<string>,
+                                      MacheteUserClaim, MacheteUserRole, IdentityUserLogin<string>,
                                       IdentityRoleClaim<string>, IdentityUserToken<string>>
     {
         private Tenant _tenant;
@@ -138,10 +138,10 @@ namespace Machete.Data
             modelBuilder.Entity<MacheteUser>(b =>
             {
                 // Each User can have many UserClaims
-//                b.HasMany(e => e.Claims)
-//                    .WithOne()
-//                    .HasForeignKey(uc => uc.UserId)
-//                    .IsRequired();
+                b.HasMany(e => e.Claims)
+                    .WithOne(e => e.User)
+                    .HasForeignKey(uc => uc.UserId)
+                    .IsRequired();
 
                 // Each User can have many UserLogins
                 b.HasMany(e => e.Logins)
@@ -170,7 +170,7 @@ namespace Machete.Data
                     .HasForeignKey(ur => ur.RoleId)
                     .IsRequired();
             });
-            
+                        
             // ENTITIES //
             modelBuilder.Entity<Activity>(entity =>
             {
