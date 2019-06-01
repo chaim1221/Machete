@@ -94,6 +94,11 @@ namespace Machete.Data
         public DbSet<WorkerRequest> WorkerRequests { get; set; }
         public DbSet<WorkerSignin> WorkerSignins { get; set; }
 
+        /// <summary>
+        /// Writes the changes for all entities modified since the last save. Modifications are automatically detected.
+        /// </summary>
+        /// <returns>The number of changes written.</returns>
+        /// <exception cref="Exception"></exception>
         public override int SaveChanges()
         {
             // https://github.com/aspnet/EntityFrameworkCore/issues/3680#issuecomment-155502539
@@ -135,6 +140,12 @@ namespace Machete.Data
             base.OnModelCreating(modelBuilder);
             
             // IDENTITY //
+            //
+            // delete *nothing* in this section, comments included; do not move this section or alphabetize it
+            // creates the original Identity Core relationships used by Entity Framework, so that we can use
+            // Identity without doing a migration for our custom implementations.
+            //
+            // https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity-custom-storage-providers
             modelBuilder.Entity<MacheteUser>(b =>
             {
                 // Each User can have many UserClaims
@@ -170,6 +181,7 @@ namespace Machete.Data
                     .HasForeignKey(ur => ur.RoleId)
                     .IsRequired();
             });
+            // //
                         
             // ENTITIES //
             modelBuilder.Entity<Activity>(entity =>

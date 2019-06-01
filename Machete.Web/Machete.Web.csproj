@@ -138,6 +138,13 @@
     <_ContentIncludedByDefault Remove="published\published\published\published\published\published\bundleconfig.json" />
     <_ContentIncludedByDefault Remove="published\published\published\published\published\published\Machete.Web.deps.json" />
     <_ContentIncludedByDefault Remove="published\published\published\published\published\published\Machete.Web.runtimeconfig.json" />
+    <_ContentIncludedByDefault Remove="Views\Reports\Activities.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Reports\Employers.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Reports\Index.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Reports\PrintView.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Reports\SSRS.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Reports\Summary.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Reports\Workers.cshtml" />
   </ItemGroup>
 
 </Project>

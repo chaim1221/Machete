@@ -59,7 +59,7 @@ namespace Machete.Service
         public ReportDefinition Get(string idOrName)
         {
             int id = 0;
-            Domain.ReportDefinition result;
+            ReportDefinition result;
             // accept vanityname or ID
             if (Int32.TryParse(idOrName, out id))
             {
@@ -89,7 +89,8 @@ namespace Machete.Service
         public void getXlsxFile(DTO.SearchOptions o, ref byte[] bytes)
         {
             var oo = map.Map<DTO.SearchOptions, Data.DTO.SearchOptions>(o);
-            var tbl = rRepo.getDataTable(buildExportQuery(o));
+            var exportQuery = buildExportQuery(o);
+            var tbl = rRepo.getDataTable(exportQuery);
 
             using (ExcelPackage pck = new ExcelPackage())
             {
@@ -99,7 +100,7 @@ namespace Machete.Service
             }
         }
 
-        public string buildExportQuery(DTO.SearchOptions o)
+        private string buildExportQuery(DTO.SearchOptions o)
         {
             bool firstSelect = true;
             bool firstWhere = true;
@@ -113,6 +114,10 @@ namespace Machete.Service
                 query.Append(sanitizeColumnName(d.Key));
                 firstSelect = false;
             }
+
+            if (query.Length == 7) // just select
+                query.Append("*");
+            
             //
             query.Append(" FROM ").Append(o.name);
             //
@@ -137,7 +142,7 @@ namespace Machete.Service
                     query.Append(o.exportFilterField)
                         .Append(" < '")
                         .Append(((DateTime)o.endDate).ToShortDateString())
-                        .Append("' "); ;
+                        .Append("' ");
                 }
             }
             return query.ToString();

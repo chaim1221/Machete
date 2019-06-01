@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using AutoMapper;
 using Machete.Service;
 using Machete.Service.DTO;
 using Machete.Web.Controllers.Api;
@@ -35,11 +34,10 @@ namespace Machete.Web.Controllers.Api
     public class ExportsController : ControllerBase
     {
         private readonly IReportsV2Service serv;
-        private readonly IMapper map;
-        public ExportsController(IReportsV2Service serv, IMapper map)
+
+        public ExportsController(IReportsV2Service serv)
         {
             this.serv = serv;
-            this.map = map;
         }
 
         //  GET api/<controller>
@@ -75,7 +73,7 @@ namespace Machete.Web.Controllers.Api
         [Route("{tableName}")]
         public ActionResult Get(string tableName)
         {
-            Enum.TryParse<ValidTableNames>(tableName, out var name); // validate that we've only received a table name
+            Enum.TryParse<ValidTableNames>(tableName, out var unused); // validate that we've only received a table name
             var result = serv.getColumns(tableName);
             return new JsonResult(new { data = result });
         }
@@ -88,29 +86,36 @@ namespace Machete.Web.Controllers.Api
         // has to comply with. ZZTablename is less likely to cause a collison.
         [Authorize(Roles = "Administrator")]
         [HttpGet]
-        [Route("{ZZtablename}/execute")]
-        public HttpResponseMessage Execute(string ZZtablename, string filterField, DateTime? beginDate, DateTime? endDate)
+        [Route("{tablename}/execute")]
+        public HttpResponseMessage Execute(
+            [FromRoute] string tablename, 
+            [FromQuery] string filterField,
+            [FromQuery] DateTime? beginDate, 
+            [FromQuery] DateTime? endDate)
         {
             var includeOptions = Request.Query.ToDictionary(kv => kv.Key, kv => kv.Value.ToString()); // TODO so sketch
             includeOptions.Remove("filterField");
             includeOptions.Remove("beginDate");
             includeOptions.Remove("endDate");
+            
             var o = new SearchOptions
             {
-                name = ZZtablename,
+                name = tablename,
                 exportFilterField = filterField == "undefined" ? null : filterField,
                 beginDate = beginDate,
                 endDate = endDate,
                 exportIncludeOptions = includeOptions
             };
+            
             // http://epplus.codeplex.com/wikipage?title=WebapplicationExample
             // https://stackoverflow.com/questions/30570336/export-to-excel-as-a-response-in-web-api
             byte[] bytes = null;
             serv.getXlsxFile(o, ref bytes);
+            
             HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
             result.Content = new ByteArrayContent(bytes);
             result.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment");
-            result.Content.Headers.ContentDisposition.FileName = ZZtablename + ".xlsx";
+            result.Content.Headers.ContentDisposition.FileName = tablename + ".xlsx";
             result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/ms-excel");
             result.Content.Headers.ContentLength = bytes.Count();
             result.StatusCode = System.Net.HttpStatusCode.OK;
