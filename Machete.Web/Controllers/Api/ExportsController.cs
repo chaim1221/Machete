@@ -82,8 +82,8 @@ namespace Machete.Web.Controllers.Api
         // http://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-api#restful
         // https://docs.microsoft.com/en-us/aspnet/web-api/overview/formats-and-model-binding/parameter-binding-in-aspnet-web-api
         //
-        // The ZZtablename is a more unique namespace than ID; an ID is getting sent from the domain, which this method
-        // has to comply with. ZZTablename is less likely to cause a collison.
+        // The tablename is a more unique namespace than ID; an ID is getting sent from the domain, which this method
+        // has to comply with. ZZTablename is less likely to cause a collision.
         [Authorize(Roles = "Administrator")]
         [HttpGet]
         [Route("{tablename}/execute")]
@@ -100,8 +100,8 @@ namespace Machete.Web.Controllers.Api
             
             var o = new SearchOptions
             {
-                name = tablename,
-                exportFilterField = filterField == "undefined" ? null : filterField,
+                name = tablename, // TODO Enum
+                exportFilterField = filterField == "undefined" ? null : filterField, // TODO Enum
                 beginDate = beginDate,
                 endDate = endDate,
                 exportIncludeOptions = includeOptions

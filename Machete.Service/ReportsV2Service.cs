@@ -6,7 +6,6 @@ using Machete.Service.DTO.Reports;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Text;
@@ -23,7 +22,6 @@ namespace Machete.Service
         List<ReportDefinition> getList();
         ReportDefinition Get(string idOrName);
         List<QueryMetadata> getColumns(string tableName);
-        DataTable getDataTable(string query, DTO.SearchOptions o);
         void getXlsxFile(DTO.SearchOptions o, ref byte[] bytes);
         List<string> validateQuery(string query);
     }
@@ -41,8 +39,7 @@ namespace Machete.Service
         public List<dynamic> getQuery(DTO.SearchOptions o)
         {
             // if name, get id for report definition
-            int id = 0;
-            if (!Int32.TryParse(o.idOrName, out id))
+            if (!Int32.TryParse(o.idOrName, out var id))
             {
                 id = repo.GetManyQ(r => string.Equals(r.name, o.idOrName, StringComparison.OrdinalIgnoreCase)).First().ID;
             }
@@ -78,13 +75,6 @@ namespace Machete.Service
             result.ForEach(c => c.include = true);
             return result;
         }
-
-        public DataTable getDataTable(string query, DTO.SearchOptions o)
-        {
-            var oo = map.Map<DTO.SearchOptions, Data.DTO.SearchOptions>(o);
-            return rRepo.getDataTable(query);
-        }
-
 
         public void getXlsxFile(DTO.SearchOptions o, ref byte[] bytes)
         {

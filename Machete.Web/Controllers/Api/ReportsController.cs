@@ -56,7 +56,8 @@ namespace Machete.Web.Controllers.Api
             [FromQuery] DateTime? endDate,
             [FromQuery] int? memberNumber
         )
-        {   
+        {
+            endDate = endDate?.AddDays(1); // date passed by TS does not reflect desired range, and is of type string...
             var result = serv.getQuery(
                 new Service.DTO.SearchOptions {
                     idOrName = id,

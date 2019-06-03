@@ -29,14 +29,18 @@ namespace Machete.Data
             }
         }
 
-        public static int Fill(string query, string connectionString, out DataTable dataTable)
+        public static DataTable Fill(string query, string connectionString)
         {
-            dataTable = new DataTable();
-            using (var adapter = new SqlDataAdapter(query, connectionString)) {
-                return adapter.Fill(dataTable);
+            using (var connection = new SqlConnection(connectionString))
+            {
+                var dataTable = new DataTable();
+                var adapter = new SqlDataAdapter();
+                adapter.SelectCommand = new SqlCommand(query, connection);
+                adapter.Fill(dataTable);
+                return dataTable;
             }
         }
-        
+
         public static List<QueryMetadata> getMetadata(string fromQuery, string connectionString)
         {
             var param = new SqlParameter("@query", escapeQueryText(fromQuery));

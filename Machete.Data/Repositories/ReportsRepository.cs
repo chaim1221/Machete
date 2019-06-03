@@ -84,8 +84,7 @@ namespace Machete.Data.Repositories
         public DataTable getDataTable(string query)
         {
             // https://stackoverflow.com/documentation/epplus/8223/filling-the-document-with-data
-            MacheteAdoContext.Fill(query, _readonlyConnectionString, out var dataTable);
-            return dataTable;
+            return MacheteAdoContext.Fill(query, _readonlyConnectionString);
         }
 
         public List<string> validate(string query)
