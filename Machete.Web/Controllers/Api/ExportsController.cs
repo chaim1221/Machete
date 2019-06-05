@@ -1,18 +1,16 @@
+
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using Machete.Service;
 using Machete.Service.DTO;
-using Machete.Web.Controllers.Api;
-using Machete.Web.Helpers.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 
-// ReSharper disable UnusedMember.Global
 namespace Machete.Web.Controllers.Api
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public enum ValidTableNames {
         Activities,
         ActivitySignins,
@@ -41,8 +39,7 @@ namespace Machete.Web.Controllers.Api
         }
 
         //  GET api/<controller>
-        // [Authorize(Roles = "Administrator, Manager")]
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrator, Manager")]
         [HttpGet]
         [Route("")]
         public ActionResult Get()
@@ -67,8 +64,7 @@ namespace Machete.Web.Controllers.Api
             return new JsonResult(new { data = result });
         }
         
-        //[Authorize(Roles = "Administrator, Manager")]
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Administrator, Manager")]
         [HttpGet]
         [Route("{tableName}")]
         public ActionResult Get(string tableName)
@@ -83,43 +79,48 @@ namespace Machete.Web.Controllers.Api
         // https://docs.microsoft.com/en-us/aspnet/web-api/overview/formats-and-model-binding/parameter-binding-in-aspnet-web-api
         //
         // The tablename is a more unique namespace than ID; an ID is getting sent from the domain, which this method
-        // has to comply with. ZZTablename is less likely to cause a collision.
+        // has to comply with. tablename is less likely to cause a collision.
         [Authorize(Roles = "Administrator")]
         [HttpGet]
         [Route("{tablename}/execute")]
-        public HttpResponseMessage Execute(
-            [FromRoute] string tablename, 
+        public IActionResult Execute(
+            [FromRoute] string tablename,
             [FromQuery] string filterField,
-            [FromQuery] DateTime? beginDate, 
+            [FromQuery] DateTime? beginDate,
             [FromQuery] DateTime? endDate)
         {
+            Enum.TryParse<ValidTableNames>(tablename, out var unused); // validate that we've only received a table name
+
             var includeOptions = Request.Query.ToDictionary(kv => kv.Key, kv => kv.Value.ToString()); // TODO so sketch
             includeOptions.Remove("filterField");
             includeOptions.Remove("beginDate");
             includeOptions.Remove("endDate");
-            
+
             var o = new SearchOptions
             {
-                name = tablename, // TODO Enum
+                name = tablename,
                 exportFilterField = filterField == "undefined" ? null : filterField, // TODO Enum
                 beginDate = beginDate,
                 endDate = endDate,
                 exportIncludeOptions = includeOptions
             };
-            
+
             // http://epplus.codeplex.com/wikipage?title=WebapplicationExample
             // https://stackoverflow.com/questions/30570336/export-to-excel-as-a-response-in-web-api
             byte[] bytes = null;
             serv.getXlsxFile(o, ref bytes);
+
+//            HttpResponseMessage response = new HttpResponseMessage();
+//            response.Content = new ByteArrayContent(bytes);
+//            response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
+//            response.Content.Headers.ContentDisposition.FileName = tablename + ".xlsx";
+//            response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/ms-excel");
+//            response.Content.Headers.ContentLength = bytes.Length;
+//            response.StatusCode = HttpStatusCode.OK;
             
-            HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
-            result.Content = new ByteArrayContent(bytes);
-            result.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment");
-            result.Content.Headers.ContentDisposition.FileName = tablename + ".xlsx";
-            result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/ms-excel");
-            result.Content.Headers.ContentLength = bytes.Count();
-            result.StatusCode = System.Net.HttpStatusCode.OK;
-            return result;
+//            return new ResponseMessageResult(response); //<~ loses the content
+            //return File(bytes, "application/ms-excel"); //<~ WORKS but JavaScript complains it is not Json
+            return new FileContentResult(bytes, new MediaTypeHeaderValue("application/ms-excel")); // File() calls it
         }
 
         // PUT api/values/5
