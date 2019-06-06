@@ -2,6 +2,7 @@
 using System.Linq;
 using AutoMapper;
 using Machete.Service;
+using Machete.Web.Controllers.Api.Abstracts;
 using Machete.Web.ViewModel.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

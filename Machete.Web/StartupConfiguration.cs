@@ -12,7 +12,7 @@ using Machete.Data.Initialize;
 using Machete.Data.Repositories;
 using Machete.Data.Tenancy;
 using Machete.Service;
-using Machete.Web.Controllers.Api;
+using Machete.Web.Controllers.Api.Abstracts;
 using Machete.Web.Helpers;
 using Machete.Web.Helpers.Api;
 using Machete.Web.Helpers.Api.Identity;
