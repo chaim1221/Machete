@@ -55,7 +55,7 @@ namespace Machete.Web.Maps
                 .ForMember(v => v.WSIID, opt => opt.MapFrom(d => d.ID))
                 .ForMember(v => v.expirationDate, opt => opt.MapFrom(d => d.expirationDate.ToShortDateString()))
                 .ForMember(v => v.memberStatus, opt => opt.MapFrom(d => getCI() == "ES" ? d.memberStatusES : d.memberStatusEN))
-                .ForMember(v => v.dateforsigninstring, opt => opt.MapFrom(d => d.dateforsignin.ToShortTimeString()))
+                .ForMember(v => v.dateforsignin, opt => opt.MapFrom(d => d.dateforsignin))
             ;
         }
     }

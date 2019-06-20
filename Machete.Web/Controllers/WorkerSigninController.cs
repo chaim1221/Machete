@@ -25,7 +25,7 @@
 using System;
 using System.Linq;
 using AutoMapper;
-using Machete.Domain;
+using Machete.Data.Tenancy;
 using Machete.Service;
 using Machete.Service.DTO;
 using Machete.Web.Helpers;
@@ -39,11 +39,15 @@ namespace Machete.Web.Controllers
     {
         private readonly IWorkerSigninService serv;
         private readonly IMapper map;
+        private readonly TimeZoneInfo clientTimeZoneInfo;
 
-        public WorkerSigninController(IWorkerSigninService workerSigninService,
+        public WorkerSigninController(
+            IWorkerSigninService workerSigninService,
+            ITenantService tenantService,
             IMapper map)
         {
             serv = workerSigninService;
+            clientTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(tenantService.GetCurrentTenant().Timezone);
             this.map = map;
         }
 
@@ -52,8 +56,17 @@ namespace Machete.Web.Controllers
         // Initial page creation
         [Authorize(Roles = "Manager, Administrator, Check-in")]
         public ActionResult Index()
-        {        
-            return View();
+        {
+            var dateTime = DateTime.Now;
+            var serverTime = TimeZoneInfo.Local;
+            var dateforsignin = TimeZoneInfo.ConvertTimeToUtc(dateTime, serverTime);
+
+            var model = new WorkerSignin
+            {
+                dateforsignin = TimeZoneInfo.ConvertTime(dateforsignin, clientTimeZoneInfo)
+            };
+
+            return View(model);
         }
         //
         // POST: /WorkerSignin/Index -- records a signin
@@ -63,8 +76,9 @@ namespace Machete.Web.Controllers
         {
             try
             {
-                var wsi = serv.CreateSignin(dwccardnum, dateforsignin, userName);
-                var result = map.Map<Domain.WorkerSignin, ViewModel.WorkerSignin>(wsi);
+                var wsi = serv.CreateSignin(dwccardnum, TimeZoneInfo.ConvertTimeToUtc(dateforsignin, clientTimeZoneInfo), userName);
+                var result = map.Map<Domain.WorkerSignin, WorkerSignin>(wsi);
+                
                 return Json(result);
             }
             catch (NullReferenceException)
@@ -98,7 +112,7 @@ namespace Machete.Web.Controllers
         /// This method invokes IWorkerSigninService.moveUp,
         /// which moves a worker up in numerical order in the 
         /// daily ('lottery') list,
-        /// and moves the preceeding set member into their spot.
+        /// and moves the prece    eding set member into their spot.
         /// </summary>
         /// <param name="id">The Worker ID of the person to be moved down.</param>
         /// <param name="userName">The username of the person making the request.</param>
@@ -154,6 +168,11 @@ namespace Machete.Web.Controllers
             var result = was.query
                 .Select(e => map.Map<WorkerSigninList, ViewModel.WorkerSigninList>(e))
                 .ToList();
+                
+            result.ForEach(u => 
+                u.dateforsigninstring = TimeZoneInfo.ConvertTimeFromUtc(u.dateforsignin, clientTimeZoneInfo).ToString("hh:mm:ss tt")
+            );
+                
             return Json(new
             {
                 param.sEcho,
