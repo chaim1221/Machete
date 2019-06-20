@@ -87,7 +87,7 @@ namespace Machete.Web
             .AddJsonOptions(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver())
             .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
             .AddDataAnnotationsLocalization()
-            .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
                             
             services.AddSpaStaticFiles(angularApp =>
             {
