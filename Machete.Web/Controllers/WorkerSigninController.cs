@@ -31,6 +31,7 @@ using Machete.Service.DTO;
 using Machete.Web.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WorkerSignin = Machete.Web.ViewModel.WorkerSignin;
 
 namespace Machete.Web.Controllers
 {
@@ -60,10 +61,16 @@ namespace Machete.Web.Controllers
         [Authorize(Roles = "Manager, Administrator, Check-in")]
         public ActionResult Index(int dwccardnum, DateTime dateforsignin, string userName)
         {
-            var wsi = serv.CreateSignin(dwccardnum, dateforsignin, userName);
-            var result = map.Map<WorkerSignin, ViewModel.WorkerSignin>(wsi);
-            return Json(result);
-
+            try
+            {
+                var wsi = serv.CreateSignin(dwccardnum, dateforsignin, userName);
+                var result = map.Map<Domain.WorkerSignin, ViewModel.WorkerSignin>(wsi);
+                return Json(result);
+            }
+            catch (NullReferenceException)
+            {
+                return Json(new { jobSuccess = false });
+            }
         }
         /// <summary>
         /// This method invokes IWorkerSigninService.moveDown,
