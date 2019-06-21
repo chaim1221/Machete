@@ -38,7 +38,6 @@ namespace Machete.Service
     public interface IWorkerSigninService : ISigninService<Domain.WorkerSignin>
     {
         Domain.WorkerSignin GetSignin(int dwccardnum, DateTime date);
-        int GetNextLotterySequence(DateTime date);
         bool moveDown(int id, string user);
         bool moveUp(int id, string user);
         dataTableResult<DTO.WorkerSigninList> GetIndexView(viewOptions o);
@@ -46,7 +45,7 @@ namespace Machete.Service
         Domain.WorkerSignin IsSignedIn(int dwccardnum, DateTime dateforsignin);
     }
 
-    public class WorkerSigninService : SigninServiceBase<Domain.WorkerSignin>, IWorkerSigninService
+    public class WorkerSigninService : SigninServiceBase<WorkerSignin>, IWorkerSigninService
     {
         //
         public WorkerSigninService(
@@ -72,17 +71,6 @@ namespace Machete.Service
             return repo.GetAllQ().FirstOrDefault(r => r.dwccardnum == dwccardnum &&
                             r.dateforsignin.Date == date.Date);
         }
-        /// <summary>
-        /// This method counts the current lottery (daily list) entries for the day and increments by one.
-        /// </summary>
-        /// <param name="date">The date for sequencing.</param>
-        /// <returns>int</returns>
-        public int GetNextLotterySequence(DateTime date)
-        {
-            return repo.GetAllQ().Where(p => p.lottery_timestamp != null && 
-                                        p.dateforsignin.Date == date.Date)
-                                 .Count() + 1;
-        }
 
         /// <summary>
         /// This method moves a worker down in numerical order in
@@ -94,7 +82,7 @@ namespace Machete.Service
         /// <returns>bool</returns>
         public bool moveDown(int id, string user)
         {
-            Domain.WorkerSignin wsiDown = repo.GetById(id); // 4
+            WorkerSignin wsiDown = repo.GetById(id); // 4
             DateTime date = wsiDown.dateforsignin;
 
             int nextID = (wsiDown.lottery_sequence ?? 0) + 1; // 5
@@ -103,19 +91,15 @@ namespace Machete.Service
                 return false;
             //this can't happen with current GUI settings (10/10/2013)
 
-            Domain.WorkerSignin wsiUp = repo.GetById(
-                                    repo.GetAllQ()
-                                        .Where(up => up.lottery_sequence == nextID
-                                                  && up.dateforsignin.Date == date.Date)
-                                        .Select(g => g.ID).FirstOrDefault()
-                                 ); //up.ID = 5
+            var firstOrDefault = repo.GetAllQ()
+                .Where(up => up.lottery_sequence == nextID
+                             && up.dateforsignin.Date == date.Date)
+                .Select(g => g.ID).FirstOrDefault();
+            WorkerSignin wsiUp = repo.GetById(firstOrDefault); //up.ID = 5
 
             int? spotInQuestion = wsiDown.lottery_sequence; // 4
-            DateTime? timeInQuestion = wsiDown.lottery_timestamp;
             wsiDown.lottery_sequence = wsiUp.lottery_sequence; // 5
-            wsiDown.lottery_timestamp = wsiUp.lottery_timestamp;
             wsiUp.lottery_sequence = spotInQuestion; // 4
-            wsiUp.lottery_timestamp = timeInQuestion; 
 
             Save(wsiUp, user);
             Save(wsiDown, user);
@@ -133,7 +117,7 @@ namespace Machete.Service
         /// <returns>bool</returns>
         public bool moveUp(int id, string user)
         {
-            Domain.WorkerSignin wsiUp = repo.GetById(id); // 4
+            WorkerSignin wsiUp = repo.GetById(id); // 4
             DateTime date = wsiUp.dateforsignin;
 
             int prevID = (wsiUp.lottery_sequence ?? 0) - 1; // 3
@@ -141,19 +125,17 @@ namespace Machete.Service
             if (prevID < 1)
                 return false;
 
-            Domain.WorkerSignin wsiDown = repo.GetById(
-                                    repo.GetAllQ()
-                                        .Where(up => up.lottery_sequence == prevID
-                                                  && up.dateforsignin.Date == date.Date)
-                                        .Select(g => g.ID).FirstOrDefault()
+            var firstOrDefault = repo.GetAllQ()
+                .Where(up => up.lottery_sequence == prevID
+                             && up.dateforsignin.Date == date.Date)
+                .Select(g => g.ID).FirstOrDefault();
+            WorkerSignin wsiDown = repo.GetById(
+                                    firstOrDefault
                                  ); //down.lotSq = 3
 
             int? spotInQuestion = wsiDown.lottery_sequence; // 3
-            DateTime? timeInQuestion = wsiDown.lottery_timestamp;
             wsiDown.lottery_sequence = wsiUp.lottery_sequence; // 4
-            wsiDown.lottery_timestamp = wsiUp.lottery_timestamp;
             wsiUp.lottery_sequence = spotInQuestion; // 3
-            wsiUp.lottery_timestamp = timeInQuestion; // down.lotSq = 4
 
             Save(wsiUp, user);
             Save(wsiDown, user);
@@ -216,8 +198,7 @@ namespace Machete.Service
             signin.dateforsignin = new DateTime(dateforsignin.Year, dateforsignin.Month, dateforsignin.Day,
                                         DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
             signin.memberStatusID = wfound.memberStatusID;
-            signin.lottery_sequence = GetNextLotterySequence(dateforsignin);
-            signin.lottery_timestamp = DateTime.Now;
+            signin.lottery_sequence = repo.GetAllQ().Where(p => p.dateforsignin.Date == dateforsignin.Date).Count() + 1;
             signin.timeZoneOffset = Convert.ToDouble(cfg.getConfig(Cfg.TimeZoneDifferenceFromPacific));
             return Create(signin, user);
         }
