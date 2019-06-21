@@ -42,7 +42,6 @@ namespace Machete.Service
         bool moveUp(int id, string user);
         dataTableResult<DTO.WorkerSigninList> GetIndexView(viewOptions o);
         Domain.WorkerSignin CreateSignin(int dwccardnum, DateTime dateforsignin, string user);
-        Domain.WorkerSignin IsSignedIn(int dwccardnum, DateTime dateforsignin);
     }
 
     public class WorkerSigninService : SigninServiceBase<WorkerSignin>, IWorkerSigninService
@@ -189,29 +188,19 @@ namespace Machete.Service
             Worker wfound = wServ.GetMany(d => d.dwccardnum == dwccardnum).FirstOrDefault();
             if (wfound == null) throw new NullReferenceException("Card ID doesn't match a worker!");
 
-            var wsi = IsSignedIn(dwccardnum, dateforsignin);
-            if (wsi != null) return wsi;
+            var existingSignin = repo.GetAllQ()
+                .FirstOrDefault(t => 
+                    t.dateforsignin.Date == dateforsignin.Date && t.dwccardnum == dwccardnum);
+            if (existingSignin != null) return existingSignin;
 
             var signin = new WorkerSignin();
             signin.WorkerID = wfound.ID;
             signin.dwccardnum = dwccardnum;
-            signin.dateforsignin = new DateTime(dateforsignin.Year, dateforsignin.Month, dateforsignin.Day,
-                                        DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
+            signin.dateforsignin = dateforsignin; // the client has spoken, we have universalized, let it in!
             signin.memberStatusID = wfound.memberStatusID;
             signin.lottery_sequence = repo.GetAllQ().Where(p => p.dateforsignin.Date == dateforsignin.Date).Count() + 1;
             signin.timeZoneOffset = Convert.ToDouble(cfg.getConfig(Cfg.TimeZoneDifferenceFromPacific));
             return Create(signin, user);
-        }
-
-        public WorkerSignin IsSignedIn(int dwccardnum, DateTime dateforsignin)
-        {
-            // get uses FirstOrDefault(), which returns null for default
-            // the GetAllQ is necessary to access the IQueryable object;
-            // the IQueryable is necessary to use the DbFunctions, which 
-            // sends the date comparison to the DB
-            return repo.GetAllQ()
-                .FirstOrDefault(t => 
-                    t.dateforsignin.Date == dateforsignin.Date && t.dwccardnum == dwccardnum);
         }
     }
 }

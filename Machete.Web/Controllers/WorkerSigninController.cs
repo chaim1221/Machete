@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Globalization;
 using System.Linq;
 using AutoMapper;
 using Machete.Data.Tenancy;
@@ -76,7 +77,8 @@ namespace Machete.Web.Controllers
         {
             try
             {
-                var wsi = serv.CreateSignin(dwccardnum, TimeZoneInfo.ConvertTimeToUtc(dateforsignin, clientTimeZoneInfo), userName);
+                var dateforsigninUTC = TimeZoneInfo.ConvertTimeToUtc(dateforsignin, clientTimeZoneInfo);
+                var wsi = serv.CreateSignin(dwccardnum, dateforsigninUTC, userName);
                 var result = map.Map<Domain.WorkerSignin, WorkerSignin>(wsi);
                 
                 return Json(result);
@@ -163,7 +165,12 @@ namespace Machete.Web.Controllers
         [Authorize(Roles = "Administrator, Manager, Check-in")]
         public ActionResult AjaxHandler(jQueryDataTableParam param)
         {
+            var clientdate = DateTime.Parse(param.todaysdate); // name misleading; selected date
+            var utcdate = TimeZoneInfo.ConvertTimeToUtc(clientdate, clientTimeZoneInfo);
+            param.todaysdate = utcdate.ToString(CultureInfo.InvariantCulture);
+
             var vo = map.Map<jQueryDataTableParam, viewOptions>(param);
+
             dataTableResult<WorkerSigninList> was = serv.GetIndexView(vo);
             var result = was.query
                 .Select(e => map.Map<WorkerSigninList, ViewModel.WorkerSigninList>(e))
