@@ -26,6 +26,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Machete.Data.Tenancy;
 using Machete.Domain;
 using Machete.Service;
 using Machete.Web.Helpers;
@@ -45,28 +46,27 @@ namespace Machete.Web.Controllers
         private readonly IWorkOrderService woServ;
         private readonly IWorkerSigninService wsiServ;
         private readonly IMapper map;
-        private readonly IDefaults def;
+        private readonly IDefaults _defaults;
         private IModelBindingAdaptor _adaptor;
+        private TimeZoneInfo _clientTimeZoneInfo;
 
-        public WorkAssignmentController(IWorkAssignmentService workAssignmentService,
+        public WorkAssignmentController(
+            IWorkAssignmentService workAssignmentService,
             IWorkOrderService workOrderService,
             IWorkerSigninService signinService,
-            IDefaults def,
+            IDefaults defaults,
             IMapper map,
-            IModelBindingAdaptor adaptor)
-
+            IModelBindingAdaptor adaptor,
+            ITenantService tenantService
+        )
         {
             waServ = workAssignmentService;
             woServ = workOrderService;
             wsiServ = signinService;
             this.map = map;
-            this.def = def;
+            _defaults = defaults;
             _adaptor = adaptor;
-        }
-        
-        protected override void Initialize(ActionContext requestContext)
-        {
-            base.Initialize(requestContext);
+            _clientTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(tenantService.GetCurrentTenant().Timezone);
         }
 
         // GET: /WorkAssignment/
@@ -74,8 +74,15 @@ namespace Machete.Web.Controllers
         public ActionResult Index()
         {
             var workAssignmentIndex = new WorkAssignmentIndex();
-            workAssignmentIndex.todaysdate = $"{DateTime.Today:MM/dd/yyyy}";
-            workAssignmentIndex.def = def;
+            var dateTime = DateTime.Now;
+
+            var serverTimeZoneInfo = TimeZoneInfo.Local;
+            var serverDate = TimeZoneInfo.ConvertTimeToUtc(dateTime, serverTimeZoneInfo);            
+            var clientDate = TimeZoneInfo.ConvertTimeFromUtc(serverDate, _clientTimeZoneInfo);
+            
+            workAssignmentIndex.todaysdate = $"{clientDate:MM/dd/yyyy}";
+            workAssignmentIndex.def = _defaults;
+            
             return View(workAssignmentIndex);
         }
 
@@ -88,6 +95,7 @@ namespace Machete.Web.Controllers
             var result = was.query
                 .Select(e => map.Map<WorkAssignmentsList, ViewModel.WorkAssignmentsList>(e))
                 .AsEnumerable();
+                
             return Json(new
             {
                 param.sEcho,
@@ -105,13 +113,13 @@ namespace Machete.Web.Controllers
             {
                 active = true,
                 workOrderID = workOrderID,
-                skillID = def.getDefaultID(LCategory.skill),
-                hours = def.hoursDefault,
-                days = def.daysDefault,
-                hourlyWage = def.hourlyWageDefault,
+                skillID = _defaults.getDefaultID(LCategory.skill),
+                hours = _defaults.hoursDefault,
+                days = _defaults.daysDefault,
+                hourlyWage = _defaults.hourlyWageDefault,
                 description = description
             });
-            wa.def = def;
+            wa.def = _defaults;
             return PartialView("Create", wa);
         }
     
@@ -191,7 +199,7 @@ namespace Machete.Web.Controllers
         {
             WorkAssignment wa = waServ.Get(id);
             var m = map.Map<WorkAssignment, ViewModel.WorkAssignment>(wa);
-            m.def = def;
+            m.def = _defaults;
             return PartialView("Edit", m);
         }
 

@@ -38,18 +38,18 @@ namespace Machete.Web.Controllers
 {
         public class WorkerSigninController : MacheteController
     {
-        private readonly IWorkerSigninService serv;
-        private readonly IMapper map;
-        private readonly TimeZoneInfo clientTimeZoneInfo;
+        private readonly IWorkerSigninService _serv;
+        private readonly IMapper _map;
+        private readonly TimeZoneInfo _clientTimeZoneInfo;
 
         public WorkerSigninController(
             IWorkerSigninService workerSigninService,
             ITenantService tenantService,
             IMapper map)
         {
-            serv = workerSigninService;
-            clientTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(tenantService.GetCurrentTenant().Timezone);
-            this.map = map;
+            _serv = workerSigninService;
+            _clientTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(tenantService.GetCurrentTenant().Timezone);
+            _map = map;
         }
 
         //
@@ -64,7 +64,7 @@ namespace Machete.Web.Controllers
 
             var model = new WorkerSignin
             {
-                dateforsignin = TimeZoneInfo.ConvertTime(dateforsignin, clientTimeZoneInfo)
+                dateforsignin = TimeZoneInfo.ConvertTime(dateforsignin, _clientTimeZoneInfo)
             };
 
             return View(model);
@@ -77,9 +77,9 @@ namespace Machete.Web.Controllers
         {
             try
             {
-                var dateforsigninUTC = TimeZoneInfo.ConvertTimeToUtc(dateforsignin, clientTimeZoneInfo);
-                var wsi = serv.CreateSignin(dwccardnum, dateforsigninUTC, userName);
-                var result = map.Map<Domain.WorkerSignin, WorkerSignin>(wsi);
+                var dateforsigninUTC = TimeZoneInfo.ConvertTimeToUtc(dateforsignin, _clientTimeZoneInfo);
+                var wsi = _serv.CreateSignin(dwccardnum, dateforsigninUTC, userName);
+                var result = _map.Map<Domain.WorkerSignin, WorkerSignin>(wsi);
                 
                 return Json(result);
             }
@@ -88,6 +88,63 @@ namespace Machete.Web.Controllers
                 return Json(new { jobSuccess = false });
             }
         }
+
+        // GET: /WorkerSignin/Delete/5
+       /// <summary>
+       /// This method deletes a signin from the master Worker Signins list for the day.
+       /// </summary>
+       /// <param name="id">The Worker ID of the worker.</param>
+       /// <param name="userName">The user performing the action.</param>
+       /// <returns>Json (bool jobSuccess, string status, int deletedID)</returns>
+        [UserNameFilter]
+        [Authorize(Roles = "Administrator, Manager, Check-in")]
+        public JsonResult Delete(int id, string userName)
+        {
+            var record = _serv.Get(id);
+            if (record.WorkAssignmentID != null)
+            {
+                return Json(new
+                    {
+                        jobSuccess = false,
+                        rtnMessage = "You cannot delete a signin that has been associated with an Assignment. Disassociate the sigin with the assignment first."
+                    });
+            }
+
+            _serv.Delete(id, userName);            
+            return Json(new
+            {
+                jobSuccess = true,
+                status = "OK",
+                deletedID = id
+            });
+        }
+
+        [Authorize(Roles = "Administrator, Manager, Check-in")]
+        public ActionResult AjaxHandler(jQueryDataTableParam param)
+        {
+            var clientdate = DateTime.Parse(param.todaysdate); // name misleading; selected date
+            var utcdate = TimeZoneInfo.ConvertTimeToUtc(clientdate, _clientTimeZoneInfo);
+            param.todaysdate = utcdate.ToString(CultureInfo.InvariantCulture);
+
+            var vo = _map.Map<jQueryDataTableParam, viewOptions>(param);
+
+            dataTableResult<WorkerSigninList> was = _serv.GetIndexView(vo);
+
+            MapperHelpers.ClientTimeZoneInfo = _clientTimeZoneInfo;
+            
+            var result = was.query
+                .Select(e => _map.Map<WorkerSigninList, ViewModel.WorkerSigninList>(e))
+                .ToList();
+                
+            return Json(new
+            {
+                param.sEcho,
+                iTotalRecords = was.totalCount,
+                iTotalDisplayRecords = was.filteredCount,
+                aaData = result
+            });
+        }
+        
         /// <summary>
         /// This method invokes IWorkerSigninService.moveDown,
         /// which moves a worker down in numerical order in the daily 
@@ -101,7 +158,7 @@ namespace Machete.Web.Controllers
         [Authorize(Roles = "Administrator, Manager")]
         public ActionResult moveDown(int id, string userName)
         {
-            serv.moveDown(id, userName);
+            _serv.moveDown(id, userName);
             return Json(new
             {
                 jobSuccess = true,
@@ -123,69 +180,12 @@ namespace Machete.Web.Controllers
         [Authorize(Roles = "Administrator, Manager")]
         public ActionResult moveUp(int id, string userName)
         {
-            serv.moveUp(id, userName);
+            _serv.moveUp(id, userName);
             return Json(new
             {
                 jobSuccess = true,
                 status = "OK",
                 workerID = id
-            });
-        }
-
-        // GET: /WorkerSignin/Delete/5
-       /// <summary>
-       /// This method deletes a signin from the master Worker Signins list for the day.
-       /// </summary>
-       /// <param name="id">The Worker ID of the worker.</param>
-       /// <param name="userName">The user performing the action.</param>
-       /// <returns>Json (bool jobSuccess, string status, int deletedID)</returns>
-        [UserNameFilter]
-        [Authorize(Roles = "Administrator, Manager, Check-in")]
-        public JsonResult Delete(int id, string userName)
-        {
-            var record = serv.Get(id);
-            if (record.WorkAssignmentID != null)
-            {
-                return Json(new
-                    {
-                        jobSuccess = false,
-                        rtnMessage = "You cannot delete a signin that has been associated with an Assignment. Disassociate the sigin with the assignment first."
-                    });
-            }
-
-            serv.Delete(id, userName);            
-            return Json(new
-            {
-                jobSuccess = true,
-                status = "OK",
-                deletedID = id
-            });
-        }
-
-        [Authorize(Roles = "Administrator, Manager, Check-in")]
-        public ActionResult AjaxHandler(jQueryDataTableParam param)
-        {
-            var clientdate = DateTime.Parse(param.todaysdate); // name misleading; selected date
-            var utcdate = TimeZoneInfo.ConvertTimeToUtc(clientdate, clientTimeZoneInfo);
-            param.todaysdate = utcdate.ToString(CultureInfo.InvariantCulture);
-
-            var vo = map.Map<jQueryDataTableParam, viewOptions>(param);
-
-            dataTableResult<WorkerSigninList> was = serv.GetIndexView(vo);
-            var result = was.query
-                .Select(e => map.Map<WorkerSigninList, ViewModel.WorkerSigninList>(e))
-                .ToList();
-                
-            result.ForEach(u => 
-                u.dateforsigninstring = TimeZoneInfo.ConvertTimeFromUtc(u.dateforsignin, clientTimeZoneInfo).ToString("hh:mm:ss tt")
-            );
-                
-            return Json(new
-            {
-                param.sEcho,
-                iTotalRecords = was.totalCount,
-                iTotalDisplayRecords = was.filteredCount,
-                aaData = result
             });
         }
     }

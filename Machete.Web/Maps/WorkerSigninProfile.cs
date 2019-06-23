@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using static Machete.Web.Helpers.Extensions;
 
 namespace Machete.Web.Maps
@@ -54,9 +55,12 @@ namespace Machete.Web.Maps
                 .ForMember(v => v.recordid, opt => opt.MapFrom(d => d.ID))
                 .ForMember(v => v.WSIID, opt => opt.MapFrom(d => d.ID))
                 .ForMember(v => v.expirationDate, opt => opt.MapFrom(d => d.expirationDate.ToShortDateString()))
-                .ForMember(v => v.memberStatus, opt => opt.MapFrom(d => getCI() == "ES" ? d.memberStatusES : d.memberStatusEN))
+                .ForMember(v => v.memberStatus,
+                    opt => opt.MapFrom(d => getCI() == "ES" ? d.memberStatusES : d.memberStatusEN))
                 .ForMember(v => v.dateforsignin, opt => opt.MapFrom(d => d.dateforsignin))
-                .ForMember(v => v.dateforsigninstring, opt => opt.Ignore()) // handled in View
+                .ForMember(v => v.dateforsigninstring, opt => opt.MapFrom(d =>
+                    TimeZoneInfo.ConvertTimeFromUtc(d.dateforsignin, MapperHelpers.ClientTimeZoneInfo)
+                        .ToString("hh:mm:ss tt")))
             ;
         }
     }
