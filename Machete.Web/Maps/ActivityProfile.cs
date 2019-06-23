@@ -10,10 +10,10 @@ namespace Machete.Web.Maps
         public ActivityProfile()
         {
             CreateMap<Domain.Activity, ViewModel.Activity>()
-                .ForMember(v => v.tabref, opt => opt.MapFrom(d => "/Activity/Edit/" + Convert.ToString(d.ID)))
-                .ForMember(v => v.tablabel, opt => opt.MapFrom(d => d.recurring ?
-                    "Recurring Event with " + d.teacher :
-                    d.nameEN + " with " + d.teacher)) // hardcoded english; skipping for now
+                .ForMember(v => v.tabref, opt => opt.MapFrom(d =>
+                    d.recurring ?  "/Activity/CreateMany/" + Convert.ToString(d.ID) : "/Activity/Edit/" + Convert.ToString(d.ID)))
+                .ForMember(v => v.tablabel, opt => opt.MapFrom(d =>
+                    d.recurring ? "Recurring Event with " + d.teacher : d.nameEN + " with " + d.teacher))
                 .ForMember(v => v.def, opt => opt.Ignore())
                 .ForMember(v => v.idString, opt => opt.Ignore())
                 ;
@@ -30,9 +30,9 @@ namespace Machete.Web.Maps
                 .ForMember(v => v.name, opt => opt.MapFrom(d => getCI() == "ES" ? d.nameES : d.nameEN))
                 .ForMember(v => v.type, opt => opt.MapFrom(d => getCI() == "ES" ? d.typeES : d.typeEN))
                 .ForMember(v => v.count, opt => opt.MapFrom(d => d.count.ToString()))
-                .ForMember(v => v.dateStart, opt => opt.MapFrom(d => Convert.ToString(d.dateStart, CultureInfo.InvariantCulture)))
-                .ForMember(v => v.dateEnd, opt => opt.MapFrom(d => Convert.ToString(d.dateEnd, CultureInfo.InvariantCulture)))
-                .ForMember(v => v.dateupdated, opt => opt.MapFrom(d => Convert.ToString(d.dateupdated, CultureInfo.InvariantCulture)))
+                .ForMember(v => v.dateStart, opt => opt.MapFrom(d => TimeZoneInfo.ConvertTimeFromUtc(d.dateStart, MapperHelpers.ClientTimeZoneInfo)))
+                .ForMember(v => v.dateEnd, opt => opt.MapFrom(d => TimeZoneInfo.ConvertTimeFromUtc(d.dateEnd, MapperHelpers.ClientTimeZoneInfo)))
+                .ForMember(v => v.dateupdated, opt => opt.MapFrom(d => Convert.ToString(d.dateupdated, CultureInfo.InvariantCulture))) // not used?
                 ;
             CreateMap<Domain.Activity, ViewModel.ActivitySchedule>()
                 .ForMember(v => v.firstID, opt => opt.MapFrom(d => d.ID))

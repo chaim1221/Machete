@@ -25,6 +25,7 @@
 using System;
 using System.Linq;
 using AutoMapper;
+using Machete.Data.Tenancy;
 using Machete.Domain;
 using Machete.Service;
 using Machete.Service.DTO;
@@ -39,15 +40,19 @@ namespace Machete.Web.Controllers
         private readonly IActivitySigninService serv;
         private readonly IMapper map;
         private readonly IDefaults def;
+        private TimeZoneInfo _clientTimeZoneInfo;
 
         public ActivitySigninController(
             IActivitySigninService serv, 
             IDefaults def,
-            IMapper map)
+            IMapper map,
+            ITenantService tenantService
+        )
         {
             this.serv = serv;
             this.map = map;
             this.def = def;
+            _clientTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(tenantService.GetCurrentTenant().Timezone);
         }
 
         /// <summary>
@@ -78,8 +83,16 @@ namespace Machete.Web.Controllers
 
             //Get picture from checkin, show with next view
             string imageRef = serv.getImageRef(dwccardnum);
-            Worker w = serv.CreateSignin(_asi, userName);
 
+            Worker w;
+            try
+            {
+                w = serv.CreateSignin(_asi, userName);
+            }
+            catch (NullReferenceException)
+            {
+                return Json(new { jobSuccess = false });
+            }
             return Json(new
             {
                 memberExpired = w.isExpired,
