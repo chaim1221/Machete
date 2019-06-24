@@ -1,5 +1,6 @@
 ﻿using System;
 using AutoMapper;
+using Machete.Web.Helpers;
 using static Machete.Web.Helpers.Extensions;
 
 namespace Machete.Web.Maps
@@ -59,8 +60,9 @@ namespace Machete.Web.Maps
                     opt => opt.MapFrom(d => getCI() == "ES" ? d.memberStatusES : d.memberStatusEN))
                 .ForMember(v => v.dateforsignin, opt => opt.MapFrom(d => d.dateforsignin))
                 .ForMember(v => v.dateforsigninstring, opt => opt.MapFrom(d =>
-                    TimeZoneInfo.ConvertTimeFromUtc(d.dateforsignin, MapperHelpers.ClientTimeZoneInfo)
-                        .ToString("hh:mm:ss tt")))
+                    // There is another String method, but we want this format
+                    d.dateforsignin.UtcToClient().ToString("hh:mm:ss tt"))
+                )
             ;
         }
     }

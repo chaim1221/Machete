@@ -131,7 +131,6 @@ namespace Machete.Web.Controllers
             dataTableResult<WorkerSigninList> was = _serv.GetIndexView(vo);
 
             MapperHelpers.ClientTimeZoneInfo = _clientTimeZoneInfo;
-            
             var result = was.query
                 .Select(e => _map.Map<WorkerSigninList, ViewModel.WorkerSigninList>(e))
                 .ToList();
