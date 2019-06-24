@@ -39,20 +39,19 @@ namespace Machete.Web.Controllers
     {
         private readonly IActivitySigninService serv;
         private readonly IMapper map;
-        private readonly IDefaults def;
         private TimeZoneInfo _clientTimeZoneInfo;
+        private TimeZoneInfo _serverTimeZoneInfo;
 
         public ActivitySigninController(
-            IActivitySigninService serv, 
-            IDefaults def,
+            IActivitySigninService serv,
             IMapper map,
             ITenantService tenantService
         )
         {
             this.serv = serv;
             this.map = map;
-            this.def = def;
             _clientTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(tenantService.GetCurrentTenant().Timezone);
+            _serverTimeZoneInfo = TimeZoneInfo.Local;
         }
 
         /// <summary>
@@ -77,7 +76,11 @@ namespace Machete.Web.Controllers
         public ActionResult Index(int dwccardnum, int activityID, string userName)
         {
             var _asi = new ActivitySignin();
-            _asi.dateforsignin = DateTime.Now;
+            
+            var serverTime = DateTime.Now;
+            var utcTime = TimeZoneInfo.ConvertTimeToUtc(serverTime, _serverTimeZoneInfo);
+            
+            _asi.dateforsignin = utcTime;
             _asi.activityID = activityID;
             _asi.dwccardnum = dwccardnum;
 
@@ -122,6 +125,8 @@ namespace Machete.Web.Controllers
         {
             var vo = map.Map<jQueryDataTableParam, viewOptions>(param);
             dataTableResult<ActivitySigninList> list = serv.GetIndexView(vo);
+
+            MapperHelpers.ClientTimeZoneInfo = _clientTimeZoneInfo;
             var result = list.query
                 .Select(
                     e => map.Map<ActivitySigninList, ViewModel.ActivitySigninList>(e)

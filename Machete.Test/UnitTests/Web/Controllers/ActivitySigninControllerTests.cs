@@ -22,7 +22,7 @@ namespace Machete.Test.UnitTests.Controllers
             var mapper = mapperConfig.CreateMapper();
             var tenantService = new Mock<ITenantService>().Object;
             
-            _controller = new ActivitySigninController(activitySigninService, defaults, mapper, tenantService);
+            _controller = new ActivitySigninController(activitySigninService, mapper, tenantService);
         }
     }
 }

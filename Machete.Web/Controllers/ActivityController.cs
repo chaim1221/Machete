@@ -172,26 +172,31 @@ namespace Machete.Web.Controllers
         public ActionResult CreateMany(int id)
         {
             Activity firstAct = _serv.Get(id);
+
+            MapperHelpers.ClientTimeZoneInfo = _clientTimeZoneInfo;
+            MapperHelpers.Defaults = _defaults;
             var m = _map.Map<Activity, ActivitySchedule>(firstAct);
-            m.def = _defaults;
+
             return PartialView("CreateMany", m);
         }
 
         [HttpPost, UserNameFilter]
         [Authorize(Roles = "Administrator, Manager")]
-        public async Task<JsonResult> CreateMany(ActivitySchedule actSched, string userName)
+        public async Task<ViewResult> CreateMany(ActivitySchedule actSched, string userName)
         {
-            if (!await TryUpdateModelAsync(actSched)) return Json(new { jobSuccess = false });
-
-            var firstActivity = _serv.Get(actSched.firstID);
             var instances = actSched.stopDate.Subtract(actSched.dateStart).Days;
-            var length = actSched.dateEnd.Subtract(actSched.dateStart).TotalMinutes;
+            if (!await TryUpdateModelAsync(actSched) || instances == 0) {
+                ModelState.AddModelError("ActivitySchedule", "Select an appropriate length of time for these events."); 
+                return View("CreateMany", actSched); //Json(new { jobSuccess = false });
+            }
 
-            // Increment before operation skips over firstActivity.
-            for (var i = 0; i <= instances; ++i) 
+            var length = actSched.dateEnd.Subtract(actSched.dateStart).TotalMinutes;
+            var utcDate = TimeZoneInfo.ConvertTimeToUtc(actSched.dateStart, _clientTimeZoneInfo);
+
+            for (var i = 1; i <= instances; i++) 
             {
-                var date = actSched.dateStart.AddDays(i);
-                var day = (int) date.DayOfWeek;
+                var currentDate = utcDate.AddDays(i);
+                var day = (int)currentDate.DayOfWeek;
 
                 if (day == 0 && !actSched.sunday) continue;
                 if (day == 1 && !actSched.monday) continue;
@@ -200,27 +205,32 @@ namespace Machete.Web.Controllers
                 if (day == 4 && !actSched.thursday) continue;
                 if (day == 5 && !actSched.friday) continue;
                 if (day == 6 && !actSched.saturday) continue;
-                var activ = new Activity();
-                activ.nameID = actSched.name;
-                activ.typeID = actSched.type;
-                activ.dateStart = date;
-                activ.dateEnd = date.AddMinutes(length);
-                activ.recurring = true;
-                activ.firstID = firstActivity.ID;
-                activ.teacher = actSched.teacher;
-                activ.notes = actSched.notes;
 
-                _serv.Create(activ, userName);
+                var activity = new Activity
+                {
+                    nameID = actSched.name,
+                    typeID = actSched.type,
+                    dateStart = currentDate,
+                    dateEnd = currentDate.AddMinutes(length),
+                    recurring = true,
+                    firstID = actSched.firstID,
+                    teacher = actSched.teacher,
+                    notes = actSched.notes ?? ""
+                };
+
+                _serv.Create(activity, userName);
             }
 
-            var result = _map.Map<Activity, ViewModel.Activity>(firstActivity);
-            return Json(new
-            {
-                sNewRef = result.tabref,
-                sNewLabel = result.tablabel,
-                iNewID = firstActivity.ID,
-                jobSuccess = true
-            });
+            // Machete: A series of good intentions, marinated in panic ~C
+//            var result = _map.Map<Activity, ViewModel.Activity>(firstActivity);
+//            return Json(new
+//            {
+//                sNewRef = result.tabref,
+//                sNewLabel = result.tablabel,
+//                iNewID = firstActivity.ID,
+//                jobSuccess = true
+//            });
+            return View("Index");
         }
         /// <summary>
         /// GET: /Activity/Edit/5
