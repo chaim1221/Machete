@@ -1,3 +1,7 @@
 [submodule "UI"]
 	path = UI
 	url = git://github.com/chaim1221/machete-ui.git
+
+[submodule "RX"]
+	path = RX
+	url = https://github.com/SavageLearning/machete-rx

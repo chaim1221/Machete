@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -26,6 +27,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 // ReSharper disable ArrangeStaticMemberQualifier
 // ReSharper disable InvalidXmlDocComment
@@ -355,5 +357,22 @@ EXEC sp_addrolemember 'db_datareader', 'readonlyuser';
         /// A static configuration object representing the computed string value "Resources".
         /// </summary>
         public static string ResourcesFolder => "Resources";
+        
+        public static PhysicalFileProvider IdentityFileProvider => new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"Identity"));
+        
+        public static string IdentityRequestPath => new PathString("/id/login");
+ 
+        // TODO eliminate magic strings in Startup.cs
+//        public static PhysicalFileProvider RXFileProvider => new PhysicalFileProvider(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).ToString(), @"RX", @"build"));
+//        
+//        public static string RXRequestPath => new PathString("/rx");
+//
+//        public static PhysicalFileProvider RXStaticFileProvider => new PhysicalFileProvider(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).ToString(), @"RX", @"build", @"static"));
+//        
+//        public static string RXStaticRequestPath => new PathString("/static");
+//
+//        public static PhysicalFileProvider RXAssetsFileProvider => new PhysicalFileProvider(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).ToString(), @"RX", @"build", @"assets"));
+//        
+//        public static string RXAssetsRequestPath => new PathString("/assets");
     }
 }

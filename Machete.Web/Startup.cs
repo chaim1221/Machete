@@ -97,7 +97,11 @@ namespace Machete.Web
             services.AddSpaStaticFiles(angularApp =>
             {
                 angularApp.RootPath = "dist";
-            });            
+            });
+            services.AddSpaStaticFiles(reactApp =>
+            {
+                reactApp.RootPath = "build";
+            }); 
 
             services.ConfigureDependencyInjection();
 
@@ -193,21 +197,37 @@ namespace Machete.Web
             // TODO favicon.ico is missing?
 
             // begin React login page
-            var identityFileProvider =
-                new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"Identity"));
-            var identityRequestPath = new PathString("/id/login");
             app.UseDefaultFiles(new DefaultFilesOptions
             {
-                FileProvider = identityFileProvider,
-                RequestPath = identityRequestPath,
+                FileProvider = StartupConfiguration.IdentityFileProvider,
+                RequestPath = StartupConfiguration.IdentityRequestPath,
                 DefaultFileNames = new[] { "index.html" }
             });
             app.UseStaticFiles(new StaticFileOptions
             {
-                FileProvider = identityFileProvider,
-                RequestPath = identityRequestPath
+                FileProvider = StartupConfiguration.IdentityFileProvider,
+                RequestPath = StartupConfiguration.IdentityRequestPath
             });
             // end React login page
+            
+            // begin React V2 page
+//            app.UseDefaultFiles(new DefaultFilesOptions
+//            {
+//                FileProvider = StartupConfiguration.RXFileProvider,
+//                RequestPath = StartupConfiguration.RXRequestPath,
+//                DefaultFileNames = new[] { "index.html" }
+//            });
+//            app.UseStaticFiles(new StaticFileOptions
+//            {
+//                FileProvider = StartupConfiguration.RXStaticFileProvider,
+//                RequestPath = StartupConfiguration.RXStaticRequestPath
+//            });
+//            app.UseStaticFiles(new StaticFileOptions
+//            {
+//                FileProvider = StartupConfiguration.RXAssetsFileProvider,
+//                RequestPath = StartupConfiguration.RXAssetsRequestPath
+//            });
+            // end React V2 page
 
             // https://docs.microsoft.com/en-us/aspnet/core/client-side/spa/angular?view=aspnetcore-2.2
             app.UseSpaStaticFiles();            
@@ -226,12 +246,35 @@ namespace Machete.Web
             });
             
             // https://docs.microsoft.com/en-us/aspnet/core/client-side/spa/angular?view=aspnetcore-2.2
-            app.UseSpa(angularApp =>
+            app.Map("/V2", ng =>
             {
-                angularApp.Options.SourcePath = "../UI";
+                ng.UseSpa(angularApp =>
+                {
+                    angularApp.Options.SourcePath = "../UI";
+                    angularApp.Options.DefaultPageStaticFileOptions = new StaticFileOptions
+                    {
+                        FileProvider = new PhysicalFileProvider(
+                            Path.Combine(Directory.GetCurrentDirectory(), "Content"))
+                    };
 
-                if (envIsDevelopment) angularApp.UseProxyToSpaDevelopmentServer("http://localhost:4200");
+                    if (envIsDevelopment) angularApp.UseProxyToSpaDevelopmentServer("http://localhost:4200");
+                });                
             });
+            
+            // https://stackoverflow.com/questions/48216929/how-to-configure-asp-net-core-server-routing-for-multiple-spas-hosted-with-spase
+            // https://stackoverflow.com/questions/55256426/asp-net-core-2-1-how-to-serve-multiple-angular-apps
+            app.Map("/rx", rx =>
+                rx.UseSpa(reactApp =>
+                {
+                    reactApp.Options.SourcePath = "../RX";
+                    reactApp.Options.DefaultPageStaticFileOptions = new StaticFileOptions
+                    {
+                        FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).ToString(), @"RX", @"build"))
+                    };
+            
+                    if (envIsDevelopment) reactApp.UseProxyToSpaDevelopmentServer("http://localhost:3000");
+                })
+            );
 
             app.UseDirectoryBrowser(new DirectoryBrowserOptions
             {

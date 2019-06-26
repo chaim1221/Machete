@@ -95,7 +95,7 @@ namespace Machete.Web.Controllers.Api.Identity
                 var hasRole = await _userManager.IsInRoleAsync(verifiedUser, role.Name);
                 if (hasRole) verifiedUser.UserRoles.Add(new MacheteUserRole { Role = role, User = verifiedUser }); // TODO completely untested
             }
-            _jwtOptions.Issuer = Routes.GetHostFrom(Request).IdentityRoute();
+            _jwtOptions.Issuer = IdentityRoutes.GetHostFrom(Request).IdentityRoute();
             _jwtOptions.Nonce = Guid.NewGuid().ToString(); // corners were cut; this is supposed to identify the client
             var claimsIdentity = await _jwtFactory.GenerateClaimsIdentity(verifiedUser, _jwtOptions);
             var jwt = await _jwtFactory.GenerateEncodedToken(claimsIdentity, _jwtOptions);
@@ -126,13 +126,13 @@ namespace Machete.Web.Controllers.Api.Identity
         [Route("signin-facebook")]
         public async Task<IActionResult> FacebookLogin([FromQuery] ExternalLoginViewModel viewModel)
         {
-            var host = Routes.GetHostFrom(Request);
+            var host = IdentityRoutes.GetHostFrom(Request);
 
             if (viewModel.State == _configuration["Authentication:State"])
             {
                 var httpClient = new HttpClient();
                 var appId = _configuration["Authentication:Facebook:AppId"];
-                var redirectUri = Routes.FacebookSignin(host);
+                var redirectUri = IdentityRoutes.FacebookSignin(host);
                 var appSecret = _configuration["Authentication:Facebook:AppSecret"];
 
                 var tokenResponse = await httpClient.GetAsync(
@@ -154,7 +154,7 @@ namespace Machete.Web.Controllers.Api.Identity
         [Route("signin-google")]
         public async Task<IActionResult> GoogleLogin([FromQuery] ExternalLoginViewModel viewModel)
         {
-            var host = Routes.GetHostFrom(Request);
+            var host = IdentityRoutes.GetHostFrom(Request);
 
             if (viewModel.State == _configuration["Authentication:State"])
             {
@@ -284,7 +284,7 @@ namespace Machete.Web.Controllers.Api.Identity
         [Route(".well-known/openid-configuration")]
         public async Task<IActionResult> OpenIdConfiguration()
         {
-            var host = Routes.GetHostFrom(Request);
+            var host = IdentityRoutes.GetHostFrom(Request);
 
             var viewModel = new WellKnownViewModel();
             viewModel.issuer = host.IdentityRoute();

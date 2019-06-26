@@ -11,7 +11,7 @@ namespace Machete.Web.Helpers.Api
     /// <exception cref="NullReferenceException">
     /// Methods will throw this exception if "null" is passed as `host` instead of string.Empty. This is rare.
     /// </exception>
-    public static class Routes
+    public static class IdentityRoutes
     {
         public static string GetHostFrom(HttpRequest Request) =>
             $"{Request.Scheme}://{Request.Host}{Request.PathBase}/";
