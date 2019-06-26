@@ -246,21 +246,6 @@ namespace Machete.Web
             });
             
             // https://docs.microsoft.com/en-us/aspnet/core/client-side/spa/angular?view=aspnetcore-2.2
-            app.Map("/V2", ng =>
-            {
-                ng.UseSpa(angularApp =>
-                {
-                    angularApp.Options.SourcePath = "../UI";
-                    angularApp.Options.DefaultPageStaticFileOptions = new StaticFileOptions
-                    {
-                        FileProvider = new PhysicalFileProvider(
-                            Path.Combine(Directory.GetCurrentDirectory(), "Content"))
-                    };
-
-                    if (envIsDevelopment) angularApp.UseProxyToSpaDevelopmentServer("http://localhost:4200");
-                });                
-            });
-            
             // https://stackoverflow.com/questions/48216929/how-to-configure-asp-net-core-server-routing-for-multiple-spas-hosted-with-spase
             // https://stackoverflow.com/questions/55256426/asp-net-core-2-1-how-to-serve-multiple-angular-apps
             app.Map("/rx", rx =>
@@ -275,6 +260,20 @@ namespace Machete.Web
                     if (envIsDevelopment) reactApp.UseProxyToSpaDevelopmentServer("http://localhost:3000");
                 })
             );
+            app.Map("", ng =>
+            {
+                ng.UseSpa(angularApp =>
+                {
+                    angularApp.Options.SourcePath = "../UI";
+                    angularApp.Options.DefaultPageStaticFileOptions = new StaticFileOptions
+                    {
+                        FileProvider = new PhysicalFileProvider(
+                            Path.Combine(Directory.GetCurrentDirectory(), "Content"))
+                    };
+
+                    if (envIsDevelopment) angularApp.UseProxyToSpaDevelopmentServer("http://localhost:4200");
+                });                
+            });
 
             app.UseDirectoryBrowser(new DirectoryBrowserOptions
             {
