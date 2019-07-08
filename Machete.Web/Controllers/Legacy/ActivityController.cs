@@ -141,13 +141,11 @@ namespace Machete.Web.Controllers
             if (activity.dateEnd < activity.dateStart)
                 return Json(new { jobSuccess = false, rtnMessage = "End date must be greater than start date." });
 
-            // leave for now, can be substituted with a reference method
             activity.notes = activity.notes ?? "";
             activity.firstID = activity.ID;
-            //
-
             activity.dateStart = TimeZoneInfo.ConvertTimeToUtc(activity.dateStart, _clientTimeZoneInfo);
             activity.dateEnd = TimeZoneInfo.ConvertTimeToUtc(activity.dateEnd, _clientTimeZoneInfo);
+
             activity = _serv.Create(activity, userName);
     
             MapperHelpers.ClientTimeZoneInfo = _clientTimeZoneInfo;
@@ -275,25 +273,16 @@ namespace Machete.Web.Controllers
             if (activity.dateEnd < activity.dateStart)
                 return Json(new { jobSuccess = false, rtnMessage = "End date must be greater than start date." });
 
-            // leave for now, can be substituted with a reference method
-            var assemblyType = _defaults.byKeys(LCategory.activityType, LActType.Assembly);
-            var assemblyName = _defaults.byKeys(LCategory.activityName, LActName.Assembly);
-            var orgMtgType = _defaults.byKeys(LCategory.activityType, LActType.OrgMtg);
-            var orgMtgName = _defaults.byKeys(LCategory.activityName, LActName.OrgMtg);
-            var activityNameEmpty = activity.nameID == 0;
-
-            if (activity.typeID == assemblyType && activityNameEmpty) activity.nameID = assemblyName;
-            if (activity.typeID == orgMtgType && activityNameEmpty) activity.nameID = orgMtgName;
             activity.firstID = activity.ID;
             activity.notes = activity.notes ?? "";
-
             activity.dateStart = TimeZoneInfo.ConvertTimeToUtc(activity.dateStart, _clientTimeZoneInfo);
             activity.dateEnd = TimeZoneInfo.ConvertTimeToUtc(activity.dateEnd, _clientTimeZoneInfo);
             
             _serv.Save(activity, userName);
     
+            MapperHelpers.ClientTimeZoneInfo = _clientTimeZoneInfo;
+
             var result = _map.Map<Activity, ViewModel.Activity>(activity);
-            // there are no dates to worry about in this mapping
     
             return Json(new
             {
