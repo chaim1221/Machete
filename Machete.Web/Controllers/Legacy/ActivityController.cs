@@ -35,7 +35,6 @@ using Machete.Web.Helpers;
 using Machete.Web.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Activity = Machete.Domain.Activity;
 using ActivityList = Machete.Service.DTO.ActivityList;
@@ -86,10 +85,8 @@ namespace Machete.Web.Controllers
             MapperHelpers.ClientTimeZoneInfo = _clientTimeZoneInfo;
 
             var vo = _map.Map<jQueryDataTableParam, viewOptions>(param);
-
-            var culture = Request.HttpContext.Features.Get<IRequestCultureFeature>().RequestCulture.UICulture;            
             
-            dataTableResult<ActivityList> list = _serv.GetIndexView(vo, culture.TwoLetterISOLanguageName);
+            dataTableResult<ActivityList> list = _serv.GetIndexView(vo);
 
             var result = list.query
                 .Select(
@@ -145,15 +142,7 @@ namespace Machete.Web.Controllers
                 return Json(new { jobSuccess = false, rtnMessage = "End date must be greater than start date." });
 
             // leave for now, can be substituted with a reference method
-            var assemblyType = _defaults.byKeys(LCategory.activityType, LActType.Assembly);
-            var assemblyName = _defaults.byKeys(LCategory.activityName, LActName.Assembly);
-            var orgMtgType = _defaults.byKeys(LCategory.activityType, LActType.OrgMtg);
-            var orgMtgName = _defaults.byKeys(LCategory.activityName, LActName.OrgMtg);
-            var activityNameEmpty = activity.nameID == 0;
             activity.notes = activity.notes ?? "";
-
-            if (activity.typeID == assemblyType && activityNameEmpty) activity.nameID = assemblyName;
-            if (activity.typeID == orgMtgType && activityNameEmpty) activity.nameID = orgMtgName;
             activity.firstID = activity.ID;
             //
 
@@ -161,8 +150,9 @@ namespace Machete.Web.Controllers
             activity.dateEnd = TimeZoneInfo.ConvertTimeToUtc(activity.dateEnd, _clientTimeZoneInfo);
             activity = _serv.Create(activity, userName);
     
+            MapperHelpers.ClientTimeZoneInfo = _clientTimeZoneInfo;
+            
             var result = _map.Map<Activity, ViewModel.Activity>(activity);
-            // there are no dates to worry about in this mapping
     
             return Json(new
             {
@@ -206,29 +196,36 @@ namespace Machete.Web.Controllers
             for (var i = 1; i <= instances; i++) 
             {
                 var currentDate = utcDate.AddDays(i);
-                var day = (int)currentDate.DayOfWeek;
+                var day = currentDate.DayOfWeek;
 
-                if (day == 0 && !actSched.sunday) continue;
-                if (day == 1 && !actSched.monday) continue;
-                if (day == 2 && !actSched.tuesday) continue;
-                if (day == 3 && !actSched.wednesday) continue;
-                if (day == 4 && !actSched.thursday) continue;
-                if (day == 5 && !actSched.friday) continue;
-                if (day == 6 && !actSched.saturday) continue;
-
-                var activity = new Activity
+                switch (day)
                 {
-                    nameID = actSched.name,
-                    typeID = actSched.type,
-                    dateStart = currentDate,
-                    dateEnd = currentDate.AddMinutes(length),
-                    recurring = true,
-                    firstID = actSched.firstID,
-                    teacher = actSched.teacher,
-                    notes = actSched.notes ?? ""
-                };
+                    case DayOfWeek.Sunday when !actSched.sunday:
+                    case DayOfWeek.Monday when !actSched.monday:
+                    case DayOfWeek.Tuesday when !actSched.tuesday:
+                    case DayOfWeek.Wednesday when !actSched.wednesday:
+                    case DayOfWeek.Thursday when !actSched.thursday:
+                    case DayOfWeek.Friday when !actSched.friday:
+                    case DayOfWeek.Saturday when !actSched.saturday:
+                        continue;
+                    default:
+                    {
+                        var activity = new Activity
+                        {
+                            nameID = actSched.name,
+                            typeID = actSched.type,
+                            dateStart = currentDate,
+                            dateEnd = currentDate.AddMinutes(length),
+                            recurring = true,
+                            firstID = actSched.firstID,
+                            teacher = actSched.teacher,
+                            notes = actSched.notes ?? ""
+                        };
 
-                _serv.Create(activity, userName);
+                        _serv.Create(activity, userName);
+                        break;
+                    }
+                }
             }
 
             // Machete: A series of good intentions, marinated in panic ~C
