@@ -27,41 +27,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Machete.Data.Identity;
 using Machete.Data.Tenancy;
 using Machete.Domain;
 using Machete.Service;
 using Machete.Web.Helpers;
 using Machete.Web.ViewModel;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
-using NUglify.Helpers;
 using Activity = Machete.Domain.Activity;
 using ActivityList = Machete.Service.DTO.ActivityList;
 
 namespace Machete.Web.Controllers
 {
-
         public class ActivityController : MacheteController
     {
         private readonly IActivityService _serv;
         private readonly IMapper _map;
         private readonly IDefaults _defaults;
         private readonly TimeZoneInfo _clientTimeZoneInfo;
-        private readonly TimeZoneInfo _serverTimeZoneInfo;
+        private readonly UserManager<MacheteUser> _userManager;
 
         public ActivityController(
             IActivityService aServ, 
             IDefaults defaults,
+            UserManager<MacheteUser> userManager,
             IMapper map,
             ITenantService tenantService
         )
         {
             _serv = aServ;
             _map = map;
+            _userManager = userManager;
             _defaults = defaults;
             _clientTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(tenantService.GetCurrentTenant().Timezone);
-            _serverTimeZoneInfo = TimeZoneInfo.Local;
         }
 
         /// <summary>
@@ -82,15 +83,14 @@ namespace Machete.Web.Controllers
         [Authorize(Roles = "Administrator, Manager, Teacher, Check-in")]
         public JsonResult AjaxHandler(jQueryDataTableParam param)
         {
-            //Get all the records
+            MapperHelpers.ClientTimeZoneInfo = _clientTimeZoneInfo;
+
             var vo = _map.Map<jQueryDataTableParam, viewOptions>(param);
 
             var culture = Request.HttpContext.Features.Get<IRequestCultureFeature>().RequestCulture.UICulture;            
             
             dataTableResult<ActivityList> list = _serv.GetIndexView(vo, culture.TwoLetterISOLanguageName);
 
-            MapperHelpers.ClientTimeZoneInfo = _clientTimeZoneInfo;
-            
             var result = list.query
                 .Select(
                     e => _map.Map<ActivityList, ViewModel.ActivityList>(e)
@@ -110,19 +110,24 @@ namespace Machete.Web.Controllers
         /// </summary>
         /// <returns>PartialView</returns>
         [Authorize(Roles = "Administrator, Manager, Teacher")]
-        public ActionResult Create()
+        public async Task<ActionResult> Create()
         {
-            var now = DateTime.Now;
-            var utcNow = TimeZoneInfo.ConvertTimeToUtc(now, _serverTimeZoneInfo);
-            var clientNow = TimeZoneInfo.ConvertTimeFromUtc(utcNow, _clientTimeZoneInfo);
+            var utcNow = DateTime.UtcNow;
             
             var activity = new Activity
             {
-                dateStart = clientNow,
-                dateEnd = clientNow.AddHours(1)
+                dateStart = utcNow,
+                dateEnd = utcNow.AddHours(1)
             };
+
+            var teachers = await _userManager.GetUsersInRoleAsync(UserRoles.Teacher);
+            var teacherNames = teachers.Select(teach => teach.UserName).ToList();
+            
+            MapperHelpers.Defaults = _defaults;
+            MapperHelpers.ClientTimeZoneInfo = _clientTimeZoneInfo;
+            MapperHelpers.UserNames = teacherNames;
+            
             var m = _map.Map<Activity, ViewModel.Activity>(activity);
-            m.def = _defaults;
             
             return PartialView("Create", m);
         }
@@ -169,12 +174,17 @@ namespace Machete.Web.Controllers
         }
 
         [Authorize(Roles = "Administrator, Manager")]
-        public ActionResult CreateMany(int id)
+        public async Task<ActionResult> CreateMany(int id)
         {
             Activity firstAct = _serv.Get(id);
 
+            var teachers = await _userManager.GetUsersInRoleAsync(UserRoles.Teacher);
+            var teacherNames = teachers.Select(teach => teach.UserName).ToList();
+            
             MapperHelpers.ClientTimeZoneInfo = _clientTimeZoneInfo;
             MapperHelpers.Defaults = _defaults;
+            MapperHelpers.UserNames = teacherNames;
+            
             var m = _map.Map<Activity, ActivitySchedule>(firstAct);
 
             return PartialView("CreateMany", m);
@@ -187,7 +197,7 @@ namespace Machete.Web.Controllers
             var instances = actSched.stopDate.Subtract(actSched.dateStart).Days;
             if (!await TryUpdateModelAsync(actSched) || instances == 0) {
                 ModelState.AddModelError("ActivitySchedule", "Select an appropriate length of time for these events."); 
-                return View("CreateMany", actSched); //Json(new { jobSuccess = false });
+                return View("CreateMany", actSched);
             }
 
             var length = actSched.dateEnd.Subtract(actSched.dateStart).TotalMinutes;
@@ -238,21 +248,27 @@ namespace Machete.Web.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [Authorize(Roles = "Administrator, Manager, Teacher")]
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(int id)
         {
             var activity = _serv.Get(id);
+
+            var teachers = await _userManager.GetUsersInRoleAsync(UserRoles.Teacher);
+            var teacherNames = teachers.Select(teach => teach.UserName).ToList();
+            
+            MapperHelpers.Defaults = _defaults;
+            MapperHelpers.StartDate = TimeZoneInfo.ConvertTimeFromUtc(activity.dateStart, _clientTimeZoneInfo);
+            MapperHelpers.EndDate = TimeZoneInfo.ConvertTimeFromUtc(activity.dateEnd, _clientTimeZoneInfo);
+            MapperHelpers.UserNames = teacherNames;
+            
             var viewModel = _map.Map<Activity, ViewModel.Activity>(activity);
-            viewModel.def = _defaults;
-            viewModel.dateStart = TimeZoneInfo.ConvertTimeFromUtc(activity.dateStart, _clientTimeZoneInfo);
-            viewModel.dateEnd = TimeZoneInfo.ConvertTimeFromUtc(activity.dateEnd, _clientTimeZoneInfo);
 
             return PartialView("Edit", viewModel);
         }
         /// <summary>
         /// POST: /Activity/Edit/5
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="userName"></param>
+        /// <param name="activity">The activity to be updated.</param>
+        /// <param name="userName">Name of the current user from UserNameFilter.</param>
         /// <returns></returns>
         [HttpPost, UserNameFilter]
         [Authorize(Roles = "Administrator, Manager, Teacher")]

@@ -68,7 +68,7 @@ namespace Machete.Domain
             );
         }
 
-        public virtual ICollection<EmailWorkOrder> EmailWorkOrders { get; } = new List<EmailWorkOrder>();
+        private ICollection<EmailWorkOrder> EmailWorkOrders { get; } = new List<EmailWorkOrder>();
         [NotMapped] public ICollection<WorkOrder> WorkOrders { get; }
 
         [StringLength(50)]

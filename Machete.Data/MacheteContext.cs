@@ -339,7 +339,7 @@ namespace Machete.Data
                 entity.Property(e => e.WorkOrderID).HasColumnName("WorkOrder_ID");
 
                 entity.HasOne(d => d.Email)
-                    .WithMany(p => p.EmailWorkOrders)
+                    .WithMany()
                     .HasForeignKey(d => d.EmailID)
                     .HasConstraintName("FK_dbo.EmailWorkOrders_dbo.Emails_Email_ID");
             });
