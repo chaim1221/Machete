@@ -104,7 +104,7 @@
             @Html.DropDownListFor(model => model.hourRange,
                 new SelectList(Model.def.hours(), "Value", "Text", Model),
                 Shared.choose, new { tabindex = "27", id = idPrefix + "hourRange", @class = "earnings-part" })
-            @Html.ValidationMessageFor(model => model.hourRange);
+            @Html.ValidationMessageFor(model => model.hourRange)
         </div>
     </div>
     <div class="tb-row">
@@ -115,7 +115,7 @@
             @Html.DropDownListFor(model => model.days,
                 new SelectList(Model.def.days(), "Value", "Text", Model),
                 Shared.choose, new { tabindex = "28", id = idPrefix + "days", @class = "earnings-part" })
-            @Html.ValidationMessageFor(model => model.days);
+            @Html.ValidationMessageFor(model => model.days)
         </div>
         <div class="tb-label">
             @Html.Label("total", WorkAssignments.total)
