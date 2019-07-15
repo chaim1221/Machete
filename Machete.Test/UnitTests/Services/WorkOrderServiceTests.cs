@@ -250,8 +250,8 @@ namespace Machete.Test.UnitTests.Services
             string user = "";
             _repo.Setup(r => r.GetById(testid)).Returns(fakeworkOrder);
 
-            _wrServ.Setup(x => x.GetByWorkerID(testid, 1)).Returns(wr1);
-            _wrServ.Setup(x => x.GetByWorkerID(testid, 2)).Returns(wr2);
+            _wrServ.Setup(x => x.GetByID(testid, 1)).Returns(wr1);
+            _wrServ.Setup(x => x.GetByID(testid, 2)).Returns(wr2);
             _wrServ.Setup(x => x.Delete(It.IsAny<int>(), It.IsAny<string>()));
             _tpServ.Setup(x => x.Get(It.IsAny<int>())).Returns(_tp);
             _tpServ.Setup(x => x.Get(It.IsAny<int>())).Returns(_tp);

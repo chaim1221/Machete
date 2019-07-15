@@ -277,7 +277,7 @@ namespace Machete.Service
             // Stale requests to remove
             foreach (var rem in workOrder.workerRequests.Except(wrList, new WorkerRequestComparer()).ToArray())
             {
-                var request = wrServ.GetByWorkerID(workOrder.ID, rem.WorkerID);
+                var request = wrServ.GetByID(workOrder.ID, rem.WorkerID);
                 wrServ.Delete(request.ID, user);
                 workOrder.workerRequests.Remove(rem);
             }
