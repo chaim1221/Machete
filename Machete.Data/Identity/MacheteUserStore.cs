@@ -279,16 +279,16 @@ namespace Machete.Data.Identity
             return Task.FromResult<IList<string>>(user.UserRoles.Select(x => x.Role.Name).ToList());
         }
 
-        public async Task<bool> IsInRoleAsync(MacheteUser user, string roleName, CancellationToken cancellationToken)
+        public Task<bool> IsInRoleAsync(MacheteUser user, string roleName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (user == null) throw new ArgumentNullException(nameof(user));
             
-            var usersInRoleAsync = await GetUsersInRoleAsync(roleName, cancellationToken);
-            
-            var userRole = usersInRoleAsync.Contains(user);
+            var identityRole = _roles.FirstOrDefault(role => role.NormalizedName == roleName.ToUpper());
 
-            return await Task.FromResult(userRole);
+            var userRole = _userRoles.FirstOrDefault(join => join.RoleId == identityRole.Id && join.UserId == user.Id);
+
+            return Task.FromResult(userRole != null);
         }
 
         public Task<IList<MacheteUser>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
