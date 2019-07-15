@@ -120,7 +120,7 @@ namespace Machete.Web.Controllers
             //return what's left to datatables
             var result = from p in dtr.query
                          select new[] {
-                             $"{TimeZoneInfo.ConvertTimeFromUtc(p.date ?? DateTime.UtcNow, _clientTimeZoneInfo):MM/dd/yyyy hh:mm zz}",
+                             $"{TimeZoneInfo.ConvertTimeFromUtc(p.date ?? DateTime.UtcNow, _clientTimeZoneInfo):MM/dd/yyyy}",
                              p.weekday,
                              p.pending_wo > 0 ? p.pending_wo.ToString(): null,
                              p.pending_wa > 0 ? p.pending_wa.ToString(): null,
