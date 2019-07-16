@@ -120,7 +120,7 @@ namespace Machete.Web.Controllers
             //return what's left to datatables
             var result = from p in dtr.query
                          select new[] {
-                             $"{TimeZoneInfo.ConvertTimeFromUtc(p.date ?? DateTime.UtcNow, _clientTimeZoneInfo):MM/dd/yyyy}",
+                             $"{p.date ?? TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, _clientTimeZoneInfo):MM/dd/yyyy}",
                              p.weekday,
                              p.pending_wo > 0 ? p.pending_wo.ToString(): null,
                              p.pending_wa > 0 ? p.pending_wa.ToString(): null,
@@ -132,7 +132,7 @@ namespace Machete.Web.Controllers
                              p.cancelled_wa > 0 ? p.cancelled_wa.ToString(): null,
                              p.expired_wo > 0 ? p.expired_wo.ToString(): null,
                              p.expired_wa > 0 ? p.expired_wa.ToString(): null
-                         };
+                         }.ToList();
 
             return Json(new
             {
