@@ -41,11 +41,13 @@ namespace Machete.Service
         private static Regex isDaySpecific = new Regex(@"^\s*\d{1,2}\/\d{1,2}\/\d{2,4}");
         private static Regex isMonthSpecific = new Regex(@"^\s*\d{1,2}\/\d{4,4}");
         
+        
+        
         public static DateTime DateBasedOn(this DateTime date, TimeZoneInfo clientTimeZoneInfo) =>
-            TimeZoneInfo.ConvertTimeFromUtc(date, clientTimeZoneInfo).Date;
+            TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(date, DateTimeKind.Unspecified), clientTimeZoneInfo).Date;
 
         public static DateTime DateTimeFrom(this DateTime date, TimeZoneInfo clientTimeZoneInfo) =>
-            TimeZoneInfo.ConvertTimeFromUtc(date, clientTimeZoneInfo);
+            TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(date, DateTimeKind.Unspecified), clientTimeZoneInfo);
         
         #region SIGNINS
         public static void search(viewOptions o, ref IQueryable<WorkerSignin> q)
