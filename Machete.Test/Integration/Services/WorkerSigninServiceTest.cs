@@ -52,7 +52,7 @@ namespace Machete.Test.Integration.Services
                 sSearch = "",
                 date = TimeZoneInfo
                     .ConvertTimeToUtc(
-                        DateTime.SpecifyKind(DateTime.Today,DateTimeKind.Unspecified),
+                        DateTime.SpecifyKind(DateTime.Today, DateTimeKind.Unspecified),
                         frb.ClientTimeZoneInfo
                     ),
                 dwccardnum = null,

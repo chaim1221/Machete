@@ -157,7 +157,8 @@ namespace Machete.Data
         public WorkOrderRepository(IDatabaseFactory databaseFactory) : base(databaseFactory) { }
         override public IQueryable<WorkOrder> GetAllQ()
         {
-            return dbset.Include(a => a.workAssignments).Include(a => a.workerRequests).AsNoTracking().AsQueryable();
+            return dbset.Include(a => a.Employer).Include(a => a.workAssignments).Include(a => a.workerRequests)
+                .AsNoTracking().AsQueryable();
         }
     }
     /// <summary>
