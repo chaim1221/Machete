@@ -183,7 +183,6 @@ namespace Machete.Data
                 .Include(a => a.workAssignments)
                 .ThenInclude(a => a.workerAssignedDDD)
                         .ThenInclude(a => a.Person)
-                .AsNoTracking()
                 .ToList();
         }
     }
