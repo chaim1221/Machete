@@ -17,7 +17,7 @@ namespace Machete.Web.Maps
                     + System.String.Format("{0,5:D5}-{1,2:D2}", d.workOrder.paperOrderNum, d.pseudoID)))
                 .ForMember(v => v.def, opt => opt.Ignore())
                 .ForMember(v => v.idString, opt => opt.Ignore())
-                .ForMember(v => v.isWorkerAssigned, opt => opt.Condition(d => d.workerAssignedDDD == null ? false : true))
+                .ForMember(v => v.isWorkerAssigned, opt => opt.MapFrom(d => d.workerAssignedDDD == null ? false : true))
                 .ForMember(v => v.assignedWorkerDwccardnum, 
                            opt => opt.MapFrom(d => d.workerAssignedDDD == null ? null : (int?)d.workerAssignedDDD.dwccardnum))
                 .ForMember(v => v.assignedWorkerFullname, 
@@ -38,6 +38,7 @@ namespace Machete.Web.Maps
                  .ForMember(v => v.dateTimeofWork, opt => opt.MapFrom(d => d.workOrder.dateTimeofWork))
                  .ForMember(v => v.WOstatus, opt => opt.MapFrom(d => d.workOrder.statusID))
                  .ForMember(v => v.timeZoneOffset, opt => opt.MapFrom(d => d.workOrder.timeZoneOffset))
+                 .ForMember(v => v.workerAssignedDWCCardnum, opt => opt.MapFrom(d => d.workerAssignedDDD.dwccardnum))
 
             ;
             CreateMap<Service.DTO.WorkAssignmentsList, ViewModel.WorkAssignmentsList>()
