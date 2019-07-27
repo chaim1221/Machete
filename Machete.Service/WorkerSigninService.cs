@@ -27,26 +27,25 @@ using Machete.Data;
 using Machete.Data.Infrastructure;
 using Machete.Domain;
 using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using System.Text;
+using Machete.Data.Tenancy;
+
 // ReSharper disable ReplaceWithSingleCallToCount
 
 namespace Machete.Service
 {
-    public interface IWorkerSigninService : ISigninService<Domain.WorkerSignin>
+    public interface IWorkerSigninService : ISigninService<WorkerSignin>
     {
-        Domain.WorkerSignin GetSignin(int dwccardnum, DateTime date);
-        bool moveDown(int id, string user);
-        bool moveUp(int id, string user);
+        void moveDown(int id, string user);
+        void moveUp(int id, string user);
         dataTableResult<DTO.WorkerSigninList> GetIndexView(viewOptions o);
-        Domain.WorkerSignin CreateSignin(int dwccardnum, DateTime dateforsignin, string user);
+        WorkerSignin CreateSignin(int dwccardnum, DateTime dateforsignin, string user);
     }
 
     public class WorkerSigninService : SigninServiceBase<WorkerSignin>, IWorkerSigninService
     {
-        //
+        private TimeZoneInfo ClientTimeZoneInfo { get; }
+
         public WorkerSigninService(
             IWorkerSigninRepository repo, 
             IWorkerService wServ,
@@ -54,21 +53,12 @@ namespace Machete.Service
             IWorkerRequestService wrServ,
             IUnitOfWork uow,
             IMapper map,
-            IConfigService cfg)
-            : base(repo, wServ, iServ, wrServ, uow, map, cfg)
+            IConfigService cfg,
+            ITenantService tenantService
+        ) : base(repo, wServ, iServ, wrServ, uow, map, cfg)
         {
-            this.logPrefix = "WorkerSignin";
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dwccardnum"></param>
-        /// <param name="date"></param>
-        /// <returns>WorkerSignin</returns>
-        public Domain.WorkerSignin GetSignin(int dwccardnum, DateTime date)
-        {
-            return repo.GetAllQ().FirstOrDefault(r => r.dwccardnum == dwccardnum &&
-                            r.dateforsignin.Date == date.Date);
+            logPrefix = "WorkerSignin";
+            ClientTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(tenantService.GetCurrentTenant().Timezone);
         }
 
         /// <summary>
@@ -79,15 +69,14 @@ namespace Machete.Service
         /// <param name="id">The Worker ID of the entry to be moved.</param>
         /// <param name="user">The username of the person making the request.</param>
         /// <returns>bool</returns>
-        public bool moveDown(int id, string user)
+        public void moveDown(int id, string user)
         {
             WorkerSignin wsiDown = repo.GetById(id); // 4
             DateTime date = wsiDown.dateforsignin;
 
             int nextID = (wsiDown.lottery_sequence ?? 0) + 1; // 5
 
-            if (nextID == 1)
-                return false;
+            if (nextID == 1) return;
             //this can't happen with current GUI settings (10/10/2013)
 
             var firstOrDefault = repo.GetAllQ()
@@ -102,8 +91,6 @@ namespace Machete.Service
 
             Save(wsiUp, user);
             Save(wsiDown, user);
-
-            return true;
         }
 
         /// <summary>
@@ -114,15 +101,14 @@ namespace Machete.Service
         /// <param name="id">The Worker ID of the entry to be moved.</param>
         /// <param name="user">The username of the person making the request.</param>
         /// <returns>bool</returns>
-        public bool moveUp(int id, string user)
+        public void moveUp(int id, string user)
         {
             WorkerSignin wsiUp = repo.GetById(id); // 4
             DateTime date = wsiUp.dateforsignin;
 
             int prevID = (wsiUp.lottery_sequence ?? 0) - 1; // 3
 
-            if (prevID < 1)
-                return false;
+            if (prevID < 1) return;
 
             var firstOrDefault = repo.GetAllQ()
                 .Where(up => up.lottery_sequence == prevID
@@ -138,10 +124,8 @@ namespace Machete.Service
 
             Save(wsiUp, user);
             Save(wsiDown, user);
-
-            return true;
         }
-       
+
         /// <summary>
         /// This method returns the view data for the Worker Signin class.
         /// </summary>
@@ -149,11 +133,27 @@ namespace Machete.Service
         /// <returns>dataTableResult WorkerSigninList</returns>
         public dataTableResult<DTO.WorkerSigninList> GetIndexView(viewOptions o)
         {
-            //
             var result = new dataTableResult<DTO.WorkerSigninList>();
-            IQueryable<Domain.WorkerSignin> q = repo.GetAllQ();
-            //
-            if (o.date != null) IndexViewBase.diffDays(o, ref q);                
+            IQueryable<WorkerSignin> q = repo.GetAllQ();
+
+            var unused = q.Count();
+
+            if (o.date != null)
+            {
+                var requestedDate = o.date.Value.DateBasedOn(ClientTimeZoneInfo); // 12:00:00 AM client time
+                var endOfDay = requestedDate.AddDays(1).AddMilliseconds(-1);
+                
+                var qDates = q.Select(the => new { the.ID, the.dateforsignin }).ToList();
+                
+                var qIDs = qDates.Where(the => 
+                    the.dateforsignin.DateTimeFrom(ClientTimeZoneInfo) >= requestedDate
+                 && the.dateforsignin.DateTimeFrom(ClientTimeZoneInfo) <= endOfDay)
+                    .Select(the => the.ID);
+                
+                q = q.Where(wsi => qIDs.Contains(wsi.ID));
+                var blah = q.Count();
+            }
+
             if (o.typeofwork_grouping != null) IndexViewBase.typeOfWork(o, ref q);
             IndexViewBase.waGrouping(o, ref q, wrServ);
             if (o.dwccardnum > 0) IndexViewBase.dwccardnum(o, ref q);
@@ -177,29 +177,39 @@ namespace Machete.Service
             return result;
 
         }
+
         /// <summary>
         /// This method creates a worker signin entry. Must be implemented with try/catch.
         /// </summary>
         /// <param name="signin"></param>
         /// <param name="user"></param>
-        public virtual Domain.WorkerSignin CreateSignin(int dwccardnum, DateTime dateforsignin, string user)
+        public virtual WorkerSignin CreateSignin(int dwccardnum, DateTime dateforsignin, string user)
         {
             //Search for worker with matching card number
-            Worker wfound = wServ.GetMany(d => d.dwccardnum == dwccardnum).FirstOrDefault();
-            if (wfound == null) throw new NullReferenceException("Card ID doesn't match a worker!");
+            var worker = wServ.GetAll().FirstOrDefault(d => d.dwccardnum == dwccardnum);
+            if (worker == null) throw new NullReferenceException("Card ID doesn't match a worker!");
 
-            var existingSignin = repo.GetAllQ()
-                .FirstOrDefault(t => 
-                    t.dateforsignin.Date == dateforsignin.Date && t.dwccardnum == dwccardnum);
-            if (existingSignin != null) return existingSignin;
+            var workerSignins = repo.GetAllQ();
+
+            var clientDate = dateforsignin.DateBasedOn(ClientTimeZoneInfo); // 12:00:00 AM client time
+            var endOfClientDay = clientDate.AddDays(1).AddMilliseconds(-1);
+
+            var foo = workerSignins.Select(the => new {the.ID, the.dwccardnum, the.dateforsignin});
+
+            var qID = foo.FirstOrDefault(the => 
+                the.dwccardnum == dwccardnum
+                    && the.dateforsignin.DateTimeFrom(ClientTimeZoneInfo) >= clientDate
+                    && the.dateforsignin.DateTimeFrom(ClientTimeZoneInfo) <= endOfClientDay
+            )?.ID;
+            if (qID != null) return workerSignins.FirstOrDefault(wsi => wsi.ID == qID);
 
             var signin = new WorkerSignin();
-            signin.WorkerID = wfound.ID;
+            signin.WorkerID = worker.ID;
             signin.dwccardnum = dwccardnum;
             signin.dateforsignin = dateforsignin; // the client has spoken, we have universalized, let it in!
-            signin.memberStatusID = wfound.memberStatusID;
-            signin.lottery_sequence = repo.GetAllQ().Where(p => p.dateforsignin.Date == dateforsignin.Date).Count() + 1;
-            signin.timeZoneOffset = Convert.ToDouble(cfg.getConfig(Cfg.TimeZoneDifferenceFromPacific));
+            signin.memberStatusID = worker.memberStatusID;
+            signin.lottery_sequence =
+                workerSignins.Where(p => p.dateforsignin.Date == dateforsignin.Date).Count() + 1;
             return Create(signin, user);
         }
     }

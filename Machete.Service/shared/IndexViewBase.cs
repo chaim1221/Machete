@@ -40,13 +40,16 @@ namespace Machete.Service
         private static Regex isTimeSpecific = new Regex(@"^\s*\d{1,2}[\/-_]\d{1,2}[\/-_]\d{2,4}\s+\d{1,2}:\d{1,2}");
         private static Regex isDaySpecific = new Regex(@"^\s*\d{1,2}\/\d{1,2}\/\d{2,4}");
         private static Regex isMonthSpecific = new Regex(@"^\s*\d{1,2}\/\d{4,4}");
-        #region SIGNINS
-        public static void diffDays<T>(viewOptions o, ref IQueryable<T> q) where T : Signin
-        {
-            // good intentions marinated in panic
-            q = q.Where(p => p.dateforsignin.Date == o.date.Value.Date);
-        }
         
+        
+        
+        public static DateTime DateBasedOn(this DateTime date, TimeZoneInfo clientTimeZoneInfo) =>
+            TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(date, DateTimeKind.Unspecified), clientTimeZoneInfo).Date;
+
+        public static DateTime DateTimeFrom(this DateTime date, TimeZoneInfo clientTimeZoneInfo) =>
+            TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(date, DateTimeKind.Unspecified), clientTimeZoneInfo);
+        
+        #region SIGNINS
         public static void search(viewOptions o, ref IQueryable<WorkerSignin> q)
         {
             q = q.Where(wsi => wsi.dwccardnum.ToString().Contains(o.sSearch) ||
@@ -173,7 +176,7 @@ namespace Machete.Service
                                                && p.workOrder.statusID == WorkOrder.iActive); break;
                 case "requested":
                     q = q.Where(p => p.workerAssignedID == null 
-                                  && p.workOrder.workerRequests.Any() == true 
+                                  && p.workOrder.workerRequestsDDD.Any() == true 
                                   && p.workOrder.statusID == WorkOrder.iActive);
 
                     break;
@@ -182,7 +185,7 @@ namespace Machete.Service
                                     sk => sk.ID,
                                     (wa, sk) => new { wa, sk })
                              .Where(jj => jj.sk.speciality == true 
-                                       && jj.wa.workerAssigned == null 
+                                       && jj.wa.workerAssignedDDD == null 
                                        && jj.wa.workOrder.statusID == WorkOrder.iActive)
                              .Select(jj => jj.wa);
                     break;
@@ -320,7 +323,7 @@ namespace Machete.Service
                 case "description": q = descending ? q.OrderByDescending(p => p.description) : q.OrderBy(p => p.description); break;
                 case "updatedby": q = descending ? q.OrderByDescending(p => p.updatedby) : q.OrderBy(p => p.updatedby); break;
                 case "dateupdated": q = descending ? q.OrderByDescending(p => p.dateupdated) : q.OrderBy(p => p.dateupdated); break;
-                case "assignedWorker": q = descending ? q.OrderByDescending(p => p.workerAssigned == null ? 0 : p.workerAssigned.dwccardnum) : q.OrderBy(p => p.workerAssigned == null ? 0 : p.workerAssigned.dwccardnum); break;
+                case "assignedWorker": q = descending ? q.OrderByDescending(p => p.workerAssignedDDD == null ? 0 : p.workerAssignedDDD.dwccardnum) : q.OrderBy(p => p.workerAssignedDDD == null ? 0 : p.workerAssignedDDD.dwccardnum); break;
                 default: q = descending ? q.OrderByDescending(p => p.workOrder.dateTimeofWork) : q.OrderBy(p => p.workOrder.dateTimeofWork); break;
             }
         }

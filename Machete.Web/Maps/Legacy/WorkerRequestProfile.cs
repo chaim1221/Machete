@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using static Machete.Web.Helpers.Extensions;
 
 namespace Machete.Web.Maps
 {
@@ -10,6 +9,7 @@ namespace Machete.Web.Maps
             CreateMap<Domain.WorkerRequest, ViewModel.WorkerRequest>()
                 .ForMember(vo => vo.idString, opt => opt.Ignore()) // prefix specified in views
                 .ForMember(vo => vo.workOrder, opt => opt.Ignore())
+                .ForMember(v => v.workerRequested, opt => opt.MapFrom(d => d.workerRequested))
                 .MaxDepth(3);
         }
     }
