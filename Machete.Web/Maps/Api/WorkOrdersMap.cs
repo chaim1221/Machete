@@ -10,12 +10,11 @@ namespace Machete.Web.Maps.Api
         public WorkOrdersMap()
         {
             CreateMap<Service.DTO.WorkOrdersList, ViewModel.Api.WorkOrder>()
-                .ForMember(v => v.dateTimeofWork, opt => opt.MapFrom(d => d.dateTimeofWork.UtcToClientString("o")))
+                .ForMember(v => v.dateTimeofWork, opt => opt.MapFrom(d => d.dateTimeofWork.ToString("o", CultureInfo.InvariantCulture)))
                 .ForMember(v => v.datecreated, opt => opt.MapFrom(d => d.datecreated.ToString("o", CultureInfo.InvariantCulture)))
                 .ForMember(v => v.dateupdated, opt => opt.MapFrom(d => d.dateupdated.ToString("o", CultureInfo.InvariantCulture)))
                 ;
             CreateMap<Domain.WorkOrder, ViewModel.Api.WorkOrder>()
-                //.ForMember(v => v.dateTimeofWork, opt => opt.MapFrom(d => d.dateTimeofWork.UtcToClientString("o")))
                 .ForMember(v => v.dateTimeofWork, opt => opt.MapFrom(d => d.dateTimeofWork.ToString("o", CultureInfo.InvariantCulture)))
                 .ForMember(v => v.datecreated, opt => opt.MapFrom(d => d.datecreated.ToString("o", CultureInfo.InvariantCulture)))
                 .ForMember(v => v.dateupdated, opt => opt.MapFrom(d => d.dateupdated.ToString("o", CultureInfo.InvariantCulture)))
