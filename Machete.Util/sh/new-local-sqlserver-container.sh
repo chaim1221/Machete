@@ -7,13 +7,13 @@ then
     exit 1
 fi
 
-sudo docker rm -f $MACHETE_SQL_DOCKER_CONTAINER
+docker rm -f $MACHETE_SQL_DOCKER_CONTAINER
 
 if [ $? -ne 0 ]; then
-  sudo docker rm -f sqlserver
+  docker rm -f sqlserver
 fi
 
-sudo docker pull mcr.microsoft.com/mssql/server
+docker pull mcr.microsoft.com/mssql/server
 #sudo docker pull postgres
 
 if [[ $(cat /etc/hosts | grep sqlserver | wc -l) -eq 0 ]]; then
@@ -23,7 +23,7 @@ fi
 
 # this used to output the alread-running container name, it now does not :p so you'll have to delete manually if MACHETE_SQL_DOCKER_CONTAINER is not set.
 # to make your life easier, just copy-paste the value it gives you between quotes and `export MACHETE_SQL_DOCKER_CONTAINER={that}`
-export MACHETE_SQL_DOCKER_CONTAINER=$(sudo docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=passw0rD!' --network machete-bridge -p 1433:1433 --name sqlserver -d mcr.microsoft.com/mssql/server)
+export MACHETE_SQL_DOCKER_CONTAINER=$(docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=passw0rD!' --network bridge -p 1433:1433 --name sqlserver -d mcr.microsoft.com/mssql/server)
 #export MACHETE_SQL_DOCKER_CONTAINER=$(sudo docker run -e 'POSTGRES_PASSWORD=passw0rD!' --network machete-bridge -p 5432:5432 --name postgresql -d postgres)
 echo $MACHETE_SQL_DOCKER_CONTAINER
 
